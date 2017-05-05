@@ -1,0 +1,12 @@
+target
+project
+*.class
+
+*.iml
+*.ipr
+*.iws
+.idea
+out
+*~
+
+jpaxosLogs
