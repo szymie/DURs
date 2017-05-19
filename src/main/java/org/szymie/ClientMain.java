@@ -2,8 +2,9 @@ package org.szymie;
 
 
 import lsr.common.Configuration;
-import lsr.paxos.ReplicationException;
 import lsr.paxos.client.Client;
+import lsr.paxos.client.ReplicationException;
+import org.apache.commons.lang.SerializationUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -27,7 +28,10 @@ public class ClientMain {
 
         byte[] response = client.execute(requestBytes);
 
-        DataInputStream in = new DataInputStream(new ByteArrayInputStream(response));
-        System.out.println(id + ": " + in.readLong());
+        Long responseNumber = (Long) SerializationUtils.deserialize(response);
+
+        //DataInputStream in = new DataInputStream(new ByteArrayInputStream(response));
+        //System.out.println(id + ": " + in.readLong());
+        System.out.println(id + ": " + responseNumber);
     }
 }

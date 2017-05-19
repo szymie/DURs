@@ -2,6 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.szymie</groupId>
@@ -15,12 +16,26 @@
             <version>2.6</version>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>lsr</groupId>
             <artifactId>lsr</artifactId>
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/resources/jpaxos-1.0.jar</systemPath>
+        </dependency>-->
+
+        <dependency>
+            <groupId>lsr</groupId>
+            <artifactId>lsr</artifactId>
+            <version>1.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/jpaxos.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.12</artifactId>
+            <version>2.5.1</version>
         </dependency>
     </dependencies>
 
@@ -50,12 +65,19 @@
                     <mainClass>org.szymie.ReplicaMain</mainClass>
                 </configuration>
                 <dependencies>
-                    <dependency>
+                    <!--<dependency>
                         <groupId>lsr</groupId>
                         <artifactId>lsr</artifactId>
                         <version>1.0</version>
                         <scope>system</scope>
                         <systemPath>${project.basedir}/src/main/resources/jpaxos-1.0.jar</systemPath>
+                    </dependency>-->
+                    <dependency>
+                        <groupId>lsr</groupId>
+                        <artifactId>lsr</artifactId>
+                        <version>1.1</version>
+                        <scope>system</scope>
+                        <systemPath>${project.basedir}/src/main/resources/jpaxos.jar</systemPath>
                     </dependency>
                 </dependencies>
             </plugin>
