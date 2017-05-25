@@ -1,11 +1,9 @@
-package org.szymie;
+package org.szymie.paxos;
 
 import lsr.service.SimplifiedService;
 import org.apache.commons.lang.SerializationUtils;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SimplifiedTotalOrderService extends SimplifiedService {
 

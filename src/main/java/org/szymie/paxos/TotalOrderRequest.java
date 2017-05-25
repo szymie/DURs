@@ -1,4 +1,4 @@
-package org.szymie;
+package org.szymie.paxos;
 
 import java.io.*;
 

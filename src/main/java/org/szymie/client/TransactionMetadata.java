@@ -18,6 +18,6 @@ public class TransactionMetadata {
     public void clear() {
         readValues.clear();
         writtenValues.clear();
-        timestamp = Long.MIN_VALUE;
+        timestamp = Long.MAX_VALUE;
     }
 }

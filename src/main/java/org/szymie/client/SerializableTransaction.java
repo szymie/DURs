@@ -1,17 +1,19 @@
 package org.szymie.client;
 
+import akka.actor.ActorSystem;
+import lsr.paxos.client.Client;
+
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 
 public class SerializableTransaction implements Transaction {
 
-    private ValuesGateway valuesGateway;
+    private ValueGateway valueGateway;
     private TransactionStatus status;
+    private Client client;
 
-    public SerializableTransaction() {
-        valuesGateway = new ValuesGateway();
+    public SerializableTransaction(ActorSystem actorSystem) {
+        this.valueGateway = new ValueGateway(actorSystem);
         status = new TransactionStatus();
     }
 
@@ -19,7 +21,7 @@ public class SerializableTransaction implements Transaction {
     public void begin() {
         checkStatus("", TransactionStates.NOT_STARTED, TransactionStates.COMMITTED, TransactionStates.ABORTED);
         status.set(TransactionStates.PROCESSING);
-        valuesGateway.clear();
+        valueGateway.clear();
     }
 
     public void checkStatus(String exceptionMessage, TransactionStates... statuses) throws WrongTransactionStatus {
@@ -36,17 +38,17 @@ public class SerializableTransaction implements Transaction {
 
         checkStatus("", TransactionStates.PROCESSING);
 
-        if(!valuesGateway.isSessionOpen()) {
-            valuesGateway.openSession();
+        if(!valueGateway.isSessionOpen()) {
+            valueGateway.openSession();
         }
 
-        return valuesGateway.read(key);
+        return valueGateway.read(key);
     }
 
     @Override
     public void write(String key, String value) {
         checkStatus("", TransactionStates.PROCESSING);
-        valuesGateway.write(key, value);
+        valueGateway.write(key, value);
     }
 
     @Override
@@ -56,8 +58,8 @@ public class SerializableTransaction implements Transaction {
 
         status.set(TransactionStates.TERMINATION);
 
-        //termination
-        boolean committed = true;
+        client.connect();
+        client.execute();
 
         if(committed) {
             status.set(TransactionStates.COMMITTED);
@@ -65,7 +67,7 @@ public class SerializableTransaction implements Transaction {
             status.set(TransactionStates.ABORTED);
         }
 
-        valuesGateway.closeSession();
+        valueGateway.closeSession();
 
         return committed;
     }
