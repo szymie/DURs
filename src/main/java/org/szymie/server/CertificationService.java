@@ -25,10 +25,12 @@ public class CertificationService extends SerializableService {
     @Override
     protected Object execute(Object o) {
 
+        System.out.println("in execute");
+
         CertificationRequest request = (CertificationRequest) o;
 
-        for(String key : request.readValues) {
-            Optional<Value> valueOptional = resourceRepository.get(key, Integer.MAX_VALUE);
+        for(Map.Entry<String, String> keyValue : request.readValues.entrySet()) {
+            Optional<Value> valueOptional = resourceRepository.get(keyValue.getKey(), Integer.MAX_VALUE);
             if(valueOptional.isPresent()) {
                 Value value = valueOptional.get();
                 if(value.timestamp > request.timestamp) {

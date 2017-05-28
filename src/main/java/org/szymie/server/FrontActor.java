@@ -10,6 +10,9 @@ import akka.routing.Routee;
 import akka.routing.Router;
 import org.szymie.Configuration;
 import org.szymie.client.TransactionMetadata;
+import org.szymie.messages.Ping;
+import org.szymie.messages.Pong;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,6 +48,8 @@ public class FrontActor extends AbstractActor {
                     ActorRef r = getContext().actorOf(Props.create(Worker.class, resourceRepository));
                     getContext().watch(r);
                     router = router.addRoutee(new ActorRefRoutee(r));
-                }).build();
+                })
+                .match(Ping.class, message -> sender().tell(new Pong(), self()))
+                .build();
     }
 }

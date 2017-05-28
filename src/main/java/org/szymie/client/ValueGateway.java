@@ -109,4 +109,8 @@ public class ValueGateway {
     public void clear() {
         transactionMetadata.clear();
     }
+
+    public TransactionMetadata getTransactionMetadata() {
+        return transactionMetadata;
+    }
 }

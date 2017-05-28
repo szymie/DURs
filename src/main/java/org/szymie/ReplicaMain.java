@@ -3,6 +3,8 @@ package org.szymie;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import lsr.paxos.replica.Replica;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,22 +12,25 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
 import org.szymie.server.CertificationService;
 import org.szymie.server.FrontActor;
 import org.szymie.server.ResourceRepository;
+
+import java.util.Properties;
+
 @SpringBootApplication
 public class ReplicaMain implements CommandLineRunner {
 
     @Value("${id}")
     private int id;
 
-    private CertificationService certificationService;
+    @Value("${address}")
+    private String address;
 
-    @Autowired
-    public ReplicaMain(CertificationService certificationService) {
-        this.certificationService = certificationService;
-    }
+    @Value("${port}")
+    private int port;
+
+    private CertificationService certificationService;
 
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(ReplicaMain.class);
@@ -40,7 +45,15 @@ public class ReplicaMain implements CommandLineRunner {
 
     @Bean
     public ActorSystem actorSystem() {
-        return ActorSystem.create(String.format("replica-%d", id));
+
+        Properties properties = new Properties();
+        properties.setProperty("akka.remote.netty.tcp.hostname", address);
+        properties.setProperty("akka.remote.netty.tcp.port", String.valueOf(port));
+
+        Config overrides = ConfigFactory.parseProperties(properties);
+        Config config = overrides.withFallback(ConfigFactory.load());
+
+        return ActorSystem.create(String.format("replica-%d", id), config);
     }
 
     @Bean
@@ -53,8 +66,14 @@ public class ReplicaMain implements CommandLineRunner {
         return actorSystem.actorOf(Props.create(FrontActor.class, resourceRepository));
     }
 
+    /*
     @Bean
     public CertificationService certificationService(ResourceRepository resourceRepository) {
         return new CertificationService(resourceRepository);
+    }*/
+
+    @Autowired
+    public void setCertificationService(CertificationService certificationService) {
+        this.certificationService = certificationService;
     }
 }

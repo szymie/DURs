@@ -2,7 +2,12 @@ package org.szymie.client;
 
 import akka.actor.ActorSystem;
 import lsr.paxos.client.Client;
+import lsr.paxos.client.ReplicationException;
+import lsr.paxos.client.SerializableClient;
+import org.szymie.messages.CertificationRequest;
+import org.szymie.messages.CertificationResponse;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -10,11 +15,18 @@ public class SerializableTransaction implements Transaction {
 
     private ValueGateway valueGateway;
     private TransactionStatus status;
-    private Client client;
+    private SerializableClient client;
 
     public SerializableTransaction(ActorSystem actorSystem) {
+
         this.valueGateway = new ValueGateway(actorSystem);
         status = new TransactionStatus();
+
+        try {
+            client = new SerializableClient(new lsr.common.Configuration("src/main/resources/paxos.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -58,18 +70,32 @@ public class SerializableTransaction implements Transaction {
 
         status.set(TransactionStates.TERMINATION);
 
+        TransactionMetadata transactionMetadata = valueGateway.getTransactionMetadata();
+
         client.connect();
-        client.execute();
 
-        if(committed) {
-            status.set(TransactionStates.COMMITTED);
-        } else {
-            status.set(TransactionStates.ABORTED);
+        CertificationRequest request = new CertificationRequest(transactionMetadata.readValues, transactionMetadata.writtenValues, transactionMetadata.timestamp);
+
+        try {
+
+            System.out.println("Before execute");
+
+            CertificationResponse response = (CertificationResponse) client.execute(request);
+
+            System.out.println("After execute");
+
+            if(response.success) {
+                status.set(TransactionStates.COMMITTED);
+            } else {
+                status.set(TransactionStates.ABORTED);
+            }
+
+            valueGateway.closeSession();
+
+            return response.success;
+        } catch (IOException | ClassNotFoundException | ReplicationException e) {
+            throw new RuntimeException(e);
         }
-
-        valueGateway.closeSession();
-
-        return committed;
     }
 
     public TransactionStates getStatus() {
