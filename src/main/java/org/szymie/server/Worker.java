@@ -5,13 +5,16 @@ import org.szymie.messages.ReadRequest;
 import org.szymie.messages.ReadResponse;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Worker extends AbstractActor {
 
     private ResourceRepository valuesRepository;
+    private AtomicLong timestamp;
 
-    public Worker(ResourceRepository valuesRepository) {
+    public Worker(ResourceRepository valuesRepository, AtomicLong timestamp) {
         this.valuesRepository = valuesRepository;
+        this.timestamp = timestamp;
     }
 
     @Override
@@ -19,9 +22,17 @@ public class Worker extends AbstractActor {
         return receiveBuilder()
                 .match(ReadRequest.class, readRequest -> {
 
-                    Optional<Value> valueOptional = valuesRepository.get(readRequest.key, readRequest.timestamp);
-                    ReadResponse response = valueOptional.map(value -> new ReadResponse(value.value, value.timestamp, false))
-                            .orElse(new ReadResponse(null, Integer.MAX_VALUE, true));
+                    long transactionTimestamp;
+
+                    if(readRequest.timestamp == Long.MAX_VALUE) {
+                        transactionTimestamp = timestamp.get();
+                    } else {
+                        transactionTimestamp = readRequest.timestamp;
+                    }
+
+                    Optional<ValueWithTimestamp> valueOptional = valuesRepository.get(readRequest.key, transactionTimestamp);
+                    ReadResponse response = valueOptional.map(valueWithTimestamp -> new ReadResponse(valueWithTimestamp.value, transactionTimestamp))
+                            .orElse(new ReadResponse(null, transactionTimestamp));
 
                     sender().tell(response, self());
                 })

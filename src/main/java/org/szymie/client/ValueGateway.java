@@ -5,10 +5,10 @@ import akka.actor.ActorSystem;
 import akka.pattern.Patterns;
 import org.szymie.Configuration;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import org.szymie.ValueWrapper;
 import org.szymie.messages.ReadRequest;
 import org.szymie.messages.ReadResponse;
 import scala.concurrent.Future;
@@ -41,19 +41,25 @@ public class ValueGateway {
     }
 
     public void openSession() {
-        String replicaEndpoint = getReplicaEndpoint();
-        replicaActor = actorSystem.actorSelection("akka.tcp://replicaSystem@" + replicaEndpoint + "/user/front");
+
+        Map.Entry<Integer, String> replicaEndpoint = getReplicaEndpoint();
+
+        System.err.println(replicaEndpoint.getKey() + " " + replicaEndpoint.getValue());
+
+        replicaActor = actorSystem.actorSelection("akka.tcp://replica-" + String.valueOf(replicaEndpoint.getKey()) + "@" + replicaEndpoint.getValue() + "/user/front");
         //TODO: send first message to ensure the connection is established
         sessionOpen = true;
     }
 
-    public String getReplicaEndpoint() {
+    public Map.Entry<Integer, String> getReplicaEndpoint() {
         List<String> replicas = configuration.getAsList("replicas");
         return getRandomElement(replicas);
     }
 
-    public String getRandomElement(List<String> list) {
-        return list.get(random.nextInt(list.size()));
+    public Map.Entry<Integer, String> getRandomElement(List<String> list) {
+        int replicaId = random.nextInt(list.size());
+        return new AbstractMap.SimpleEntry<>(replicaId, list.get(replicaId));
+
     }
 
     public void closeSession() {
@@ -66,44 +72,70 @@ public class ValueGateway {
 
     public String read(String key) {
 
-        String value = transactionMetadata.writtenValues.get(key);
-
-        if(value == null) {
-            value = transactionMetadata.readValues.get(key);
+        if(key == null) {
+            throw new RuntimeException("null key cannot be read");
         }
 
-        if(value == null) {
+        ValueWrapper<String> valueWrapper = transactionMetadata.writtenValues.get(key);
 
-            ReadRequest readRequest = new ReadRequest(key, transactionMetadata.timestamp);
-            Timeout timeout = new Timeout(Duration.create(readTimeout, TimeUnit.SECONDS));
+        if(valueWrapper == null) {
 
-            ReadResponse readResponse = null;
+            valueWrapper = transactionMetadata.readValues.get(key);
 
-            while(readResponse == null) {
+            if(valueWrapper == null) {
 
-                Future<Object> future = Patterns.ask(replicaActor, readRequest, timeout);
+                ReadRequest readRequest = new ReadRequest(key, transactionMetadata.timestamp);
+                Timeout timeout = new Timeout(Duration.create(readTimeout, TimeUnit.SECONDS));
 
-                try {
-                    readResponse = (ReadResponse) Await.result(future, timeout.duration());
-                } catch (Exception ignore) {
-                    openSession();
+                ReadResponse readResponse = null;
+
+                while(readResponse == null) {
+
+                    Future<Object> future = Patterns.ask(replicaActor, readRequest, timeout);
+
+                    try {
+                        readResponse = (ReadResponse) Await.result(future, timeout.duration());
+                    } catch (Exception ignore) {
+                        openSession();
+                    }
                 }
-            }
 
-            if(transactionMetadata.timestamp == Long.MAX_VALUE) {
-                transactionMetadata.timestamp = readResponse.timestamp;
-            }
+                if(transactionMetadata.timestamp == Long.MAX_VALUE) {
 
-            value = readResponse.value;
+                    System.err.println("timestamp:" + readResponse.timestamp);
+
+                    transactionMetadata.timestamp = readResponse.timestamp;
+                }
+
+                valueWrapper = new ValueWrapper<>(readResponse.value);
+            }
         }
 
-        transactionMetadata.readValues.put(key, value);
+        transactionMetadata.readValues.put(key, valueWrapper);
 
-        return value;
+        return valueWrapper.value;
     }
 
     public void write(String key, String value) {
-        transactionMetadata.writtenValues.put(key, value);
+
+        if(key == null) {
+            throw new RuntimeException("null key cannot be written");
+        }
+
+        if(value == null) {
+            throw new RuntimeException("null value cannot be written");
+        }
+
+        transactionMetadata.writtenValues.put(key, new ValueWrapper<>(value));
+    }
+
+    public void remove(String key) {
+
+        if(key == null) {
+            throw new RuntimeException("null key cannot be written");
+        }
+
+        transactionMetadata.writtenValues.put(key, new ValueWrapper<>(null));
     }
 
     public void clear() {

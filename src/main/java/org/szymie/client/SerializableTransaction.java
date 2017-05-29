@@ -64,6 +64,12 @@ public class SerializableTransaction implements Transaction {
     }
 
     @Override
+    public void remove(String key) {
+        checkStatus("", TransactionStates.PROCESSING);
+        valueGateway.remove(key);
+    }
+
+    @Override
     public boolean commit() {
 
         checkStatus("", TransactionStates.PROCESSING);
@@ -78,11 +84,7 @@ public class SerializableTransaction implements Transaction {
 
         try {
 
-            System.out.println("Before execute");
-
             CertificationResponse response = (CertificationResponse) client.execute(request);
-
-            System.out.println("After execute");
 
             if(response.success) {
                 status.set(TransactionStates.COMMITTED);

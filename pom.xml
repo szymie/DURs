@@ -34,10 +34,8 @@
 
         <dependency>
             <groupId>lsr</groupId>
-            <artifactId>lsr</artifactId>
+            <artifactId>jpaxos</artifactId>
             <version>1.1</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/src/main/resources/jpaxos.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -64,33 +62,7 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <includePluginDependencies>true</includePluginDependencies>
-                    <mainClass>org.szymie.paxos.ReplicaMain</mainClass>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>lsr</groupId>
-                        <artifactId>lsr</artifactId>
-                        <version>1.1</version>
-                        <scope>system</scope>
-                        <systemPath>${basedir}/src/main/resources/jpaxos.jar</systemPath>
-                    </dependency>
-                </dependencies>
-            </plugin>
-
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
@@ -100,8 +72,24 @@
                         </manifest>
                     </archive>
                 </configuration>
-            </plugin>
+            </plugin>-->
 
+            <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <executions>
+                    <execution>
+                        <id>cleaning</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${basedir}/cleaner.sh</executable>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -116,6 +104,7 @@
             <url>file://${basedir}/local-dependencies-repository</url>
         </repository>
     </repositories>
+    <!-- mvn install:install-file -Dfile=jpaxos.jar -DgroupId=lsr -DartifactId=jpaxos -Dversion=1.1 -Dpackaging=jar -DlocalRepositoryPath=. -->
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>

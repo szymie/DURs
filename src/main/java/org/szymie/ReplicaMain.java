@@ -15,8 +15,10 @@ import org.springframework.context.annotation.Bean;
 import org.szymie.server.CertificationService;
 import org.szymie.server.FrontActor;
 import org.szymie.server.ResourceRepository;
+import org.szymie.server.Worker;
 
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 
 @SpringBootApplication
 public class ReplicaMain implements CommandLineRunner {
@@ -62,15 +64,15 @@ public class ReplicaMain implements CommandLineRunner {
     }
 
     @Bean
-    public ActorRef frontActor(ActorSystem actorSystem, ResourceRepository resourceRepository) {
-        return actorSystem.actorOf(Props.create(FrontActor.class, resourceRepository));
+    public ActorRef frontActor(ActorSystem actorSystem, ResourceRepository resourceRepository, AtomicLong timestamp) {
+        ActorRef actorRef = actorSystem.actorOf(Props.create(FrontActor.class, resourceRepository, timestamp), "front");
+        return actorRef;
     }
 
-    /*
     @Bean
-    public CertificationService certificationService(ResourceRepository resourceRepository) {
-        return new CertificationService(resourceRepository);
-    }*/
+    public AtomicLong timestamp() {
+        return new AtomicLong(0);
+    }
 
     @Autowired
     public void setCertificationService(CertificationService certificationService) {

@@ -3,57 +3,79 @@ package org.szymie.server;
 import lsr.service.SerializableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.szymie.ValueWrapper;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
+
+import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class CertificationService extends SerializableService {
 
-    private final ResourceRepository resourceRepository;
-    private long timestamp;
+    private ResourceRepository resourceRepository;
+    private AtomicLong timestamp;
 
     @Autowired
-    public CertificationService(ResourceRepository resourceRepository) {
+    public CertificationService(ResourceRepository resourceRepository, AtomicLong timestamp) {
         this.resourceRepository = resourceRepository;
-        timestamp = 0;
+        this.timestamp = timestamp;
     }
 
     @Override
     protected Object execute(Object o) {
 
-        System.out.println("in execute");
-
         CertificationRequest request = (CertificationRequest) o;
 
-        for(Map.Entry<String, String> keyValue : request.readValues.entrySet()) {
-            Optional<Value> valueOptional = resourceRepository.get(keyValue.getKey(), Integer.MAX_VALUE);
+        System.out.println("timestamp:" + request.timestamp);
+
+        System.out.println("writtenValues");
+        request.writtenValues.forEach((s, s2) -> System.out.println(s + " " + s2));
+
+        System.out.println("readValues");
+
+        request.readValues.forEach((s, s2) -> System.out.println(s + " " + s2));
+
+        for(Map.Entry<String, ValueWrapper<String>> readValue : request.readValues.entrySet()) {
+
+            Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(readValue.getKey(), Integer.MAX_VALUE);
+
             if(valueOptional.isPresent()) {
-                Value value = valueOptional.get();
+                ValueWithTimestamp value = valueOptional.get();
                 if(value.timestamp > request.timestamp) {
                     return new CertificationResponse(false);
                 }
             }
         }
 
-        timestamp++;
-        request.writtenValues.forEach((key, value) -> resourceRepository.put(key, value, timestamp));
+        long time = timestamp.incrementAndGet();
+        request.writtenValues.forEach((key, value) -> {
+
+            if(value.isEmpty()) {
+                resourceRepository.remove(key, time);
+            } else {
+                resourceRepository.put(key, value.value, time);
+            }
+        });
 
         return new CertificationResponse(true);
     }
 
     @Override
     protected void updateToSnapshot(Object o) {
-        Map<String, Value> snapshot = (Map<String, Value>) o;
-        snapshot.forEach((key, value) -> resourceRepository.put(key, value.value, value.timestamp));
+        Map.Entry<Long, Map<String, ValueWithTimestamp>> snapshot = (Map.Entry<Long, Map<String, ValueWithTimestamp>>) o;
+        snapshot.getValue().forEach((key, valueWithTimestamp) -> resourceRepository.put(key, valueWithTimestamp.value, valueWithTimestamp.timestamp));
+        timestamp.set(snapshot.getKey());
     }
 
     @Override
     protected Object makeObjectSnapshot() {
-         return resourceRepository.getKeys().stream()
-                 .collect(Collectors.toMap(Function.identity(), key -> resourceRepository.get(key, Integer.MAX_VALUE)));
+        Map<String, ValueWithTimestamp> state = resourceRepository.getKeys().stream()
+                .collect(Collectors.toMap(Function.identity(), key -> resourceRepository.get(key, Integer.MAX_VALUE).get()));
+        return new AbstractMap.SimpleEntry<>(timestamp.longValue(), state);
     }
 }

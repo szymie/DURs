@@ -1,12 +1,13 @@
 package org.szymie.client;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.szymie.ValueWrapper;
+
+import java.util.*;
 
 public class TransactionMetadata {
 
-    public Map<String, String> readValues;
-    public Map<String, String> writtenValues;
+    public Map<String, ValueWrapper<String>> readValues;
+    public Map<String, ValueWrapper<String>> writtenValues;
     public long timestamp;
 
     public TransactionMetadata() {
