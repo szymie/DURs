@@ -1,6 +1,8 @@
 package org.szymie;
 
-public class ValueWrapper<T> {
+import java.io.Serializable;
+
+public class ValueWrapper<T> implements Serializable {
 
     public T value;
 
