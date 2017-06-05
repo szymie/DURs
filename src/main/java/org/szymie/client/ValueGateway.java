@@ -101,9 +101,6 @@ public class ValueGateway {
                 }
 
                 if(transactionMetadata.timestamp == Long.MAX_VALUE) {
-
-                    System.err.println("timestamp:" + readResponse.timestamp);
-
                     transactionMetadata.timestamp = readResponse.timestamp;
                 }
 

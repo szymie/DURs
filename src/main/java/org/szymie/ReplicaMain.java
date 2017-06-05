@@ -65,8 +65,7 @@ public class ReplicaMain implements CommandLineRunner {
 
     @Bean
     public ActorRef frontActor(ActorSystem actorSystem, ResourceRepository resourceRepository, AtomicLong timestamp) {
-        ActorRef actorRef = actorSystem.actorOf(Props.create(FrontActor.class, resourceRepository, timestamp), "front");
-        return actorRef;
+        return actorSystem.actorOf(Props.create(FrontActor.class, resourceRepository, timestamp), "front");
     }
 
     @Bean

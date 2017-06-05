@@ -45,14 +45,18 @@ public class ClientMain {
 
                         Map<String, Integer> operations = new HashMap<>();
 
-                        for(int i = 0; i < numberOfReads; i++) {
+                        for(int i = 0; i < numberOfReads;) {
                             String key = keys.get(randomKeys.nextInt(keysSize));
-                            operations.put(key, Operations.READ);
+                            if(operations.put(key, Operations.READ) == null) {
+                                i++;
+                            }
                         }
 
-                        for(int i = 0; i < numberOfWrites; i++) {
+                        for(int i = 0; i < numberOfWrites;) {
                             String key = keys.get(randomKeys.nextInt(keysSize));
-                            operations.put(key, operations.getOrDefault(key, 0) | Operations.WRITE);
+                            if(operations.put(key, operations.getOrDefault(key, 0) | Operations.WRITE) == null) {
+                                i++;
+                            }
                         }
 
                         return operations;
@@ -60,29 +64,32 @@ public class ClientMain {
 
                     new Thread(() -> {
 
-                        SerializableTransaction transaction = new SerializableTransaction(actorSystem);
+                        while(true) {
 
-                        boolean commit;
+                            SerializableTransaction transaction = new SerializableTransaction(actorSystem);
 
-                        do {
-                            transaction.begin();
+                            boolean commit;
 
-                            operations.forEach((key, operation) -> {
+                            do {
+                                transaction.begin();
 
-                               if((operation & Operations.READ) != 0) {
-                                   transaction.read(key);
-                               }
+                                operations.forEach((key, operation) -> {
 
-                               if((operation & Operations.WRITE) != 0) {
-                                   transaction.write(key, String.valueOf(randomValues.nextInt()));
-                               }
-                            });
+                                   if((operation & Operations.READ) != 0) {
+                                       transaction.read(key);
+                                   }
 
-                            commit = transaction.commit();
+                                   if((operation & Operations.WRITE) != 0) {
+                                       transaction.write(key, String.valueOf(randomValues.nextInt()));
+                                   }
+                                });
 
-                            System.err.println("commit: " + commit);
+                                commit = transaction.commit();
 
-                        } while(!commit);
+                                System.err.println("commit: " + commit);
+
+                            } while(!commit);
+                        }
                     })
                 ).collect(Collectors.toList());
 

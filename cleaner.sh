@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -r jpaxosLogs
+rm -rf jpaxosLogs

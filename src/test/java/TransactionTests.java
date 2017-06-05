@@ -1,14 +1,18 @@
 
 import akka.actor.ActorSystem;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.szymie.client.SerializableTransaction;
 import static org.junit.Assert.*;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes=Context.class)
 public class TransactionTests {
 
+    @Autowired
     private ActorSystem actorSystem;
 
     @Test
@@ -85,8 +89,6 @@ public class TransactionTests {
 
     @Test
     public void test1() {
-
-        ActorSystem actorSystem = ActorSystem.create();
 
         Thread t0 = new Thread(() -> {
 
