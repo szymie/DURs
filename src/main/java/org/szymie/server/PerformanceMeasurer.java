@@ -1,11 +1,6 @@
 package org.szymie.server;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Stream;
 
 public class PerformanceMeasurer {
 

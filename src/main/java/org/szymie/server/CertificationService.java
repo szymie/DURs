@@ -1,27 +1,38 @@
 package org.szymie.server;
 
 import lsr.service.SerializableService;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.szymie.ValueWrapper;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-public class CertificationService extends SerializableService {
+public class CertificationService extends SerializableService implements DisposableBean {
+
+    @Value("${id}")
+    private int id;
 
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
@@ -30,6 +41,7 @@ public class CertificationService extends SerializableService {
     private Thread throughputCounterThread;
 
     private PerformanceMeasurer performanceMeasurer;
+    private List<Double> performanceResults;
 
     @Autowired
     public CertificationService(ResourceRepository resourceRepository, AtomicLong timestamp) {
@@ -37,6 +49,7 @@ public class CertificationService extends SerializableService {
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
         throughputCounter = new AtomicInteger(0);
+        performanceResults = new LinkedList<>();
 
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         decimalFormat.setRoundingMode(RoundingMode.CEILING);
@@ -47,14 +60,17 @@ public class CertificationService extends SerializableService {
 
             while(!Thread.currentThread().isInterrupted()) {
 
-                int throughput = throughputCounter.getAndSet(0);
+                int currentThroughput = throughputCounter.getAndSet(0);
 
-                performanceMeasurer.addMeasurePoint(throughput);
+                performanceMeasurer.addMeasurePoint(currentThroughput);
 
-                System.err.println(decimalFormat.format(performanceMeasurer.getThroughput()));
+                double averageThroughput = performanceMeasurer.getThroughput();
+
+                System.err.println(decimalFormat.format(averageThroughput));
+                performanceResults.add(averageThroughput);
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(1));
                 } catch (InterruptedException ignore) { }
             }
         });
@@ -63,9 +79,25 @@ public class CertificationService extends SerializableService {
     }
 
     @Override
-    protected Object execute(Object o) {
+    protected CertificationResponse execute(Object o) {
 
         CertificationRequest request = (CertificationRequest) o;
+
+        boolean certificationSuccessful = certify(request);
+
+        if(certificationSuccessful) {
+
+            applyChanges(request);
+
+            throughputCounter.incrementAndGet();
+
+            return new CertificationResponse(true);
+        } else {
+            return new CertificationResponse(false);
+        }
+    }
+
+    private boolean certify(CertificationRequest request) {
 
         for(Map.Entry<String, ValueWrapper<String>> readValue : request.readValues.entrySet()) {
 
@@ -74,10 +106,15 @@ public class CertificationService extends SerializableService {
             if(valueOptional.isPresent()) {
                 ValueWithTimestamp value = valueOptional.get();
                 if(value.timestamp > request.timestamp) {
-                    return new CertificationResponse(false);
+                    return false;
                 }
             }
         }
+
+        return true;
+    }
+
+    private void applyChanges(CertificationRequest request) {
 
         long time = timestamp.incrementAndGet();
         request.writtenValues.forEach((key, value) -> {
@@ -88,10 +125,6 @@ public class CertificationService extends SerializableService {
                 resourceRepository.put(key, value.value, time);
             }
         });
-
-        throughputCounter.incrementAndGet();
-
-        return new CertificationResponse(true);
     }
 
     @Override
@@ -108,11 +141,18 @@ public class CertificationService extends SerializableService {
         return new AbstractMap.SimpleEntry<>(timestamp.longValue(), state);
     }
 
-
-
     @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
+    public void destroy() throws Exception {
+
         throughputCounterThread.interrupt();
+
+        Calendar currentTime = Calendar.getInstance();
+        currentTime.setTime(Date.from(Instant.now()));
+
+        String now = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S").format(LocalDateTime.now());
+
+        try(PrintWriter out = new PrintWriter(String.format("results-%s-%d", now, id))) {
+            performanceResults.forEach(out::println);
+        }
     }
 }

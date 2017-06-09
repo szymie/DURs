@@ -9,10 +9,7 @@ import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
 import org.szymie.Configuration;
-import org.szymie.client.TransactionMetadata;
 import org.szymie.messages.CertificationRequest;
-import org.szymie.messages.Ping;
-import org.szymie.messages.Pong;
 import org.szymie.messages.ReadRequest;
 
 import java.util.List;
@@ -55,7 +52,6 @@ public class FrontActor extends AbstractActor {
                     getContext().watch(r);
                     router = router.addRoutee(new ActorRefRoutee(r));
                 })
-                .match(Ping.class, message -> sender().tell(new Pong(), self()))
                 .build();
     }
 }

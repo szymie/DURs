@@ -1,6 +1,6 @@
 package org.szymie.client;
 
-public enum TransactionStates {
+public enum TransactionState {
     NOT_STARTED,
     PROCESSING,
     TERMINATION,

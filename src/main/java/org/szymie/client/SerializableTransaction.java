@@ -1,7 +1,6 @@
 package org.szymie.client;
 
 import akka.actor.ActorSystem;
-import lsr.paxos.client.Client;
 import lsr.paxos.client.ReplicationException;
 import lsr.paxos.client.SerializableClient;
 import org.szymie.messages.CertificationRequest;
@@ -13,14 +12,14 @@ import java.util.HashSet;
 
 public class SerializableTransaction implements Transaction {
 
-    private ValueGateway valueGateway;
-    private TransactionStatus status;
+    private AkkaValueGateway valueGateway;
+    private TransactionState state;
     private SerializableClient client;
 
     public SerializableTransaction(ActorSystem actorSystem) {
 
-        this.valueGateway = new ValueGateway(actorSystem);
-        status = new TransactionStatus();
+        this.valueGateway = new AkkaValueGateway(actorSystem);
+        state = TransactionState.NOT_STARTED;
 
         try {
             client = new SerializableClient(new lsr.common.Configuration("src/main/resources/paxos.properties"));
@@ -31,16 +30,16 @@ public class SerializableTransaction implements Transaction {
 
     @Override
     public void begin() {
-        checkStatus("", TransactionStates.NOT_STARTED, TransactionStates.COMMITTED, TransactionStates.ABORTED);
-        status.set(TransactionStates.PROCESSING);
+        checkStatus("", TransactionState.NOT_STARTED, TransactionState.COMMITTED, TransactionState.ABORTED);
+        state = TransactionState.PROCESSING;
         valueGateway.clear();
     }
 
-    public void checkStatus(String exceptionMessage, TransactionStates... statuses) throws WrongTransactionStatus {
+    private void checkStatus(String exceptionMessage, TransactionState... statuses) throws WrongTransactionStatus {
 
-        HashSet<TransactionStates> statusesSet = new HashSet<>(Arrays.asList(statuses));
+        HashSet<TransactionState> statusesSet = new HashSet<>(Arrays.asList(statuses));
 
-        if(!statusesSet.contains(status.get())) {
+        if(!statusesSet.contains(state)) {
             throw new WrongTransactionStatus(exceptionMessage);
         }
     }
@@ -48,7 +47,7 @@ public class SerializableTransaction implements Transaction {
     @Override
     public String read(String key) {
 
-        checkStatus("", TransactionStates.PROCESSING);
+        checkStatus("", TransactionState.PROCESSING);
 
         if(!valueGateway.isSessionOpen()) {
             valueGateway.openSession();
@@ -59,22 +58,22 @@ public class SerializableTransaction implements Transaction {
 
     @Override
     public void write(String key, String value) {
-        checkStatus("", TransactionStates.PROCESSING);
+        checkStatus("", TransactionState.PROCESSING);
         valueGateway.write(key, value);
     }
 
     @Override
     public void remove(String key) {
-        checkStatus("", TransactionStates.PROCESSING);
+        checkStatus("", TransactionState.PROCESSING);
         valueGateway.remove(key);
     }
 
     @Override
     public boolean commit() {
 
-        checkStatus("", TransactionStates.PROCESSING);
+        checkStatus("", TransactionState.PROCESSING);
 
-        status.set(TransactionStates.TERMINATION);
+        state = TransactionState.TERMINATION;
 
         TransactionMetadata transactionMetadata = valueGateway.getTransactionMetadata();
 
@@ -87,9 +86,9 @@ public class SerializableTransaction implements Transaction {
             CertificationResponse response = (CertificationResponse) client.execute(request);
 
             if(response.success) {
-                status.set(TransactionStates.COMMITTED);
+                state = TransactionState.COMMITTED;
             } else {
-                status.set(TransactionStates.ABORTED);
+                state = TransactionState.ABORTED;
             }
 
             valueGateway.closeSession();
@@ -100,7 +99,7 @@ public class SerializableTransaction implements Transaction {
         }
     }
 
-    public TransactionStates getStatus() {
-        return status.get();
+    public TransactionState getState() {
+        return state;
     }
 }

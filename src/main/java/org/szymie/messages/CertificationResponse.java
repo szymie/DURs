@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class CertificationResponse implements Serializable {
 
-    public boolean success;
+    public final boolean success;
 
     public CertificationResponse(boolean success) {
         this.success = success;
