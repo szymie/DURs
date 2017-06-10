@@ -149,7 +149,7 @@ public class CertificationService extends SerializableService implements Disposa
         Calendar currentTime = Calendar.getInstance();
         currentTime.setTime(Date.from(Instant.now()));
 
-        String now = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S").format(LocalDateTime.now());
+        String now = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
 
         try(PrintWriter out = new PrintWriter(String.format("results-%s-%d", now, id))) {
             performanceResults.forEach(out::println);

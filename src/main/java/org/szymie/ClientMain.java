@@ -4,6 +4,8 @@ import akka.actor.ActorSystem;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.szymie.client.SerializableTransaction;
+import org.szymie.client.Transaction;
+import org.szymie.client.TransactionFactory;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -12,11 +14,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class ClientMain {
-
-    private class Operations {
-        public static final int READ = 1;
-        public static final int WRITE = 2;
-    }
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -28,84 +25,22 @@ public class ClientMain {
 
         ActorSystem actorSystem = ActorSystem.create("client", config);
 
-        List<String> keys = IntStream.rangeClosed('a', 'z')
-                .mapToObj(value -> String.valueOf((char) value))
-                .collect(Collectors.toList());
-        int keysSize = keys.size();
+        TransactionFactory transactionFactory = new TransactionFactory(actorSystem);
 
-        Random randomKeys = new Random(8);
-        Random randomValues = new Random(5);
+        //int numberOfReads = Integer.valueOf(args[1]);
+        //int numberOfWrites = Integer.valueOf(args[2]);
+        //int numberOfThreads = Integer.valueOf(args[3]);
 
-        int numberOfReads = Integer.valueOf(args[1]);
-        int numberOfWrites = Integer.valueOf(args[2]);
-        int numberOfThreads = Integer.valueOf(args[3]);
+        Benchmark benchmark = new Benchmark(transactionFactory, 300, 100, 8, 2, 0);
 
-        List<Thread> threads = IntStream.range(0, numberOfThreads)
-                .mapToObj(ignore -> {
+        benchmark.execute(Benchmark.SaturationLevel.LOW, 8);
 
-                        Map<String, Integer> operations = new HashMap<>();
+        //long startTime = System.nanoTime();
 
-                        for(int i = 0; i < numberOfReads;) {
-                            String key = keys.get(randomKeys.nextInt(keysSize));
-                            if(operations.put(key, Operations.READ) == null) {
-                                i++;
-                            }
-                        }
+        //long estimatedTime = System.nanoTime() - startTime;
 
-                        for(int i = 0; i < numberOfWrites;) {
-                            String key = keys.get(randomKeys.nextInt(keysSize));
-                            if(operations.put(key, operations.getOrDefault(key, 0) | Operations.WRITE) == null) {
-                                i++;
-                            }
-                        }
-
-                        return operations;
-                }).map(operations ->
-
-                    new Thread(() -> {
-
-                        while(true) {
-
-                            SerializableTransaction transaction = new SerializableTransaction(actorSystem);
-
-                            boolean commit;
-
-                            do {
-                                transaction.begin();
-
-                                operations.forEach((key, operation) -> {
-
-                                   if((operation & Operations.READ) != 0) {
-                                       transaction.read(key);
-                                   }
-
-                                   if((operation & Operations.WRITE) != 0) {
-                                       transaction.write(key, String.valueOf(randomValues.nextInt()));
-                                   }
-                                });
-
-                                commit = transaction.commit();
-
-                                System.err.println("commit: " + commit);
-
-                            } while(!commit);
-                        }
-                    })
-                ).collect(Collectors.toList());
-
-        long startTime = System.nanoTime();
-
-        threads.forEach(Thread::start);
-        threads.forEach((thread) -> {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-
-        long estimatedTime = System.nanoTime() - startTime;
-
-        System.out.println("Estimated time: " + TimeUnit.NANOSECONDS.toMillis(estimatedTime));
+        //System.out.println("Estimated time: " + TimeUnit.NANOSECONDS.toMillis(estimatedTime));
     }
+
+
 }
