@@ -1,6 +1,8 @@
 package org.szymie.server;
 
 import akka.actor.AbstractActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import org.szymie.messages.ReadRequest;
 import org.szymie.messages.ReadResponse;
 
@@ -12,6 +14,8 @@ public class Worker extends AbstractActor {
     private ResourceRepository valuesRepository;
     private AtomicLong timestamp;
 
+    private LoggingAdapter logger = Logging.getLogger(getContext().getSystem(), this);
+
     public Worker(ResourceRepository valuesRepository, AtomicLong timestamp) {
         this.valuesRepository = valuesRepository;
         this.timestamp = timestamp;
@@ -21,6 +25,8 @@ public class Worker extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(ReadRequest.class, readRequest -> {
+
+                    logger.debug("Worker, ReadRequest");
 
                     long transactionTimestamp;
 

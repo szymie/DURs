@@ -4,6 +4,8 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.Terminated;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
@@ -23,6 +25,8 @@ public class FrontActor extends AbstractActor {
 
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
+
+    private LoggingAdapter logger = Logging.getLogger(getContext().getSystem(), this);
 
     public FrontActor(ResourceRepository resourceRepository, AtomicLong timestamp) {
 
@@ -45,7 +49,10 @@ public class FrontActor extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(CertificationRequest.class, message -> router.route(message, getSender()))
-                .match(ReadRequest.class, message -> router.route(message, getSender()))
+                .match(ReadRequest.class, message -> {
+                    logger.debug("FrontActor, ReadRequest");
+                    router.route(message, getSender());
+                })
                 .match(Terminated.class, message -> {
                     router = router.removeRoutee(message.actor());
                     ActorRef r = getContext().actorOf(Props.create(Worker.class, resourceRepository, timestamp));
