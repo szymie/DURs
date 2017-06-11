@@ -51,7 +51,7 @@ public class Benchmark {
         random = new Random();
     }
 
-    public void execute(SaturationLevel updateSaturationSaturationLevel, int numberOfThreads) {
+    public void execute(SaturationLevel updateSaturationLevel, int numberOfThreads) {
 
         BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<>(numberOfThreads);
         ExecutorService executor = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 50, TimeUnit.MILLISECONDS, blockingQueue);
@@ -60,7 +60,7 @@ public class Benchmark {
 
             Runnable runnable;
 
-            if(i < updateSaturationSaturationLevel.value) {
+            if(i < updateSaturationLevel.value) {
                 runnable = () -> executeTransaction(numberOfReadsInUpdate, numberOfWritesInUpdate);
             } else {
                 runnable = () -> executeTransaction(numberOfReadsInQuery, 0);
