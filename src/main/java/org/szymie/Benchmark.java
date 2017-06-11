@@ -16,7 +16,7 @@ public class Benchmark {
     public enum SaturationLevel {
         LOW(1), AVERAGE(5), HIGH(9);
 
-        private final int value;
+        public final int value;
 
         SaturationLevel(int value) {
             this.value = value;
