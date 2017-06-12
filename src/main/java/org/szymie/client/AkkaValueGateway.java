@@ -61,9 +61,9 @@ public class AkkaValueGateway implements ValueGateway {
     }
 
     private Map.Entry<Integer, String> getRandomElement(List<String> list) {
-        int replicaId = random.nextInt(list.size());
-        return new AbstractMap.SimpleEntry<>(replicaId, list.get(replicaId));
-
+        int index = random.nextInt(list.size());
+        String[] replica = list.get(index).split("-");
+        return new AbstractMap.SimpleEntry<>(Integer.parseInt(replica[0]), replica[1]);
     }
 
     public void closeSession() {

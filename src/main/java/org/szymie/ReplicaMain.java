@@ -87,15 +87,8 @@ public class ReplicaMain implements CommandLineRunner {
 
     private static void runBenchmark(CommandLine commandLine) {
 
-        Properties properties = new Properties();
-        properties.setProperty("akka.remote.netty.tcp.port", "2550");
-
-        Config overrides = ConfigFactory.parseProperties(properties);
-        Config config = overrides.withFallback(ConfigFactory.load());
-
-        ActorSystem actorSystem = ActorSystem.create("client", config);
-        TransactionFactory transactionFactory = new TransactionFactory(actorSystem);
-
+        String address = commandLine.getOptionValue("address", "127.0.0.1");
+        String port = commandLine.getOptionValue("port", "2550");
         int numberOfKeys = Integer.parseInt(commandLine.getOptionValue("keys"));
         int numberOfThreads = Integer.parseInt(commandLine.getOptionValue("threads"));
         int readsInQuery = Integer.parseInt(commandLine.getOptionValue("readsInQuery"));
@@ -103,6 +96,16 @@ public class ReplicaMain implements CommandLineRunner {
         int writesInUpdate = Integer.parseInt(commandLine.getOptionValue("writesInUpdate"));
         long delay = Long.parseLong(commandLine.getOptionValue("delay"));
         int saturation = Integer.parseInt(commandLine.getOptionValue("saturation"));
+
+        Properties properties = new Properties();
+        properties.setProperty("akka.remote.netty.tcp.hostname", address);
+        properties.setProperty("akka.remote.netty.tcp.port", port);
+
+        Config overrides = ConfigFactory.parseProperties(properties);
+        Config config = overrides.withFallback(ConfigFactory.load());
+
+        ActorSystem actorSystem = ActorSystem.create("client", config);
+        TransactionFactory transactionFactory = new TransactionFactory(actorSystem);
 
         Benchmark benchmark = new Benchmark(transactionFactory, numberOfKeys, readsInQuery, readsInUpdate, writesInUpdate, delay);
 
