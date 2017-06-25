@@ -5,12 +5,18 @@ import lsr.paxos.client.SerializableClient;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
 
+import java.io.IOException;
+
 public class Certifier extends AbstractActor {
 
     private SerializableClient client;
 
-    public Certifier(SerializableClient client) {
-        this.client = client;
+    public Certifier() {
+        try {
+            client = new SerializableClient(new lsr.common.Configuration("src/main/resources/paxos.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

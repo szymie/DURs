@@ -10,7 +10,7 @@ public class TransactionFactory {
         this.actorSystem = actorSystem;
     }
 
-    public Transaction newSerializableTransacion() {
+    public Transaction newSerializableTransaction() {
         return new SerializableTransaction(actorSystem);
     }
 }

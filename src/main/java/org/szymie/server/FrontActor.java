@@ -48,7 +48,6 @@ public class FrontActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-                .match(CertificationRequest.class, message -> router.route(message, getSender()))
                 .match(ReadRequest.class, message -> {
                     logger.debug("FrontActor, ReadRequest");
                     router.route(message, getSender());

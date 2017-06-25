@@ -37,8 +37,8 @@ public class Worker extends AbstractActor {
                     }
 
                     Optional<ValueWithTimestamp> valueOptional = valuesRepository.get(readRequest.key, transactionTimestamp);
-                    ReadResponse response = valueOptional.map(valueWithTimestamp -> new ReadResponse(valueWithTimestamp.value, transactionTimestamp))
-                            .orElse(new ReadResponse(null, transactionTimestamp));
+                    ReadResponse response = valueOptional.map(valueWithTimestamp -> new ReadResponse(valueWithTimestamp.value, transactionTimestamp, valueWithTimestamp.fresh))
+                            .orElse(new ReadResponse(null, transactionTimestamp, true));
 
                     sender().tell(response, self());
                 })

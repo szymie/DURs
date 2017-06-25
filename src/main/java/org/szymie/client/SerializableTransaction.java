@@ -1,31 +1,28 @@
 package org.szymie.client;
 
+import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
-import lsr.paxos.client.ReplicationException;
-import lsr.paxos.client.SerializableClient;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
-
-import java.io.IOException;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 
 public class SerializableTransaction implements Transaction {
 
     private AkkaValueGateway valueGateway;
     private TransactionState state;
-    private SerializableClient client;
+    private ActorSystem actorSystem;
 
     public SerializableTransaction(ActorSystem actorSystem) {
-
         this.valueGateway = new AkkaValueGateway(actorSystem);
         state = TransactionState.NOT_STARTED;
-
-        try {
-            client = new SerializableClient(new lsr.common.Configuration("src/main/resources/paxos.properties"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.actorSystem = actorSystem;
     }
 
     @Override
@@ -77,32 +74,49 @@ public class SerializableTransaction implements Transaction {
 
         TransactionMetadata transactionMetadata = valueGateway.getTransactionMetadata();
 
-        client.connect();
-
         CertificationRequest request = new CertificationRequest(transactionMetadata.readValues, transactionMetadata.writtenValues, transactionMetadata.timestamp);
 
-        try {
+        CertificationResponse response;
 
-            CertificationResponse response;
-
-            if(request.writtenValues.isEmpty()) {
-                response = new CertificationResponse(true);
-            } else {
-                response = (CertificationResponse) client.execute(request);
-            }
-
-            if(response.success) {
-                state = TransactionState.COMMITTED;
-            } else {
-                state = TransactionState.ABORTED;
-            }
-
-            valueGateway.closeSession();
-
-            return response.success;
-        } catch (IOException | ClassNotFoundException | ReplicationException e) {
-            throw new RuntimeException(e);
+        if(request.writtenValues.isEmpty()) {
+            response = new CertificationResponse(true);
+        } else {
+            response = commitUpdateTransaction(request);
         }
+
+        if(response.success) {
+            state = TransactionState.COMMITTED;
+        } else {
+            state = TransactionState.ABORTED;
+        }
+
+        valueGateway.closeSession();
+
+        return response.success;
+    }
+
+    private CertificationResponse commitUpdateTransaction(CertificationRequest request) {
+
+        if(checkLocalCondition(request)) {
+
+            Timeout timeout = new Timeout(Duration.create(5, TimeUnit.SECONDS));
+
+            ActorSelection certifier = actorSystem.actorSelection(valueGateway.getReplicaPath() + "/certifier");
+
+            Future<Object> future = Patterns.ask(certifier, request, timeout);
+
+            try {
+                return  (CertificationResponse) Await.result(future, timeout.duration());
+            } catch (Exception ignore) { }
+        }
+
+        return new CertificationResponse(false);
+    }
+
+    private boolean checkLocalCondition(CertificationRequest request) {
+        return request.readValues.entrySet()
+                .stream()
+                .allMatch(entry -> entry.getValue().fresh);
     }
 
     public TransactionState getState() {

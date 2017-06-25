@@ -14,6 +14,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.szymie.client.TransactionFactory;
+import org.szymie.server.Certifier;
 import org.szymie.server.SerializableCertificationService;
 import org.szymie.server.FrontActor;
 import org.szymie.server.ResourceRepository;
@@ -139,6 +140,11 @@ public class ReplicaMain implements CommandLineRunner {
     @Bean
     public ResourceRepository resourceRepository() {
         return new ResourceRepository();
+    }
+
+    @Bean
+    public ActorRef certifierActor(ActorSystem actorSystem) {
+        return actorSystem.actorOf(Props.create(Certifier.class), "certifier");
     }
 
     @Bean

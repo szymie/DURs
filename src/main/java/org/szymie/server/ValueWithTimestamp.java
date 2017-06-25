@@ -11,9 +11,19 @@ public class ValueWithTimestamp implements Serializable {
     public ValueWithTimestamp() {
     }
 
+    public ValueWithTimestamp(String value) {
+        this.value = value;
+        timestamp = Long.MIN_VALUE;
+        fresh = true;
+    }
+
     public ValueWithTimestamp(String value, long timestamp, boolean fresh) {
         this.value = value;
         this.timestamp = timestamp;
         this.fresh = fresh;
+    }
+
+    public boolean isEmpty() {
+        return value == null;
     }
 }
