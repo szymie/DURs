@@ -14,13 +14,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.szymie.client.TransactionFactory;
-import org.szymie.server.CertificationService;
+import org.szymie.server.SerializableCertificationService;
 import org.szymie.server.FrontActor;
 import org.szymie.server.ResourceRepository;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
@@ -37,7 +34,7 @@ public class ReplicaMain implements CommandLineRunner {
     @Value("${port}")
     private int port;
 
-    private CertificationService certificationService;
+    private SerializableCertificationService serializableCertificationService;
 
     public static void main(String[] args) throws ParseException {
 
@@ -122,7 +119,7 @@ public class ReplicaMain implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        Replica replica = new Replica(new lsr.common.Configuration("src/main/resources/paxos.properties"), id, certificationService);
+        Replica replica = new Replica(new lsr.common.Configuration("src/main/resources/paxos.properties"), id, serializableCertificationService);
         replica.start();
     }
 
@@ -155,8 +152,8 @@ public class ReplicaMain implements CommandLineRunner {
     }
 
     @Autowired
-    public void setCertificationService(CertificationService certificationService) {
-        this.certificationService = certificationService;
+    public void setSerializableCertificationService(SerializableCertificationService serializableCertificationService) {
+        this.serializableCertificationService = serializableCertificationService;
     }
 
 }

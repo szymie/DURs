@@ -24,9 +24,11 @@ public class ResourceRepository {
         if(versions != null) {
 
             Map.Entry<Long, ValueWrapper<String>> version = versions.floorEntry(timestamp);
+            Map.Entry<Long, ValueWrapper<String>> lastVersion = versions.lastEntry();
 
-            if(version != null) {
-                return Optional.of(new ValueWithTimestamp(version.getValue().value, version.getKey()));
+            if(lastVersion != null) {
+                boolean fresh = version.getKey().equals(lastVersion.getKey());
+                return Optional.of(new ValueWithTimestamp(lastVersion.getValue().value, lastVersion.getKey(), fresh));
             }
         }
 

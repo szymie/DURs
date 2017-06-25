@@ -83,7 +83,13 @@ public class SerializableTransaction implements Transaction {
 
         try {
 
-            CertificationResponse response = (CertificationResponse) client.execute(request);
+            CertificationResponse response;
+
+            if(request.writtenValues.isEmpty()) {
+                response = new CertificationResponse(true);
+            } else {
+                response = (CertificationResponse) client.execute(request);
+            }
 
             if(response.success) {
                 state = TransactionState.COMMITTED;

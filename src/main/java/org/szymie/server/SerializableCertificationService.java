@@ -29,7 +29,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-public class CertificationService extends SerializableService implements DisposableBean {
+public class SerializableCertificationService extends SerializableService implements DisposableBean {
 
     @Value("${id}")
     private int id;
@@ -44,7 +44,7 @@ public class CertificationService extends SerializableService implements Disposa
     private List<Double> performanceResults;
 
     @Autowired
-    public CertificationService(ResourceRepository resourceRepository, AtomicLong timestamp) {
+    public SerializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp) {
 
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
