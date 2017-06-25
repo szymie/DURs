@@ -4,11 +4,16 @@ import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
+import lsr.common.Configuration;
+import lsr.paxos.client.ReplicationException;
+import lsr.paxos.client.SerializableClient;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
@@ -17,12 +22,17 @@ public class SerializableTransaction implements Transaction {
 
     private AkkaValueGateway valueGateway;
     private TransactionState state;
-    private ActorSystem actorSystem;
+    private SerializableClient client;
 
     public SerializableTransaction(ActorSystem actorSystem) {
         this.valueGateway = new AkkaValueGateway(actorSystem);
         state = TransactionState.NOT_STARTED;
-        this.actorSystem = actorSystem;
+
+        try {
+            client = new SerializableClient(new lsr.common.Configuration("src/main/resources/paxos.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -99,15 +109,22 @@ public class SerializableTransaction implements Transaction {
 
         if(checkLocalCondition(request)) {
 
-            Timeout timeout = new Timeout(Duration.create(5, TimeUnit.SECONDS));
-
-            ActorSelection certifier = actorSystem.actorSelection(valueGateway.getReplicaPath() + "/certifier");
-
-            Future<Object> future = Patterns.ask(certifier, request, timeout);
-
             try {
-                return  (CertificationResponse) Await.result(future, timeout.duration());
-            } catch (Exception ignore) { }
+
+                CertificationResponse response = (CertificationResponse) client.execute(request);
+
+                if(response.success) {
+                    state = TransactionState.COMMITTED;
+                } else {
+                    state = TransactionState.ABORTED;
+                }
+
+                valueGateway.closeSession();
+
+                return response;
+            } catch (IOException | ClassNotFoundException | ReplicationException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return new CertificationResponse(false);

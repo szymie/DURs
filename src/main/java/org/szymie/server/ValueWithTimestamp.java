@@ -5,15 +5,15 @@ import java.io.Serializable;
 public class ValueWithTimestamp implements Serializable {
 
     public String value;
-    public long timestamp;
-    public boolean fresh;
+    public Long timestamp;
+    public Boolean fresh;
 
     public ValueWithTimestamp() {
     }
 
     public ValueWithTimestamp(String value) {
         this.value = value;
-        timestamp = Long.MIN_VALUE;
+        timestamp = Long.MAX_VALUE;
         fresh = true;
     }
 
