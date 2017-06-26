@@ -1,13 +1,14 @@
 package org.szymie.client;
 
 import org.szymie.ValueWrapper;
+import org.szymie.server.ValueWithTimestamp;
 
 import java.util.*;
 
 public class TransactionMetadata {
 
-    public Map<String, ValueWrapper<String>> readValues;
-    public Map<String, ValueWrapper<String>> writtenValues;
+    public Map<String, ValueWithTimestamp> readValues;
+    public Map<String, ValueWithTimestamp> writtenValues;
     public long timestamp;
 
     public TransactionMetadata() {

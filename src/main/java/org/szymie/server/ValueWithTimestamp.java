@@ -16,4 +16,8 @@ public class ValueWithTimestamp implements Serializable {
         this.timestamp = timestamp;
         this.fresh = fresh;
     }
+
+    public boolean isEmpty() {
+        return value == null;
+    }
 }

@@ -72,7 +72,7 @@ public class Benchmark {
 
     private void executeTransaction(int numberOfReads, int numberOfWrites) {
 
-        Transaction transaction = factory.newSerializableTransacion();
+        Transaction transaction = factory.newSerializableTransaction();
 
         Map<String, Integer> operations = generateOperations(numberOfReads, numberOfWrites);
 

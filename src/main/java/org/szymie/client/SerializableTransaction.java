@@ -77,32 +77,48 @@ public class SerializableTransaction implements Transaction {
 
         TransactionMetadata transactionMetadata = valueGateway.getTransactionMetadata();
 
-        client.connect();
-
         CertificationRequest request = new CertificationRequest(transactionMetadata.readValues, transactionMetadata.writtenValues, transactionMetadata.timestamp);
 
-        try {
+        CertificationResponse response;
 
-            CertificationResponse response;
-
-            if(request.writtenValues.isEmpty()) {
-                response = new CertificationResponse(true);
-            } else {
-                response = (CertificationResponse) client.execute(request);
-            }
-
-            if(response.success) {
-                state = TransactionState.COMMITTED;
-            } else {
-                state = TransactionState.ABORTED;
-            }
-
-            valueGateway.closeSession();
-
-            return response.success;
-        } catch (IOException | ClassNotFoundException | ReplicationException e) {
-            throw new RuntimeException(e);
+        if(request.writtenValues.isEmpty()) {
+            response = new CertificationResponse(true);
+        } else {
+            response = commitUpdateTransaction(request);
         }
+
+        if(response.success) {
+            state = TransactionState.COMMITTED;
+        } else {
+            state = TransactionState.ABORTED;
+        }
+
+        valueGateway.closeSession();
+
+        return response.success;
+    }
+
+    private CertificationResponse commitUpdateTransaction(CertificationRequest request) {
+
+        if(checkLocalCondition(request)) {
+
+            client.connect();
+
+            try {
+                return (CertificationResponse) client.execute(request);
+            } catch (IOException | ClassNotFoundException | ReplicationException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
+
+        return new CertificationResponse(false);
+    }
+
+    private boolean checkLocalCondition(CertificationRequest request) {
+        return request.readValues.entrySet()
+            .stream()
+            .allMatch(entry -> entry.getValue().fresh);
     }
 
     public TransactionState getState() {

@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.szymie.ValueWrapper;
 import org.szymie.messages.ReadRequest;
 import org.szymie.messages.ReadResponse;
+import org.szymie.server.ValueWithTimestamp;
 import scala.concurrent.Future;
 import scala.concurrent.Await;
 import akka.util.Timeout;
@@ -80,21 +81,21 @@ public class AkkaValueGateway implements ValueGateway {
             throw new RuntimeException("empty key cannot be read");
         }
 
-        ValueWrapper<String> valueWrapper = transactionMetadata.writtenValues.get(key);
+        ValueWithTimestamp value = transactionMetadata.writtenValues.get(key);
 
-        if(valueWrapper == null) {
+        if(value == null) {
 
-            valueWrapper = transactionMetadata.readValues.get(key);
+            value = transactionMetadata.readValues.get(key);
 
-            if(valueWrapper == null) {
+            if(value == null) {
                 ReadResponse readResponse = readRemotely(key);
-                valueWrapper = new ValueWrapper<>(readResponse.value);
+                value = new ValueWithTimestamp(readResponse.value, readResponse.timestamp, readResponse.fresh);
             }
         }
 
-        transactionMetadata.readValues.put(key, valueWrapper);
+        transactionMetadata.readValues.put(key, value);
 
-        return valueWrapper.value;
+        return value.value;
     }
     
     private ReadResponse readRemotely(String key) {
@@ -129,7 +130,7 @@ public class AkkaValueGateway implements ValueGateway {
             throw new RuntimeException("empty value cannot be written");
         }
 
-        transactionMetadata.writtenValues.put(key, new ValueWrapper<>(value));
+        transactionMetadata.writtenValues.put(key, new ValueWithTimestamp(value, Long.MAX_VALUE, true));
     }
 
     public void remove(String key) {
@@ -138,7 +139,7 @@ public class AkkaValueGateway implements ValueGateway {
             throw new RuntimeException("empty key cannot be written");
         }
 
-        transactionMetadata.writtenValues.put(key, new ValueWrapper<>(null));
+        transactionMetadata.writtenValues.put(key, new ValueWithTimestamp(null, Long.MAX_VALUE, true));
     }
 
     public void clear() {

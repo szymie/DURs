@@ -99,7 +99,7 @@ public class SerializableCertificationService extends SerializableService implem
 
     private boolean certify(CertificationRequest request) {
 
-        for(Map.Entry<String, ValueWrapper<String>> readValue : request.readValues.entrySet()) {
+        for(Map.Entry<String, ValueWithTimestamp> readValue : request.readValues.entrySet()) {
 
             Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(readValue.getKey(), Integer.MAX_VALUE);
 
