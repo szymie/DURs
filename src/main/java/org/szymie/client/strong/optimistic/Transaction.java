@@ -1,4 +1,4 @@
-package org.szymie.client;
+package org.szymie.client.strong.optimistic;
 
 public interface Transaction {
     void begin();

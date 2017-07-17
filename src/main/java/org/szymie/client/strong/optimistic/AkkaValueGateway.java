@@ -1,4 +1,4 @@
-package org.szymie.client;
+package org.szymie.client.strong.optimistic;
 
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
@@ -10,10 +10,9 @@ import org.szymie.Configuration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import org.szymie.ValueWrapper;
 import org.szymie.messages.ReadRequest;
 import org.szymie.messages.ReadResponse;
-import org.szymie.server.ValueWithTimestamp;
+import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 import scala.concurrent.Future;
 import scala.concurrent.Await;
 import akka.util.Timeout;
@@ -23,12 +22,11 @@ import scala.concurrent.duration.Duration;
 public class AkkaValueGateway implements ValueGateway {
 
     private ActorSystem actorSystem;
-    private TransactionMetadata transactionMetadata;
+    private TransactionData transactionData;
     private Configuration configuration;
     private boolean sessionOpen;
     private int readTimeout;
 
-    private Random random;
     private ActorSelection replicaActor;
 
     private Logger logger = LoggerFactory.getLogger(AkkaValueGateway.class);
@@ -36,17 +34,15 @@ public class AkkaValueGateway implements ValueGateway {
     public AkkaValueGateway(ActorSystem actorSystem) {
 
         this.actorSystem = actorSystem;
-        transactionMetadata = new TransactionMetadata();
+        transactionData = new TransactionData();
         configuration = new Configuration();
         sessionOpen = false;
         readTimeout = Integer.parseInt(configuration.get("read_timeout"));
-
-        random = new Random(System.currentTimeMillis());
     }
 
     public void openSession() {
 
-        Map.Entry<Integer, String> replicaEndpoint = getReplicaEndpoint();
+        Map.Entry<Integer, String> replicaEndpoint = configuration.getRandomReplicaEndpoint();
 
         System.err.println(replicaEndpoint.getKey() + " " + replicaEndpoint.getValue());
 
@@ -54,17 +50,6 @@ public class AkkaValueGateway implements ValueGateway {
         //TODO: send first message to ensure the connection is established
 
         sessionOpen = true;
-    }
-
-    private Map.Entry<Integer, String> getReplicaEndpoint() {
-        List<String> replicas = configuration.getAsList("replicas");
-        return getRandomElement(replicas);
-    }
-
-    private Map.Entry<Integer, String> getRandomElement(List<String> list) {
-        int index = random.nextInt(list.size());
-        String[] replica = list.get(index).split("-");
-        return new AbstractMap.SimpleEntry<>(Integer.parseInt(replica[0]), replica[1]);
     }
 
     public void closeSession() {
@@ -81,11 +66,11 @@ public class AkkaValueGateway implements ValueGateway {
             throw new RuntimeException("empty key cannot be read");
         }
 
-        ValueWithTimestamp value = transactionMetadata.writtenValues.get(key);
+        ValueWithTimestamp value = transactionData.writtenValues.get(key);
 
         if(value == null) {
 
-            value = transactionMetadata.readValues.get(key);
+            value = transactionData.readValues.get(key);
 
             if(value == null) {
                 ReadResponse readResponse = readRemotely(key);
@@ -93,14 +78,14 @@ public class AkkaValueGateway implements ValueGateway {
             }
         }
 
-        transactionMetadata.readValues.put(key, value);
+        transactionData.readValues.put(key, value);
 
         return value.value;
     }
     
     private ReadResponse readRemotely(String key) {
 
-        ReadRequest readRequest = new ReadRequest(key, transactionMetadata.timestamp);
+        ReadRequest readRequest = new ReadRequest(key, transactionData.timestamp);
         Timeout timeout = new Timeout(Duration.create(readTimeout, TimeUnit.SECONDS));
 
         ReadResponse readResponse = null;
@@ -130,7 +115,7 @@ public class AkkaValueGateway implements ValueGateway {
             throw new RuntimeException("empty value cannot be written");
         }
 
-        transactionMetadata.writtenValues.put(key, new ValueWithTimestamp(value, Long.MAX_VALUE, true));
+        transactionData.writtenValues.put(key, new ValueWithTimestamp(value, Long.MAX_VALUE, true));
     }
 
     public void remove(String key) {
@@ -139,14 +124,14 @@ public class AkkaValueGateway implements ValueGateway {
             throw new RuntimeException("empty key cannot be written");
         }
 
-        transactionMetadata.writtenValues.put(key, new ValueWithTimestamp(null, Long.MAX_VALUE, true));
+        transactionData.writtenValues.put(key, new ValueWithTimestamp(null, Long.MAX_VALUE, true));
     }
 
     public void clear() {
-        transactionMetadata.clear();
+        transactionData.clear();
     }
 
-    public TransactionMetadata getTransactionMetadata() {
-        return transactionMetadata;
+    public TransactionData getTransactionData() {
+        return transactionData;
     }
 }

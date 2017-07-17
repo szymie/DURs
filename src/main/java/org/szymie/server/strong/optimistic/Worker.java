@@ -1,11 +1,10 @@
-package org.szymie.server;
+package org.szymie.server.strong.optimistic;
 
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import org.szymie.messages.ReadRequest;
 import org.szymie.messages.ReadResponse;
-
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 

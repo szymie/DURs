@@ -1,42 +1,18 @@
 package org.szymie;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Props;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import lsr.paxos.replica.Replica;
 import org.apache.commons.cli.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.szymie.client.TransactionFactory;
-import org.szymie.server.SerializableCertificationService;
-import org.szymie.server.FrontActor;
-import org.szymie.server.ResourceRepository;
+import org.szymie.client.strong.optimistic.TransactionFactory;
 
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-@SpringBootApplication
-public class ReplicaMain implements CommandLineRunner {
+public class Main {
 
-    @Value("${id}")
-    private int id;
-
-    @Value("${address}")
-    private String address;
-
-    @Value("${port}")
-    private int port;
-
-    private SerializableCertificationService serializableCertificationService;
-
-    public static void main(String[] args) throws ParseException {
+    public void main(String[] args) throws ParseException {
 
         CommandLine commandLine = createCommandLine(args);
 
@@ -48,18 +24,24 @@ public class ReplicaMain implements CommandLineRunner {
                     .map(argument -> String.format("--%s=%s", argument, commandLine.getOptionValue(argument)))
                     .toArray(String[]::new);
 
-            SpringApplication application = new SpringApplication(ReplicaMain.class);
-            application.run(arguments);
+            if(commandLine.hasOption("O")) {
+                SpringApplication application = new SpringApplication(OptimisticReplica.class);
+                application.run(arguments);
+            } else {
+
+            }
+
+
         }
     }
 
-    private static CommandLine createCommandLine(String[] args) throws ParseException {
+    private CommandLine createCommandLine(String[] args) throws ParseException {
         Options options = createOptions();
         CommandLineParser parser = new DefaultParser();
         return parser.parse(options, args);
     }
 
-    private static Options createOptions() {
+    private Options createOptions() {
 
         Options options = new Options();
 
@@ -78,11 +60,11 @@ public class ReplicaMain implements CommandLineRunner {
         return options;
     }
 
-    private static void addToOptions(Options options, String shortOption, String longOption, boolean hasArg) {
+    private void addToOptions(Options options, String shortOption, String longOption, boolean hasArg) {
         options.addOption(Option.builder(shortOption).longOpt(longOption).hasArg(hasArg).build());
     }
 
-    private static void runBenchmark(CommandLine commandLine) {
+    private void runBenchmark(CommandLine commandLine) {
 
         String address = commandLine.getOptionValue("address", "127.0.0.1");
         String port = commandLine.getOptionValue("port", "2550");
@@ -116,44 +98,4 @@ public class ReplicaMain implements CommandLineRunner {
 
         benchmark.execute(saturationLevel, numberOfThreads);
     }
-
-    @Override
-    public void run(String... strings) throws Exception {
-        Replica replica = new Replica(new lsr.common.Configuration("src/main/resources/paxos.properties"), id, serializableCertificationService);
-        replica.start();
-    }
-
-    @Bean
-    public ActorSystem actorSystem() {
-
-        Properties properties = new Properties();
-        properties.setProperty("akka.remote.netty.tcp.hostname", address);
-        properties.setProperty("akka.remote.netty.tcp.port", String.valueOf(port));
-
-        Config overrides = ConfigFactory.parseProperties(properties);
-        Config config = overrides.withFallback(ConfigFactory.load());
-
-        return ActorSystem.create(String.format("replica-%d", id), config);
-    }
-
-    @Bean
-    public ResourceRepository resourceRepository() {
-        return new ResourceRepository();
-    }
-
-    @Bean
-    public ActorRef frontActor(ActorSystem actorSystem, ResourceRepository resourceRepository, AtomicLong timestamp) {
-        return actorSystem.actorOf(Props.create(FrontActor.class, resourceRepository, timestamp), "front");
-    }
-
-    @Bean
-    public AtomicLong timestamp() {
-        return new AtomicLong(0);
-    }
-
-    @Autowired
-    public void setSerializableCertificationService(SerializableCertificationService serializableCertificationService) {
-        this.serializableCertificationService = serializableCertificationService;
-    }
-
 }

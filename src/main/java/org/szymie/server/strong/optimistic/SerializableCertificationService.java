@@ -1,23 +1,16 @@
-package org.szymie.server;
+package org.szymie.server.strong.optimistic;
 
 import lsr.service.SerializableService;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.szymie.ValueWrapper;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.RoundingMode;
-import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

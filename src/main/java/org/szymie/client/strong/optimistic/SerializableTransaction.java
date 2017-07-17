@@ -1,4 +1,4 @@
-package org.szymie.client;
+package org.szymie.client.strong.optimistic;
 
 import akka.actor.ActorSystem;
 import lsr.paxos.client.ReplicationException;
@@ -75,10 +75,10 @@ public class SerializableTransaction implements Transaction {
 
         state = TransactionState.TERMINATION;
 
-        TransactionMetadata transactionMetadata = valueGateway.getTransactionMetadata();
+        TransactionData transactionData = valueGateway.getTransactionData();
 
-        CertificationRequest request = new CertificationRequest(transactionMetadata.readValues, transactionMetadata.writtenValues, transactionMetadata.timestamp);
-
+        CertificationRequest request = new CertificationRequest(transactionData.readValues, transactionData.writtenValues, transactionData.timestamp);
+        
         CertificationResponse response;
 
         if(request.writtenValues.isEmpty()) {

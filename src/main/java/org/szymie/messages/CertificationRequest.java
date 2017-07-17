@@ -1,11 +1,9 @@
 package org.szymie.messages;
 
-import org.szymie.ValueWrapper;
-import org.szymie.server.ValueWithTimestamp;
+import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Set;
 
 public class CertificationRequest implements Serializable {
 

@@ -1,7 +1,7 @@
 package org.szymie;
 
-import org.szymie.client.Transaction;
-import org.szymie.client.TransactionFactory;
+import org.szymie.client.strong.optimistic.Transaction;
+import org.szymie.client.strong.optimistic.TransactionFactory;
 
 import java.util.*;
 import java.util.concurrent.*;

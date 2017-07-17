@@ -1,4 +1,4 @@
-package org.szymie.client;
+package org.szymie.client.strong.optimistic;
 
 public interface ValueGateway {
     void openSession();
@@ -8,5 +8,5 @@ public interface ValueGateway {
     void write(String key, String value);
     void remove(String key);
     void clear();
-    TransactionMetadata getTransactionMetadata();
+    TransactionData getTransactionData();
 }

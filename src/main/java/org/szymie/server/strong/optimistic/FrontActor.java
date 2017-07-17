@@ -1,4 +1,4 @@
-package org.szymie.server;
+package org.szymie.server.strong.optimistic;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
