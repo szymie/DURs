@@ -4,23 +4,13 @@ import java.io.Serializable;
 
 public class BeginTransactionResponse implements Serializable {
 
-    private boolean startAllowed;
     private long timestamp;
 
     public BeginTransactionResponse() {
     }
 
-    public BeginTransactionResponse(boolean startAllowed, long timestamp) {
-        this.startAllowed = startAllowed;
+    public BeginTransactionResponse(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public boolean isStartAllowed() {
-        return startAllowed;
-    }
-
-    public void setStartAllowed(boolean startAllowed) {
-        this.startAllowed = startAllowed;
     }
 
     public long getTimestamp() {

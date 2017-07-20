@@ -5,5 +5,6 @@ public enum TransactionState {
     PROCESSING,
     TERMINATION,
     COMMITTED,
-    ABORTED
+    ABORTED,
+    WAITING
 }

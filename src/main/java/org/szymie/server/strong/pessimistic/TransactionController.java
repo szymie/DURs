@@ -9,6 +9,8 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.szymie.messages.BeginTransactionResponse;
+import org.szymie.messages.ReadRequest;
+import org.szymie.messages.ReadResponse;
 
 @Controller
 public class TransactionController {
@@ -21,15 +23,22 @@ public class TransactionController {
     }
 
     @MessageMapping("/begin-transaction")
-    @SendToUser("/begin-transaction-responses")
+    @SendToUser("/begin-transaction-response")
     public void begin(SimpMessageHeaderAccessor headers) throws Exception {
 
         String sessionId = headers.getSessionId();
 
 
-        messagingTemplate.convertAndSendToUser(sessionId, "/queue/begin-transaction-responses", new BeginTransactionResponse(), createHeaders(sessionId));
+        messagingTemplate.convertAndSendToUser(sessionId, "/queue/begin-transaction-response", new BeginTransactionResponse(), createHeaders(sessionId));
 
 
+    }
+
+    @MessageMapping("/read")
+    @SendToUser("/read-response")
+    public ReadResponse read(ReadRequest request) throws Exception {
+
+        return new ReadResponse();
     }
 
     private MessageHeaders createHeaders(String sessionId) {

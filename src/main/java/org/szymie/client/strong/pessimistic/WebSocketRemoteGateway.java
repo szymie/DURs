@@ -61,7 +61,7 @@ public class WebSocketRemoteGateway implements RemoteGateway {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        stompSession.subscribe(receiveQueue, new StompFrameHandler() {
+        StompSession.Subscription subscription = stompSession.subscribe(receiveQueue, new StompFrameHandler() {
             @Override
             public Type getPayloadType(StompHeaders stompHeaders) {
                 return returnType;
@@ -80,6 +80,8 @@ public class WebSocketRemoteGateway implements RemoteGateway {
             return response.value;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        } finally {
+            subscription.unsubscribe();
         }
     }
 

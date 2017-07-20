@@ -102,6 +102,10 @@ public class AkkaValueGateway implements ValueGateway {
             }
         }
 
+        if(transactionData.timestamp == Long.MAX_VALUE) {
+            transactionData.timestamp = readResponse.timestamp;
+        }
+
         return readResponse;
     }
 
