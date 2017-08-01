@@ -11,6 +11,12 @@ public class ReadResponse implements Serializable {
     public ReadResponse() {
     }
 
+    public ReadResponse(String value, long timestamp) {
+        this.value = value;
+        this.timestamp = timestamp;
+        fresh = true;
+    }
+
     public ReadResponse(String value, long timestamp, boolean fresh) {
         this.value = value;
         this.timestamp = timestamp;

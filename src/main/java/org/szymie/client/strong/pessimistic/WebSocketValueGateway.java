@@ -25,7 +25,7 @@ public class WebSocketValueGateway implements ValueGateway {
     @Override
     public void openSession() {
         Map.Entry<Integer, String> replicaEndpoint = configuration.getRandomReplicaEndpoint();
-        remoteGateway.connect("ws://" + replicaEndpoint.getValue() + "/replica");
+        remoteGateway.connect("ws://" + /*"127.0.0.1:8080"*/ replicaEndpoint.getValue() + "/replica");
         sessionOpen = true;
     }
 
@@ -57,7 +57,7 @@ public class WebSocketValueGateway implements ValueGateway {
                 ReadRequest request = new ReadRequest(key, transactionData.timestamp);
 
                 ReadResponse response = remoteGateway.sendAndReceive("/replica/read",
-                        request, "/replica/queue/read-response", ReadResponse.class);
+                        request, "/user/queue/read-response", ReadResponse.class);
 
                 value = new ValueWithTimestamp(response.value, response.timestamp, response.fresh);
             }

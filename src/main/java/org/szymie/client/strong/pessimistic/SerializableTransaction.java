@@ -6,15 +6,17 @@ import org.szymie.client.strong.optimistic.TransactionState;
 import org.szymie.client.strong.optimistic.ValueGateway;
 import org.szymie.messages.BeginTransactionRequest;
 import org.szymie.messages.BeginTransactionResponse;
+import org.szymie.messages.CommitRequest;
+import org.szymie.messages.CommitResponse;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SerializableTransaction implements Transaction {
 
     private ValueGateway valueGateway;
     private RemoteGateway remoteGateway;
     private boolean readOnly;
-    private boolean writeOnly;
 
     public SerializableTransaction() {
         remoteGateway = new WebSocketRemoteGateway(new MappingJackson2MessageConverter());
@@ -28,22 +30,17 @@ public class SerializableTransaction implements Transaction {
             return;
         }
 
-        if(reads.isEmpty()) {
-            writeOnly = true;
+        valueGateway.openSession();
+
+        if(writes.isEmpty()) {
+            readOnly = true;
         } else {
+            BeginTransactionRequest request = new BeginTransactionRequest(reads, writes);
 
-            valueGateway.openSession();
+            BeginTransactionResponse response = remoteGateway.sendAndReceive("/replica/begin-transaction", request,
+                    "/user/queue/begin-transaction-response", BeginTransactionResponse.class);
 
-            if(writes.isEmpty()) {
-                readOnly = true;
-            } else {
-                BeginTransactionRequest request = new BeginTransactionRequest(reads, writes);
-
-                BeginTransactionResponse response = remoteGateway.sendAndReceive("/replica/begin-transaction", request,
-                        "/replica/queue/begin-transaction-response", BeginTransactionResponse.class);
-
-                valueGateway.getTransactionData().timestamp = response.getTimestamp();
-            }
+            valueGateway.getTransactionData().timestamp = response.getTimestamp();
         }
     }
 
@@ -67,12 +64,18 @@ public class SerializableTransaction implements Transaction {
 
         if(!readOnly) {
 
-            if(writeOnly) {
+            Map<String, String> writes = valueGateway.getTransactionData().writtenValues.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().value));
 
-            } else {
+            writes.forEach((key, value) -> System.err.println(valueGateway.getTransactionData().timestamp + ") " + key + ": " + value));
 
-            }
+            CommitRequest request = new CommitRequest(valueGateway.getTransactionData().timestamp, writes);
+
+            CommitResponse response = remoteGateway.sendAndReceive("/replica/commit-transaction", request,
+                    "/user/queue/commit-transaction-response", CommitResponse.class);
         }
+
+        valueGateway.closeSession();
 
         return true;
     }

@@ -5,6 +5,7 @@ import org.szymie.client.strong.optimistic.TransactionFactory;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Benchmark {
 
@@ -33,6 +34,11 @@ public class Benchmark {
 
     private Random random;
 
+    private boolean stop;
+    private AtomicLong counter;
+
+    private CyclicBarrier barrier;
+
     public Benchmark(TransactionFactory factory, int numberOfKeys, int numberOfReadsInQuery, int numberOfReadsInUpdate, int numberOfWritesInUpdate, long delayInMillis) {
 
         this.factory = factory;
@@ -49,14 +55,22 @@ public class Benchmark {
         this.delayInMillis = delayInMillis;
 
         random = new Random();
+
+        stop = false;
+        counter = new AtomicLong(0);
+
     }
 
     public void execute(SaturationLevel updateSaturationLevel, int numberOfThreads) {
 
+        barrier = new CyclicBarrier(numberOfThreads + 1);
+
         BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<>(numberOfThreads);
         ExecutorService executor = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 50, TimeUnit.MILLISECONDS, blockingQueue);
 
-        for(int i = 0; ; i = (i + 1) % 10) {
+        long startTime = System.nanoTime();
+
+        for(int i = 0; i < numberOfThreads; i = (i + 1) % 10) {
 
             Runnable runnable;
 
@@ -68,6 +82,16 @@ public class Benchmark {
 
             executor.submit(runnable);
         }
+
+        try {
+            barrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            e.printStackTrace();
+        }
+
+        double elapsedTime = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime);
+
+        System.err.println("result: " + counter.get() / elapsedTime);
     }
 
     private void executeTransaction(int numberOfReads, int numberOfWrites) {
@@ -76,7 +100,7 @@ public class Benchmark {
 
         Map<String, Integer> operations = generateOperations(numberOfReads, numberOfWrites);
 
-        while(true) {
+        while(!stop) {
 
             boolean commit;
 
@@ -103,6 +127,14 @@ public class Benchmark {
                 commit = transaction.commit();
 
             } while (!commit);
+
+            counter.incrementAndGet();
+        }
+
+        try {
+            barrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            e.printStackTrace();
         }
     }
 
@@ -125,5 +157,9 @@ public class Benchmark {
         }
 
         return operations;
+    }
+
+    public void stop() {
+        stop = true;
     }
 }

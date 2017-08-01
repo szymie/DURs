@@ -29,13 +29,13 @@ public class Worker extends AbstractActor {
 
                     long transactionTimestamp;
 
-                    if(readRequest.timestamp == Long.MAX_VALUE) {
+                    if(readRequest.getTimestamp() == Long.MAX_VALUE) {
                         transactionTimestamp = timestamp.get();
                     } else {
-                        transactionTimestamp = readRequest.timestamp;
+                        transactionTimestamp = readRequest.getTimestamp();
                     }
 
-                    Optional<ValueWithTimestamp> valueOptional = valuesRepository.get(readRequest.key, transactionTimestamp);
+                    Optional<ValueWithTimestamp> valueOptional = valuesRepository.get(readRequest.getKey(), transactionTimestamp);
                     ReadResponse response = valueOptional.map(valueWithTimestamp -> new ReadResponse(valueWithTimestamp.value, transactionTimestamp, valueWithTimestamp.fresh))
                             .orElse(new ReadResponse(null, transactionTimestamp, true));
 

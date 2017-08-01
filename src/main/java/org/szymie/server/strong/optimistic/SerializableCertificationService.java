@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Service
 public class SerializableCertificationService extends SerializableService implements DisposableBean {
 
     @Value("${id}")
@@ -76,6 +75,8 @@ public class SerializableCertificationService extends SerializableService implem
 
         CertificationRequest request = (CertificationRequest) o;
 
+        System.err.println("REQUEST");
+
         boolean certificationSuccessful = certify(request);
 
         if(certificationSuccessful) {
@@ -122,6 +123,7 @@ public class SerializableCertificationService extends SerializableService implem
 
     @Override
     protected void updateToSnapshot(Object o) {
+        System.err.println("updateToSnapshot");
         Map.Entry<Long, Map<String, ValueWithTimestamp>> snapshot = (Map.Entry<Long, Map<String, ValueWithTimestamp>>) o;
         snapshot.getValue().forEach((key, valueWithTimestamp) -> resourceRepository.put(key, valueWithTimestamp.value, valueWithTimestamp.timestamp));
         timestamp.set(snapshot.getKey());
@@ -129,6 +131,7 @@ public class SerializableCertificationService extends SerializableService implem
 
     @Override
     protected Object makeObjectSnapshot() {
+        System.err.println("makeObjectSnapshot");
         Map<String, ValueWithTimestamp> state = resourceRepository.getKeys().stream()
                 .collect(Collectors.toMap(Function.identity(), key -> resourceRepository.get(key, Integer.MAX_VALUE).get()));
         return new AbstractMap.SimpleEntry<>(timestamp.longValue(), state);
