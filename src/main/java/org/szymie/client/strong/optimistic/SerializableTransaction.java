@@ -3,6 +3,8 @@ package org.szymie.client.strong.optimistic;
 import akka.actor.ActorSystem;
 import lsr.paxos.client.ReplicationException;
 import lsr.paxos.client.SerializableClient;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.szymie.client.strong.pessimistic.WebSocketRemoteGateway;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
 
@@ -12,17 +14,17 @@ import java.util.HashSet;
 
 public class SerializableTransaction implements Transaction {
 
-    private AkkaValueGateway valueGateway;
+    private WebSocketValueGateway valueGateway;
     private TransactionState state;
     private SerializableClient client;
 
-    public SerializableTransaction(ActorSystem actorSystem) {
+    public SerializableTransaction() {
 
-        this.valueGateway = new AkkaValueGateway(actorSystem);
+        this.valueGateway = new WebSocketValueGateway(new WebSocketRemoteGateway(new MappingJackson2MessageConverter()));
         state = TransactionState.NOT_STARTED;
 
         try {
-            client = new SerializableClient(new lsr.common.Configuration("src/main/resources/paxos.properties"));
+            client = new SerializableClient(new lsr.common.Configuration("paxos.properties"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

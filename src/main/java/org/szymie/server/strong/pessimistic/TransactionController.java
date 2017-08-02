@@ -40,7 +40,7 @@ public class TransactionController implements HeadersCreator {
         this.beginTransactionService = beginTransactionService;
 
         try {
-            client = new SerializableClient(new lsr.common.Configuration("src/main/resources/paxos.properties"));
+            client = new SerializableClient(new lsr.common.Configuration("paxos.properties"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -52,6 +52,8 @@ public class TransactionController implements HeadersCreator {
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
     }
+
+    //src/main/resources/
 
     @MessageMapping("/begin-transaction")
     public void begin(BeginTransactionRequest request, SimpMessageHeaderAccessor headers) throws Exception {

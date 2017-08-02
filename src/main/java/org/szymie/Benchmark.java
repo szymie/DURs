@@ -9,9 +9,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Benchmark {
 
-    private class Operations {
-        static final int READ = 1;
-        static final int WRITE = 2;
+    public class Operations {
+        public static final int READ = 1;
+        public static final int WRITE = 2;
     }
 
     public enum SaturationLevel {
@@ -63,14 +63,14 @@ public class Benchmark {
 
     public void execute(SaturationLevel updateSaturationLevel, int numberOfThreads) {
 
-        barrier = new CyclicBarrier(numberOfThreads + 1);
+        //barrier = new CyclicBarrier(numberOfThreads + 1);
 
         BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<>(numberOfThreads);
-        ExecutorService executor = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 50, TimeUnit.MILLISECONDS, blockingQueue);
+        ExecutorService executor = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 5000, TimeUnit.MILLISECONDS, blockingQueue);
 
-        long startTime = System.nanoTime();
+        //long startTime = System.nanoTime();
 
-        for(int i = 0; i < numberOfThreads; i = (i + 1) % 10) {
+        for(int i = 0; ; i = (i + 1) % 10) {
 
             Runnable runnable;
 
@@ -83,15 +83,9 @@ public class Benchmark {
             executor.submit(runnable);
         }
 
-        try {
-            barrier.await();
-        } catch (InterruptedException | BrokenBarrierException e) {
-            e.printStackTrace();
-        }
+        //double elapsedTime = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime);
 
-        double elapsedTime = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime);
-
-        System.err.println("result: " + counter.get() / elapsedTime);
+        //System.err.println("result: " + counter.get() / elapsedTime);
     }
 
     private void executeTransaction(int numberOfReads, int numberOfWrites) {
@@ -100,7 +94,7 @@ public class Benchmark {
 
         Map<String, Integer> operations = generateOperations(numberOfReads, numberOfWrites);
 
-        while(!stop) {
+        //while(!stop) {
 
             boolean commit;
 
@@ -129,13 +123,7 @@ public class Benchmark {
             } while (!commit);
 
             counter.incrementAndGet();
-        }
-
-        try {
-            barrier.await();
-        } catch (InterruptedException | BrokenBarrierException e) {
-            e.printStackTrace();
-        }
+        //}
     }
 
     private Map<String, Integer> generateOperations(int numberOfReads, int numberOfWrites) {

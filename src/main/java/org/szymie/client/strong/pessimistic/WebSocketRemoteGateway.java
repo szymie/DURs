@@ -74,18 +74,25 @@ public class WebSocketRemoteGateway implements RemoteGateway {
             }
         });
 
+        subscription.getSubscriptionId();
+
         try {
             stompSession.send(sendDestination, object);
             latch.await();
+            subscription.unsubscribe();
             return response.value;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        } finally {
-            subscription.unsubscribe();
         }
     }
 
     private class MyStompSessionHandler extends StompSessionHandlerAdapter {
+
+        @Override
+        public void handleTransportError(StompSession session, Throwable exception) {
+            super.handleTransportError(session, exception);
+            throw new RuntimeException(exception);
+        }
     }
 
     private class Response<T> {

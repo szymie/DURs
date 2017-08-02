@@ -14,7 +14,7 @@ public class Configuration {
     public Configuration() {
         fileName = "config.properties";
         properties = new Properties();
-        random = new Random(System.currentTimeMillis());
+        random = new Random(System.nanoTime());
     }
 
     public Configuration(String fileName) {

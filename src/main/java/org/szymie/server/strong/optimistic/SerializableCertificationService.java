@@ -58,8 +58,10 @@ public class SerializableCertificationService extends SerializableService implem
 
                 double averageThroughput = performanceMeasurer.getThroughput();
 
-                System.err.println(decimalFormat.format(averageThroughput));
-                performanceResults.add(averageThroughput);
+                if(averageThroughput != 0) {
+                    System.err.println(decimalFormat.format(averageThroughput));
+                    performanceResults.add(averageThroughput);
+                }
 
                 try {
                     Thread.sleep(TimeUnit.SECONDS.toMillis(1));
@@ -85,8 +87,11 @@ public class SerializableCertificationService extends SerializableService implem
 
             throughputCounter.incrementAndGet();
 
+            System.err.println("TRUE");
+
             return new CertificationResponse(true);
         } else {
+            System.err.println("FALSE");
             return new CertificationResponse(false);
         }
     }
@@ -114,9 +119,9 @@ public class SerializableCertificationService extends SerializableService implem
         request.writtenValues.forEach((key, value) -> {
 
             if(value.isEmpty()) {
-                resourceRepository.remove(key, time);
+                //resourceRepository.remove(key, time);
             } else {
-                resourceRepository.put(key, value.value, time);
+                //resourceRepository.put(key, value.value, time);
             }
         });
     }

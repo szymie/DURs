@@ -15,16 +15,10 @@ public class BeginTransactionService extends SerializableService {
     private Map<Long, TransactionMetadata> activeTransactions;
     private AtomicLong timestamp;
 
-    private Lock lock;
-
     public BeginTransactionService(Map<Long, TransactionMetadata> activeTransactions, AtomicLong timestamp) {
         this.activeTransactions = activeTransactions;
         this.timestamp = timestamp;
-
-        lock = new ReentrantLock();
     }
-
-
 
     @Override
     protected Object execute(Object o) {

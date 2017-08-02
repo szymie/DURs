@@ -167,7 +167,7 @@ public class Main implements CommandLineRunner {
         @Value("${port}")
         protected int port;
 
-        @Bean
+        /*@Bean
         public ActorSystem actorSystem() {
 
             Properties properties = new Properties();
@@ -183,7 +183,7 @@ public class Main implements CommandLineRunner {
         @Bean
         public ActorRef frontActor(ActorSystem actorSystem, ResourceRepository resourceRepository, AtomicLong timestamp) {
             return actorSystem.actorOf(Props.create(FrontActor.class, resourceRepository, timestamp), "front");
-        }
+        }*/
 
         @Bean
         public SerializableCertificationService serializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp) {
@@ -239,7 +239,7 @@ public class Main implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        Replica replica = new Replica(new lsr.common.Configuration("src/main/resources/paxos.properties"), id, service);
+        Replica replica = new Replica(new lsr.common.Configuration("paxos.properties"), id, service);
         replica.start();
     }
 }

@@ -1,8 +1,8 @@
-package org.szymie.client.strong.pessimistic;
+package org.szymie.client.strong.optimistic;
+
 
 import org.szymie.Configuration;
-import org.szymie.client.strong.optimistic.TransactionData;
-import org.szymie.client.strong.optimistic.ValueGateway;
+import org.szymie.client.strong.pessimistic.RemoteGateway;
 import org.szymie.messages.ReadRequest;
 import org.szymie.messages.ReadResponse;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
@@ -23,6 +23,7 @@ public class WebSocketValueGateway implements ValueGateway {
         sessionOpen = false;
     }
 
+
     @Override
     public void openSession() {
         Map.Entry<Integer, String> replicaEndpoint = configuration.getRandomReplicaEndpoint();
@@ -41,7 +42,6 @@ public class WebSocketValueGateway implements ValueGateway {
         return sessionOpen;
     }
 
-    @Override
     public String read(String key) {
 
         if(key == null) {
@@ -55,18 +55,29 @@ public class WebSocketValueGateway implements ValueGateway {
             value = transactionData.readValues.get(key);
 
             if(value == null) {
-                ReadRequest request = new ReadRequest(key, transactionData.timestamp);
 
-                ReadResponse response = remoteGateway.sendAndReceive("/replica/read",
-                        request, "/user/queue/read-response", ReadResponse.class);
-
-                value = new ValueWithTimestamp(response.value, response.timestamp, response.fresh);
+                ReadResponse readResponse = readRemotely(key);
+                value = new ValueWithTimestamp(readResponse.value, readResponse.timestamp, readResponse.fresh);
             }
         }
 
         transactionData.readValues.put(key, value);
 
         return value.value;
+    }
+
+    private ReadResponse readRemotely(String key) {
+
+        ReadRequest request = new ReadRequest(key, transactionData.timestamp);
+
+        ReadResponse response = remoteGateway.sendAndReceive("/replica/read",
+                request, "/user/queue/read-response", ReadResponse.class);
+
+        if(transactionData.timestamp == Long.MAX_VALUE) {
+            transactionData.timestamp = response.timestamp;
+        }
+
+        return response;
     }
 
     @Override

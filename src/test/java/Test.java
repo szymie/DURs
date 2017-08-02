@@ -17,15 +17,34 @@ public class Test {
 
         ActorSystem actorSystem = ActorSystem.create();
 
-        Transaction t = new SerializableTransaction(actorSystem);
-        t.begin();
+        Transaction t = new SerializableTransaction();
 
-        int a = Integer.parseInt(t.read("a"));
-        System.err.println(a);
-        t.write("a", String.valueOf(a + 1));
 
-        System.err.println(t.commit());
+        for(int i = 0; i < 100; i++) {
 
+            Thread thread = new Thread(() -> {
+
+                while (true) {
+
+                    t.begin();
+
+                    String aString = t.read("a");
+
+                    int a = Integer.parseInt(aString == null ? "0" : aString);
+                    System.err.println(a);
+                    t.write("a", String.valueOf(a + 1));
+
+                    System.err.println(t.commit());
+                }
+            });
+
+            thread.start();
+
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+            }
+        }
 
     }
 
