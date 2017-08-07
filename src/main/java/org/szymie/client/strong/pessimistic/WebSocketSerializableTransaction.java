@@ -12,13 +12,13 @@ import org.szymie.messages.CommitResponse;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class SerializableTransaction implements Transaction {
+public class WebSocketSerializableTransaction implements Transaction {
 
     private ValueGateway valueGateway;
     private RemoteGateway remoteGateway;
     private boolean readOnly;
 
-    public SerializableTransaction() {
+    public WebSocketSerializableTransaction() {
         remoteGateway = new WebSocketRemoteGateway(new MappingJackson2MessageConverter());
         valueGateway = new WebSocketValueGateway(remoteGateway);
     }

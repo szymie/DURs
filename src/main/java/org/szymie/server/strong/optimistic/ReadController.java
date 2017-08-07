@@ -5,13 +5,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 import org.szymie.messages.ReadRequest;
 import org.szymie.messages.ReadResponse;
 import org.szymie.server.strong.pessimistic.HeadersCreator;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,26 +29,23 @@ public class ReadController implements HeadersCreator {
         this.timestamp = timestamp;
     }
 
+    @SubscribeMapping("/queue/read-response")
+    public ReadResponse subscribe() {
+        return new ReadResponse();
+    }
+
     @MessageMapping("/read")
     //@SendToUser("/queue/read-response")
     public void read(ReadRequest request, SimpMessageHeaderAccessor headers) throws Exception {
 
         String sessionId = headers.getSessionId();
 
-        long transactionTimestamp = request.getTimestamp();
-
-        if(transactionTimestamp == Long.MAX_VALUE) {
-            transactionTimestamp = timestamp.get();
-        }
-
-        System.err.println(transactionTimestamp + " before reads");
+        long transactionTimestamp = request.getTimestamp() == Long.MAX_VALUE ? timestamp.get() : request.getTimestamp();
 
         Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
 
-        System.err.println(transactionTimestamp + " reads");
-
         ReadResponse response = valueOptional.map(valueWithTimestamp ->
-                new ReadResponse(valueWithTimestamp.value, valueWithTimestamp.timestamp, valueWithTimestamp.fresh))
+                new ReadResponse(valueWithTimestamp.value, transactionTimestamp, valueWithTimestamp.fresh))
                 .orElse(new ReadResponse(null, transactionTimestamp, true));
 
         messagingTemplate.convertAndSendToUser(sessionId, "/queue/read-response", response, createHeaders(sessionId));

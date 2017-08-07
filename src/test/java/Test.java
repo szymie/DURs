@@ -1,13 +1,9 @@
 import akka.actor.ActorSystem;
 import lsr.paxos.client.ReplicationException;
-import lsr.paxos.client.SerializableClient;
-import org.szymie.client.strong.optimistic.SerializableTransaction;
+import org.szymie.client.strong.optimistic.WebSocketSerializableTransaction;
 import org.szymie.client.strong.optimistic.Transaction;
-import org.szymie.messages.CertificationRequest;
-import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 public class Test {
 
@@ -17,7 +13,7 @@ public class Test {
 
         ActorSystem actorSystem = ActorSystem.create();
 
-        Transaction t = new SerializableTransaction();
+        Transaction t = new WebSocketSerializableTransaction();
 
 
         for(int i = 0; i < 100; i++) {

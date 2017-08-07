@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.szymie.client.strong.optimistic.SerializableTransaction;
+import org.szymie.client.strong.optimistic.WebSocketSerializableTransaction;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -20,7 +20,7 @@ public class TransactionTests {
 
         Thread t2 = new Thread(() -> {
 
-            SerializableTransaction t = new SerializableTransaction();
+            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
 
             t.begin();
 
@@ -39,7 +39,7 @@ public class TransactionTests {
 
         Thread t0 = new Thread(() -> {
 
-            SerializableTransaction t = new SerializableTransaction();
+            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
 
             t.begin();
 
@@ -58,7 +58,7 @@ public class TransactionTests {
 
         Thread t1 = new Thread(() -> {
 
-            SerializableTransaction t = new SerializableTransaction();
+            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
 
             t.begin();
 
@@ -92,7 +92,7 @@ public class TransactionTests {
 
         Thread t0 = new Thread(() -> {
 
-            SerializableTransaction t = new SerializableTransaction();
+            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
 
             t.begin();
 
@@ -111,7 +111,7 @@ public class TransactionTests {
 
         Thread t1 = new Thread(() -> {
 
-            SerializableTransaction t = new SerializableTransaction();
+            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
 
             t.begin();
 

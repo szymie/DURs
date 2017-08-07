@@ -35,7 +35,6 @@ public class SerializableCertificationService extends SerializableService implem
     private PerformanceMeasurer performanceMeasurer;
     private List<Double> performanceResults;
 
-    @Autowired
     public SerializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp) {
 
         this.resourceRepository = resourceRepository;
@@ -119,9 +118,9 @@ public class SerializableCertificationService extends SerializableService implem
         request.writtenValues.forEach((key, value) -> {
 
             if(value.isEmpty()) {
-                //resourceRepository.remove(key, time);
+                resourceRepository.remove(key, time);
             } else {
-                //resourceRepository.put(key, value.value, time);
+                resourceRepository.put(key, value.value, time);
             }
         });
     }

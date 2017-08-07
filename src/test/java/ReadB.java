@@ -1,4 +1,4 @@
-import org.szymie.client.strong.pessimistic.SerializableTransaction;
+import org.szymie.client.strong.pessimistic.WebSocketSerializableTransaction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +7,7 @@ public class ReadB {
 
     public static void main(String[] args) {
 
-        SerializableTransaction t = new SerializableTransaction();
+        WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
 
 
         Map<String, Integer> reads = new HashMap<String, Integer>() {{ put("b", 1); }};

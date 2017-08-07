@@ -11,6 +11,6 @@ public class TransactionFactory {
     }
 
     public Transaction newSerializableTransaction() {
-        return new SerializableTransaction();
+        return new WebSocketSerializableTransaction();
     }
 }

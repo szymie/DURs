@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public class SerializableTransaction implements Transaction {
+public class WebSocketSerializableTransaction implements Transaction {
 
     private WebSocketValueGateway valueGateway;
     private TransactionState state;
     private SerializableClient client;
 
-    public SerializableTransaction() {
+    public WebSocketSerializableTransaction() {
 
         this.valueGateway = new WebSocketValueGateway(new WebSocketRemoteGateway(new MappingJackson2MessageConverter()));
         state = TransactionState.NOT_STARTED;
