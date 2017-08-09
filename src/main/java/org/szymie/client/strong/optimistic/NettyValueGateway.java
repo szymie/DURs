@@ -32,17 +32,23 @@ public class NettyValueGateway extends BaseValueGateway {
 
     protected ReadResponse readRemotely(String key) {
 
-        Messages.ReadRequest request = Messages.ReadRequest.newBuilder()
+        Messages.ReadRequest readRequest = Messages.ReadRequest.newBuilder()
                 .setKey(key)
                 .setTimestamp(transactionData.timestamp)
                 .build();
 
-        Messages.ReadResponse response = remoteGateway.sendAndReceive(request, Messages.ReadResponse.class);
+        Messages.Message message = Messages.Message.newBuilder()
+                .setReadRequest(readRequest)
+                .build();
+
+        Messages.Message response = remoteGateway.sendAndReceive(message , Messages.Message.class);
+
+        Messages.ReadResponse readResponse = response.getReadResponse();
 
         if(transactionData.timestamp == Long.MAX_VALUE) {
-            transactionData.timestamp = response.getTimestamp();
+            transactionData.timestamp = readResponse.getTimestamp();
         }
 
-        return new ReadResponse(response.getValue(), request.getTimestamp(), response.getFresh());
+        return new ReadResponse(readResponse.getValue(), readResponse.getTimestamp(), readResponse.getFresh());
     }
 }

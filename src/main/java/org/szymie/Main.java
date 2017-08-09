@@ -1,8 +1,6 @@
 package org.szymie;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Props;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import lsr.paxos.replica.Replica;
@@ -18,9 +16,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.szymie.client.strong.optimistic.TransactionFactory;
-import org.szymie.server.strong.optimistic.FrontActor;
-import org.szymie.server.strong.optimistic.ResourceRepository;
-import org.szymie.server.strong.optimistic.SerializableCertificationService;
+import org.szymie.server.strong.ChannelInboundHandlerFactory;
+import org.szymie.server.strong.ReplicaServer;
+import org.szymie.server.strong.ServerChannelInitializer;
+import org.szymie.server.strong.optimistic.*;
 import org.szymie.server.strong.pessimistic.BeginTransactionService;
 import org.szymie.server.strong.pessimistic.GroupMessenger;
 import org.szymie.server.strong.pessimistic.StateUpdateReceiver;
@@ -29,7 +28,6 @@ import org.szymie.server.strong.pessimistic.TransactionMetadata;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SpringBootApplication
@@ -148,6 +146,9 @@ public class Main implements CommandLineRunner {
     @Value("${id}")
     protected int id;
 
+    @Value("${port}")
+    protected int port;
+
     private SerializableService service;
 
     @Autowired
@@ -186,8 +187,30 @@ public class Main implements CommandLineRunner {
         }*/
 
         @Bean
+        public OptimisticChannelInboundHandlerFactory optimisticChannelHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp) {
+            return new OptimisticChannelInboundHandlerFactory(resourceRepository, timestamp);
+        }
+
+        @Bean
         public SerializableCertificationService serializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp) {
             return new SerializableCertificationService(resourceRepository, timestamp);
+        }
+    }
+
+    @Bean
+    public ServerChannelInitializer serverChannelInitializer(ChannelInboundHandlerFactory channelInboundHandlerFactory) {
+        return new ServerChannelInitializer(channelInboundHandlerFactory);
+    }
+
+    @Bean
+    public ReplicaServer replicaServer(ServerChannelInitializer serverChannelInitializer) {
+
+        try {
+            ReplicaServer replicaServer = new ReplicaServer(port, serverChannelInitializer);
+            replicaServer.start();
+            return replicaServer;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

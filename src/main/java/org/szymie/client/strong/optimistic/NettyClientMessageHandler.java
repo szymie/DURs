@@ -25,6 +25,8 @@ class NettyClientMessageHandler extends SimpleChannelInboundHandler<Messages.Mes
     @Override
     public void channelRead0(ChannelHandlerContext ctx, Messages.Message msg) throws Exception {
 
+        System.err.println("msg " + msg);
+
         switch(msg.getOneofMessagesCase()) {
             case READRESPONSE:
                 Messages.ReadResponse readResponse = msg.getReadResponse();

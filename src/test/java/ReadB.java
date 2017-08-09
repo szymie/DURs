@@ -1,3 +1,4 @@
+import org.szymie.client.strong.optimistic.NettySerializableTransaction;
 import org.szymie.client.strong.pessimistic.WebSocketSerializableTransaction;
 
 import java.util.HashMap;
@@ -7,16 +8,11 @@ public class ReadB {
 
     public static void main(String[] args) {
 
-        WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
+        NettySerializableTransaction t = new NettySerializableTransaction();
 
-
-        Map<String, Integer> reads = new HashMap<String, Integer>() {{ put("b", 1); }};
-        Map<String, Integer> writes = new HashMap<>();
-
-        t.begin(reads, writes);
-
-        System.err.println(t.read("b"));
-
+        t.begin();
+        String a = t.read("a");
+        System.err.println("a: " + a);
         t.commit();
     }
 

@@ -4,6 +4,7 @@ import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.szymie.Benchmark;
+import org.szymie.client.strong.optimistic.NettySerializableTransaction;
 import org.szymie.client.strong.optimistic.WebSocketSerializableTransaction;
 
 import java.util.*;
@@ -45,19 +46,12 @@ public class BaseJMeterRequest extends AbstractJavaSamplerClient {
 
         result.sampleStart();
 
-        WebSocketSerializableTransaction transaction = new WebSocketSerializableTransaction();
+        NettySerializableTransaction transaction = new NettySerializableTransaction();
 
         boolean commit;
 
         do {
             transaction.begin();
-
-
-            System.err.println("out");
-
-            if(operations == null) {
-                throw new RuntimeException("problem");
-            }
 
             operations.forEach((key, operation) -> {
 

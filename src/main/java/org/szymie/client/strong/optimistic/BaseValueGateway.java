@@ -1,14 +1,10 @@
 package org.szymie.client.strong.optimistic;
 
 
-import org.szymie.messages.ReadRequest;
 import org.szymie.messages.ReadResponse;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
-import java.util.Map;
-
 public abstract class BaseValueGateway implements ValueGateway {
-
 
     protected TransactionData transactionData;
     protected boolean sessionOpen;
