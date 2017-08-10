@@ -5,10 +5,11 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.springframework.beans.factory.DisposableBean;
+import org.szymie.client.strong.pessimistic.RemoteGateway;
 import org.szymie.messages.Messages;
 import org.szymie.server.strong.ChannelInboundHandlerFactory;
 
-public class NettyRemoteGateway implements DisposableBean {
+public class NettyRemoteGateway implements DisposableBean, RemoteGateway {
 
     private Bootstrap bootstrap;
     private Channel channel;

@@ -12,7 +12,7 @@ public class Test {
 
         /*ActorSystem actorSystem = ActorSystem.create();
 
-        Transaction t = new WebSocketSerializableTransaction();
+        Transaction t = new NettySerializableTransaction();
 
 
         for(int i = 0; i < 100; i++) {

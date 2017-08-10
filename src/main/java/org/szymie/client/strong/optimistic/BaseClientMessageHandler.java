@@ -45,7 +45,7 @@ public abstract class BaseClientMessageHandler extends SimpleChannelInboundHandl
 
         T value;
 
-        Response(T value) {
+        public Response(T value) {
             this.value = value;
         }
 

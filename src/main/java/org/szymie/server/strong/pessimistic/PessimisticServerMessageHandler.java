@@ -1,33 +1,71 @@
-package org.szymie.server.strong.optimistic;
+package org.szymie.server.strong.pessimistic;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lsr.paxos.client.ReplicationException;
+import lsr.paxos.client.SerializableClient;
+import org.szymie.messages.BeginTransactionResponse;
 import org.szymie.messages.Messages;
+import org.szymie.server.strong.optimistic.ResourceRepository;
+import org.szymie.server.strong.optimistic.ValueWithTimestamp;
+
+import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.szymie.messages.Messages.Message;
-
-public class OptimisticServerMessageHandler extends SimpleChannelInboundHandler<Message> {
+public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler<Messages.Message> {
 
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
+    private SerializableClient client;
+    private Map<Long, ChannelHandlerContext> contexts;
 
-    public OptimisticServerMessageHandler(ResourceRepository resourceRepository, AtomicLong timestamp) {
+    public PessimisticServerMessageHandler(ResourceRepository resourceRepository, AtomicLong timestamp, Map<Long, ChannelHandlerContext> contexts) {
+
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
+        this.contexts = contexts;
+
+        try {
+            client = new SerializableClient(new lsr.common.Configuration(getClass().getResourceAsStream("paxos.properties")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, Message msg) {
+    public void channelRead0(ChannelHandlerContext ctx, Messages.Message msg) {
 
         System.err.println("msg " + msg);
 
         switch (msg.getOneofMessagesCase()) {
+            case BEGINTRANSACTIONREQUEST:
+                handleBeginTransactionRequest(ctx, msg.getBeginTransactionRequest());
             case READREQUEST:
                 handleReadRequest(ctx, msg.getReadRequest());
                 break;
         }
+    }
+
+    private void handleBeginTransactionRequest(ChannelHandlerContext context, Messages.BeginTransactionRequest request) {
+
+        client.connect();
+
+        try {
+
+            Messages.BeginTransactionResponse response = (Messages.BeginTransactionResponse) client.execute(request);
+
+            if(response.getStartPossible()) {
+                context.writeAndFlush(response);
+            }
+
+            contexts.put(response.getTimestamp(), context);
+        } catch (IOException | ClassNotFoundException | ReplicationException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void handleReadRequest(ChannelHandlerContext context, Messages.ReadRequest request) {
@@ -40,7 +78,7 @@ public class OptimisticServerMessageHandler extends SimpleChannelInboundHandler<
                 createReadResponse(valueWithTimestamp.value, transactionTimestamp, valueWithTimestamp.fresh))
                 .orElse(createReadResponse("", transactionTimestamp, true));
 
-        Message response = Message.newBuilder()
+        Messages.Message response = Messages.Message.newBuilder()
                 .setReadResponse(readResponse)
                 .build();
 

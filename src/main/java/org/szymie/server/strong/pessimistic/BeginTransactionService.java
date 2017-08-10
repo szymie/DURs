@@ -3,6 +3,7 @@ package org.szymie.server.strong.pessimistic;
 import lsr.service.SerializableService;
 import org.szymie.messages.BeginTransactionRequest;
 import org.szymie.messages.BeginTransactionResponse;
+import org.szymie.messages.Messages;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -11,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class BeginTransactionService extends SerializableService {
 
-    private BeginTransactionRequest request;
+    private Messages.BeginTransactionRequest request;
     private Map<Long, TransactionMetadata> activeTransactions;
     private AtomicLong timestamp;
 
@@ -27,7 +28,7 @@ public class BeginTransactionService extends SerializableService {
 
         long newTransactionTimestamp = timestamp.incrementAndGet();
 
-        request = (BeginTransactionRequest) o;
+        request = (Messages.BeginTransactionRequest) o;
         TransactionMetadata newTransaction = new TransactionMetadata(request.getReads().keySet(), request.getWrites().keySet());
 
         activeTransactions.put(newTransactionTimestamp, newTransaction);
@@ -56,7 +57,10 @@ public class BeginTransactionService extends SerializableService {
 
         System.err.println(newTransactionTimestamp + " can start " + newTransaction.getAwaitingToStart().isEmpty());
 
-        return new BeginTransactionResponse(newTransactionTimestamp, newTransaction.getAwaitingToStart().isEmpty());
+        return Messages.BeginTransactionResponse.newBuilder()
+                .setTimestamp(newTransactionTimestamp)
+                .setStartPossible(newTransaction.getAwaitingToStart().isEmpty())
+                .build();
     }
 
     private boolean isAwaitingToStartNeeded(TransactionMetadata transaction) {

@@ -2,24 +2,23 @@ package org.szymie.client.strong.pessimistic;
 
 
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.szymie.client.strong.optimistic.ClientChannelInitializer;
+import org.szymie.client.strong.optimistic.NettyRemoteGateway;
 import org.szymie.client.strong.optimistic.TransactionState;
 import org.szymie.client.strong.optimistic.ValueGateway;
-import org.szymie.messages.BeginTransactionRequest;
-import org.szymie.messages.BeginTransactionResponse;
-import org.szymie.messages.CommitRequest;
-import org.szymie.messages.CommitResponse;
+import org.szymie.messages.*;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class WebSocketSerializableTransaction implements Transaction {
+public class NettySerializableTransaction implements Transaction {
 
     private ValueGateway valueGateway;
     private RemoteGateway remoteGateway;
     private boolean readOnly;
 
-    public WebSocketSerializableTransaction() {
-        remoteGateway = new WebSocketRemoteGateway(new MappingJackson2MessageConverter());
+    public NettySerializableTransaction() {
+        remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new PessimisticClientMessageHandlerFactory()));
         valueGateway = new WebSocketValueGateway(remoteGateway);
     }
 
@@ -35,11 +34,13 @@ public class WebSocketSerializableTransaction implements Transaction {
         if(writes.isEmpty()) {
             readOnly = true;
         } else {
-            BeginTransactionRequest request = new BeginTransactionRequest(reads, writes);
 
-            BeginTransactionResponse response = remoteGateway.sendAndReceive("/replica/begin-transaction", request,
-                    "/user/queue/begin-transaction-response", BeginTransactionResponse.class);
+            Messages.BeginTransactionRequest request = Messages.BeginTransactionRequest.newBuilder()
+                    .putAllReads(reads)
+                    .putAllWrites(writes)
+                    .build();
 
+            Messages.BeginTransactionResponse response = remoteGateway.sendAndReceive(request, Messages.BeginTransactionResponse.class);
             valueGateway.getTransactionData().timestamp = response.getTimestamp();
         }
     }
@@ -69,10 +70,12 @@ public class WebSocketSerializableTransaction implements Transaction {
 
             writes.forEach((key, value) -> System.err.println(valueGateway.getTransactionData().timestamp + ") " + key + ": " + value));
 
-            CommitRequest request = new CommitRequest(valueGateway.getTransactionData().timestamp, writes);
+            Messages.CommitRequest request = Messages.CommitRequest.newBuilder()
+                    .setTimestamp(valueGateway.getTransactionData().timestamp)
+                    .putAllWrites(writes)
+                    .build();
 
-            CommitResponse response = remoteGateway.sendAndReceive("/replica/commit-transaction", request,
-                    "/user/queue/commit-transaction-response", CommitResponse.class);
+            remoteGateway.sendAndReceive(request, Messages.CommitResponse.class);
         }
 
         valueGateway.closeSession();

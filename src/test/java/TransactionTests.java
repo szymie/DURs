@@ -20,7 +20,7 @@ public class TransactionTests {
 
         Thread t2 = new Thread(() -> {
 
-            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
+            NettySerializableTransaction t = new NettySerializableTransaction();
 
             t.begin();
 
@@ -39,7 +39,7 @@ public class TransactionTests {
 
         Thread t0 = new Thread(() -> {
 
-            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
+            NettySerializableTransaction t = new NettySerializableTransaction();
 
             t.begin();
 
@@ -58,7 +58,7 @@ public class TransactionTests {
 
         Thread t1 = new Thread(() -> {
 
-            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
+            NettySerializableTransaction t = new NettySerializableTransaction();
 
             t.begin();
 
@@ -92,7 +92,7 @@ public class TransactionTests {
 
         Thread t0 = new Thread(() -> {
 
-            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
+            NettySerializableTransaction t = new NettySerializableTransaction();
 
             t.begin();
 
@@ -111,7 +111,7 @@ public class TransactionTests {
 
         Thread t1 = new Thread(() -> {
 
-            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
+            NettySerializableTransaction t = new NettySerializableTransaction();
 
             t.begin();
 

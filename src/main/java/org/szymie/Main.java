@@ -3,6 +3,7 @@ package org.szymie;
 import akka.actor.ActorSystem;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.netty.channel.ChannelHandlerContext;
 import lsr.paxos.replica.Replica;
 import lsr.service.SerializableService;
 import org.apache.commons.cli.*;
@@ -20,10 +21,7 @@ import org.szymie.server.strong.ChannelInboundHandlerFactory;
 import org.szymie.server.strong.ReplicaServer;
 import org.szymie.server.strong.ServerChannelInitializer;
 import org.szymie.server.strong.optimistic.*;
-import org.szymie.server.strong.pessimistic.BeginTransactionService;
-import org.szymie.server.strong.pessimistic.GroupMessenger;
-import org.szymie.server.strong.pessimistic.StateUpdateReceiver;
-import org.szymie.server.strong.pessimistic.TransactionMetadata;
+import org.szymie.server.strong.pessimistic.*;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -250,8 +248,14 @@ public class Main implements CommandLineRunner {
         }
 
         @Bean
-        public Map<Long, String> sessionIds() {
+        public Map<Long, ChannelHandlerContext> contexts() {
             return new ConcurrentHashMap<>();
+        }
+
+        @Bean
+        public PessimisticServerChannelInboundHandlerFactory pessimisticServerChannelInboundHandlerFactory(ResourceRepository resourceRepository,
+                                                                                                           AtomicLong timestamp, Map<Long, ChannelHandlerContext> contexts) {
+            return new PessimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp, contexts);
         }
 
         @Bean

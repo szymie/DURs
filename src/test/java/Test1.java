@@ -1,4 +1,4 @@
-import org.szymie.client.strong.pessimistic.WebSocketSerializableTransaction;
+import org.szymie.client.strong.pessimistic.NettySerializableTransaction;
 import org.szymie.client.strong.pessimistic.Transaction;
 
 import java.util.HashMap;
@@ -7,7 +7,7 @@ public class Test1 {
 
     public static void main(String[] args) {
 
-        Transaction transaction = new WebSocketSerializableTransaction();
+        Transaction transaction = new NettySerializableTransaction();
 
         HashMap<String, Integer> reads = new HashMap<String, Integer>() {{ put("a", 1); }};
         HashMap<String, Integer> writes = new HashMap<String, Integer>() {{ put("a", 1); }};

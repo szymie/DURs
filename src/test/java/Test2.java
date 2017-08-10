@@ -1,4 +1,4 @@
-import org.szymie.client.strong.pessimistic.WebSocketSerializableTransaction;
+import org.szymie.client.strong.pessimistic.NettySerializableTransaction;
 import org.szymie.client.strong.pessimistic.Transaction;
 
 import java.util.HashMap;
@@ -14,7 +14,7 @@ public class Test2 {
 
         Thread t1 = new Thread(() -> {
 
-            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
+            NettySerializableTransaction t = new NettySerializableTransaction();
 
             Map<String, Integer> reads = new HashMap<String, Integer>() {{ put("a", 1); }};
             Map<String, Integer> writes = new HashMap<String, Integer>() {{ put("b", 1); }};
@@ -38,7 +38,7 @@ public class Test2 {
 
         Thread t2 = new Thread(() -> {
 
-            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
+            NettySerializableTransaction t = new NettySerializableTransaction();
 
             Map<String, Integer> reads = new HashMap<String, Integer>() {{ put("b", 1); }};
             Map<String, Integer> writes = new HashMap<String, Integer>() {{ put("a", 1); }};
@@ -68,7 +68,7 @@ public class Test2 {
 
         Thread t3 = new Thread(() -> {
 
-            WebSocketSerializableTransaction t = new WebSocketSerializableTransaction();
+            NettySerializableTransaction t = new NettySerializableTransaction();
 
             Map<String, Integer> reads = new HashMap<String, Integer>() {{ put("a", 1); }};
             Map<String, Integer> writes = new HashMap<String, Integer>() {{ put("b", 1); }};
@@ -106,7 +106,7 @@ public class Test2 {
             e.printStackTrace();
         }
 
-        Transaction serializableTransaction = new WebSocketSerializableTransaction();
+        Transaction serializableTransaction = new NettySerializableTransaction();
 
         Map<String, Integer> reads = new HashMap<String, Integer>() {{ put("a", 1); put("b", 1); }};
         Map<String, Integer> writes = new HashMap<>();
