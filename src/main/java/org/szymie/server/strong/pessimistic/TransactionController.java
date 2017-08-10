@@ -40,7 +40,7 @@ public class TransactionController implements HeadersCreator {
         this.beginTransactionService = beginTransactionService;
 
         try {
-            client = new SerializableClient(new lsr.common.Configuration("paxos.properties"));
+            client = new SerializableClient(new lsr.common.Configuration(getClass().getResourceAsStream("paxos.properties")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

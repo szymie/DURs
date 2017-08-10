@@ -115,7 +115,7 @@ public class Main implements CommandLineRunner {
         Config config = overrides.withFallback(ConfigFactory.load());
 
         ActorSystem actorSystem = ActorSystem.create("client", config);
-        TransactionFactory transactionFactory = new TransactionFactory(actorSystem);
+        TransactionFactory transactionFactory = new TransactionFactory();
 
         Benchmark benchmark = new Benchmark(transactionFactory, numberOfKeys, readsInQuery, readsInUpdate, writesInUpdate, delay);
 
@@ -187,8 +187,8 @@ public class Main implements CommandLineRunner {
         }*/
 
         @Bean
-        public OptimisticChannelInboundHandlerFactory optimisticChannelHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp) {
-            return new OptimisticChannelInboundHandlerFactory(resourceRepository, timestamp);
+        public OptimisticServerChannelInboundHandlerFactory optimisticChannelHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp) {
+            return new OptimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp);
         }
 
         @Bean
@@ -262,7 +262,7 @@ public class Main implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        Replica replica = new Replica(new lsr.common.Configuration("paxos.properties"), id, service);
+        Replica replica = new Replica(new lsr.common.Configuration(getClass().getClassLoader().getResourceAsStream("paxos.properties")), id, service);
         replica.start();
     }
 }

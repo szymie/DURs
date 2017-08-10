@@ -5,7 +5,6 @@ import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.szymie.Benchmark;
 import org.szymie.client.strong.optimistic.NettySerializableTransaction;
-import org.szymie.client.strong.optimistic.WebSocketSerializableTransaction;
 
 import java.util.*;
 

@@ -1,22 +1,21 @@
 package org.szymie.client.strong.optimistic;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.springframework.beans.factory.DisposableBean;
+import org.szymie.messages.Messages;
+import org.szymie.server.strong.ChannelInboundHandlerFactory;
 
 public class NettyRemoteGateway implements DisposableBean {
 
     private Bootstrap bootstrap;
     private Channel channel;
     private EventLoopGroup workerGroup;
+    private BaseClientMessageHandler handler;
 
-    private NettyClientMessageHandler handler;
-
-    public NettyRemoteGateway() {
+    public  NettyRemoteGateway(ClientChannelInitializer clientChannelInitializer) {
 
         workerGroup = new NioEventLoopGroup();
 
@@ -24,11 +23,11 @@ public class NettyRemoteGateway implements DisposableBean {
         bootstrap.group(workerGroup);
         bootstrap.channel(NioSocketChannel.class);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-        bootstrap.handler(new ClientChannelInitializer());
+        bootstrap.handler(clientChannelInitializer);
     }
 
     public <T> void send(T object) {
-        handler.send(object);
+        channel.writeAndFlush(object);
     }
 
     public <T, U> U sendAndReceive(T object, Class<U> returnType) {
@@ -41,7 +40,7 @@ public class NettyRemoteGateway implements DisposableBean {
 
         try {
             channel = bootstrap.connect(addressAndPort[0], Integer.parseInt(addressAndPort[1])).sync().channel();
-            handler = channel.pipeline().get(NettyClientMessageHandler.class);
+            handler =  channel.pipeline().get(BaseClientMessageHandler.class);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

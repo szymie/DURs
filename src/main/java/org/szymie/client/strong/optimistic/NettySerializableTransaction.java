@@ -17,11 +17,11 @@ public class NettySerializableTransaction implements Transaction {
 
     public NettySerializableTransaction() {
 
-        this.valueGateway = new NettyValueGateway(new NettyRemoteGateway());
+        this.valueGateway = new NettyValueGateway(new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory())));
         state = TransactionState.NOT_STARTED;
 
         try {
-            client = new SerializableClient(new lsr.common.Configuration("paxos.properties"));
+            client = new SerializableClient(new lsr.common.Configuration(getClass().getClassLoader().getResourceAsStream("paxos.properties")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

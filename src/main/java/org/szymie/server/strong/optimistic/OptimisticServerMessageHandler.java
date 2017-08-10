@@ -40,7 +40,7 @@ public class OptimisticServerMessageHandler extends SimpleChannelInboundHandler<
         Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
 
         Messages.ReadResponse readResponse = valueOptional.map(valueWithTimestamp ->
-                createReadResponse(valueWithTimestamp.value, valueWithTimestamp.timestamp, valueWithTimestamp.fresh))
+                createReadResponse(valueWithTimestamp.value, transactionTimestamp, valueWithTimestamp.fresh))
                 .orElse(createReadResponse("", transactionTimestamp, true));
 
         Message response = Message.newBuilder()

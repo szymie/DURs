@@ -1,6 +1,5 @@
 import akka.actor.ActorSystem;
 import lsr.paxos.client.ReplicationException;
-import org.szymie.client.strong.optimistic.WebSocketSerializableTransaction;
 import org.szymie.client.strong.optimistic.Transaction;
 
 import java.io.IOException;
@@ -11,7 +10,7 @@ public class Test {
         //SerializableClient client = new SerializableClient(new lsr.common.Configuration("src/main/resources/paxos.properties"));
         //client.execute(new CertificationRequest(new HashMap<>(), new HashMap<>(), 0));
 
-        ActorSystem actorSystem = ActorSystem.create();
+        /*ActorSystem actorSystem = ActorSystem.create();
 
         Transaction t = new WebSocketSerializableTransaction();
 
@@ -40,7 +39,7 @@ public class Test {
                 thread.join();
             } catch (InterruptedException e) {
             }
-        }
+        }*/
 
     }
 

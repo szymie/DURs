@@ -8,7 +8,7 @@ import org.szymie.messages.Messages;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-class NettyClientMessageHandler extends SimpleChannelInboundHandler<Messages.Message> {
+public abstract class BaseClientMessageHandler extends SimpleChannelInboundHandler<Messages.Message> {
 
     private Channel channel;
     private BlockingQueue<Response> responses = new LinkedBlockingQueue<>();
@@ -23,28 +23,15 @@ class NettyClientMessageHandler extends SimpleChannelInboundHandler<Messages.Mes
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, Messages.Message msg) throws Exception {
-
-        System.err.println("msg " + msg);
-
-        switch(msg.getOneofMessagesCase()) {
-            case READRESPONSE:
-                Messages.ReadResponse readResponse = msg.getReadResponse();
-                setResponse(new Response<>(readResponse));
-                break;
-        }
-    }
-
-    @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         channel = ctx.channel();
     }
 
-    private <T> void setResponse(Response<T> response) {
+    protected  <T> void setResponse(Response<T> response) {
         responses.add(response);
     }
 
-    private <T> T getResponse(Class<T> returnType) {
+    private  <T> T getResponse(Class<T> returnType) {
 
         try {
             Response take = responses.take();
@@ -54,11 +41,11 @@ class NettyClientMessageHandler extends SimpleChannelInboundHandler<Messages.Mes
         }
     }
 
-    private class Response<T> {
+    protected class Response<T> {
 
         T value;
 
-        public Response(T value) {
+        Response(T value) {
             this.value = value;
         }
 

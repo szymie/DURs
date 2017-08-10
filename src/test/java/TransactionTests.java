@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.szymie.client.strong.optimistic.WebSocketSerializableTransaction;
+
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -15,7 +15,7 @@ public class TransactionTests {
     @Autowired
     private ActorSystem actorSystem;
 
-    @Test
+    /*@Test
     public void test0() {
 
         Thread t2 = new Thread(() -> {
@@ -137,5 +137,5 @@ public class TransactionTests {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }

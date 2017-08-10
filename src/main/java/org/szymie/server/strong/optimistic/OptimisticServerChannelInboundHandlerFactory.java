@@ -5,13 +5,14 @@ import org.szymie.server.strong.ChannelInboundHandlerFactory;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class OptimisticChannelInboundHandlerFactory implements ChannelInboundHandlerFactory {
+public class OptimisticServerChannelInboundHandlerFactory implements ChannelInboundHandlerFactory {
 
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
 
-    public OptimisticChannelInboundHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp) {
+    public OptimisticServerChannelInboundHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp) {
         this.resourceRepository = resourceRepository;
+        this.timestamp = timestamp;
     }
 
     @Override

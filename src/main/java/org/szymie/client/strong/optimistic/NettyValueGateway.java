@@ -41,9 +41,7 @@ public class NettyValueGateway extends BaseValueGateway {
                 .setReadRequest(readRequest)
                 .build();
 
-        Messages.Message response = remoteGateway.sendAndReceive(message , Messages.Message.class);
-
-        Messages.ReadResponse readResponse = response.getReadResponse();
+        Messages.ReadResponse readResponse = remoteGateway.sendAndReceive(message , Messages.ReadResponse.class);
 
         if(transactionData.timestamp == Long.MAX_VALUE) {
             transactionData.timestamp = readResponse.getTimestamp();
