@@ -1,3 +1,5 @@
+import org.szymie.client.strong.optimistic.NettySerializableTransaction;
+
 public class ReadB {
 
     public static void main(String[] args) {

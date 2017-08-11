@@ -1,11 +1,12 @@
 package org.szymie.server.strong.pessimistic;
 
+import io.netty.channel.ChannelHandlerContext;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
 import org.jgroups.View;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.szymie.messages.BeginTransactionResponse;
 import org.szymie.messages.CommitResponse;
+import org.szymie.messages.Messages;
 import org.szymie.messages.StateUpdate;
 import org.szymie.server.strong.optimistic.ResourceRepository;
 
@@ -16,17 +17,15 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
 
     private Map<Long, TransactionMetadata> activeTransactions;
     private ResourceRepository resourceRepository;
-    private Map<Long, String> sessionIds;
-    private SimpMessageSendingOperations messagingTemplate;
+    private Map<Long, ChannelHandlerContext> contexts;
     private long lastApplied;
     private SortedSet<StateUpdate> waitingUpdates;
 
     public StateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions, ResourceRepository resourceRepository,
-                               Map<Long, String> sessionIds, SimpMessageSendingOperations messagingTemplate) {
+                               Map<Long, ChannelHandlerContext> contexts) {
         this.activeTransactions = activeTransactions;
         this.resourceRepository = resourceRepository;
-        this.sessionIds = sessionIds;
-        this.messagingTemplate = messagingTemplate;
+        this.contexts = contexts;
         lastApplied = 0;
         waitingUpdates = new TreeSet<>();
     }
@@ -87,8 +86,8 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
 
         System.err.println("1.1");
 
-        applyChanges(stateUpdate);
-        notifyAboutAppliedChanges(transactionTimestamp);
+        commitTransaction(stateUpdate);
+        notifyAboutTransactionCommit(transactionTimestamp);
 
         System.err.println("1.2");
 
@@ -102,11 +101,18 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
 
             if(waitingTransaction.getAwaitingToStart().isEmpty()) {
 
-                String sessionId = sessionIds.get(waitingTransactionTimestamp);
+                ChannelHandlerContext context = contexts.get(waitingTransactionTimestamp);
 
-                if(sessionId != null) {
-                    messagingTemplate.convertAndSendToUser(sessionId, "/queue/begin-transaction-response",
-                            new BeginTransactionResponse(waitingTransactionTimestamp, true), createHeaders(sessionId));
+                if(context != null) {
+
+                    Messages.BeginTransactionResponse response = Messages.BeginTransactionResponse.newBuilder()
+                            .setTimestamp(waitingTransactionTimestamp)
+                            .setStartPossible(true)
+                            .build();
+
+                    Messages.Message message = Messages.Message.newBuilder().setBeginTransactionResponse(response).build();
+
+                    context.writeAndFlush(message);
                 }
             }
 
@@ -127,7 +133,7 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
         System.err.println("activeTransactions in update: " + activeTransactions.size());
     }
 
-    private void applyChanges(StateUpdate stateUpdate) {
+    private void commitTransaction(StateUpdate stateUpdate) {
 
         long time = stateUpdate.getTimestamp();
 
@@ -141,17 +147,15 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
         });
     }
 
-    private void notifyAboutAppliedChanges(long transactionTimestamp) {
+    private void notifyAboutTransactionCommit(long transactionTimestamp) {
 
-        String sessionId = sessionIds.get(transactionTimestamp);
+        ChannelHandlerContext context = contexts.get(transactionTimestamp);
 
-        System.err.println("transactionTimestamp: " + transactionTimestamp + " sessionId: " + sessionId);
-
-        if(sessionId != null) {
-            messagingTemplate.convertAndSendToUser(sessionId, "/queue/commit-transaction-response",
-                    new CommitResponse(true), createHeaders(sessionId));
-
-            sessionIds.remove(transactionTimestamp);
+        if(context != null) {
+            Messages.CommitResponse response = Messages.CommitResponse.newBuilder().build();
+            Messages.Message message = Messages.Message.newBuilder().setCommitResponse(response).build();
+            context.writeAndFlush(message);
+            contexts.remove(transactionTimestamp);
         }
     }
 

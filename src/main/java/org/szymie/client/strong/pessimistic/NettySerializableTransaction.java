@@ -2,10 +2,7 @@ package org.szymie.client.strong.pessimistic;
 
 
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.szymie.client.strong.optimistic.ClientChannelInitializer;
-import org.szymie.client.strong.optimistic.NettyRemoteGateway;
-import org.szymie.client.strong.optimistic.TransactionState;
-import org.szymie.client.strong.optimistic.ValueGateway;
+import org.szymie.client.strong.optimistic.*;
 import org.szymie.messages.*;
 
 import java.util.Map;
@@ -19,7 +16,7 @@ public class NettySerializableTransaction implements Transaction {
 
     public NettySerializableTransaction() {
         remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new PessimisticClientMessageHandlerFactory()));
-        valueGateway = new WebSocketValueGateway(remoteGateway);
+        valueGateway = new NettyValueGateway(remoteGateway);
     }
 
     @Override
@@ -40,7 +37,11 @@ public class NettySerializableTransaction implements Transaction {
                     .putAllWrites(writes)
                     .build();
 
-            Messages.BeginTransactionResponse response = remoteGateway.sendAndReceive(request, Messages.BeginTransactionResponse.class);
+            Messages.Message message = Messages.Message.newBuilder()
+                    .setBeginTransactionRequest(request)
+                    .build();
+
+            Messages.BeginTransactionResponse response = remoteGateway.sendAndReceive(message, Messages.BeginTransactionResponse.class);
             valueGateway.getTransactionData().timestamp = response.getTimestamp();
         }
     }
@@ -75,7 +76,9 @@ public class NettySerializableTransaction implements Transaction {
                     .putAllWrites(writes)
                     .build();
 
-            remoteGateway.sendAndReceive(request, Messages.CommitResponse.class);
+            Messages.Message message = Messages.Message.newBuilder().setCommitRequest(request).build();
+
+            remoteGateway.sendAndReceive(message, Messages.CommitResponse.class);
         }
 
         valueGateway.closeSession();

@@ -6,10 +6,12 @@ import lsr.paxos.client.ReplicationException;
 import lsr.paxos.client.SerializableClient;
 import org.szymie.messages.BeginTransactionResponse;
 import org.szymie.messages.Messages;
+import org.szymie.messages.StateUpdate;
 import org.szymie.server.strong.optimistic.ResourceRepository;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -21,14 +23,20 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
     private SerializableClient client;
     private Map<Long, ChannelHandlerContext> contexts;
 
-    public PessimisticServerMessageHandler(ResourceRepository resourceRepository, AtomicLong timestamp, Map<Long, ChannelHandlerContext> contexts) {
+    private Map<Long, TransactionMetadata> activeTransactions;
+    private GroupMessenger groupMessenger;
+
+    public PessimisticServerMessageHandler(ResourceRepository resourceRepository, AtomicLong timestamp, Map<Long, ChannelHandlerContext> contexts,
+                                           Map<Long, TransactionMetadata> activeTransactions, GroupMessenger groupMessenger) {
 
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
         this.contexts = contexts;
+        this.activeTransactions = activeTransactions;
+        this.groupMessenger = groupMessenger;
 
         try {
-            client = new SerializableClient(new lsr.common.Configuration(getClass().getResourceAsStream("paxos.properties")));
+            client = new SerializableClient(new lsr.common.Configuration(getClass().getClassLoader().getResourceAsStream("paxos.properties")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -42,8 +50,12 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
         switch (msg.getOneofMessagesCase()) {
             case BEGINTRANSACTIONREQUEST:
                 handleBeginTransactionRequest(ctx, msg.getBeginTransactionRequest());
+                break;
             case READREQUEST:
                 handleReadRequest(ctx, msg.getReadRequest());
+                break;
+            case COMMITREQUEST:
+                handleCommitRequest(ctx, msg.getCommitRequest());
                 break;
         }
     }
@@ -56,16 +68,20 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
 
             Messages.BeginTransactionResponse response = (Messages.BeginTransactionResponse) client.execute(request);
 
-            if(response.getStartPossible()) {
-                context.writeAndFlush(response);
-            }
-
             contexts.put(response.getTimestamp(), context);
+
+            if(response.getStartPossible()) {
+
+                Messages.Message message = Messages.Message.newBuilder()
+                        .setBeginTransactionResponse(response)
+                        .build();
+
+                context.writeAndFlush(message);
+            }
         } catch (IOException | ClassNotFoundException | ReplicationException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-
     }
 
     private void handleReadRequest(ChannelHandlerContext context, Messages.ReadRequest request) {
@@ -74,15 +90,15 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
 
         Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
 
-        Messages.ReadResponse readResponse = valueOptional.map(valueWithTimestamp ->
+        Messages.ReadResponse response = valueOptional.map(valueWithTimestamp ->
                 createReadResponse(valueWithTimestamp.value, transactionTimestamp, valueWithTimestamp.fresh))
                 .orElse(createReadResponse("", transactionTimestamp, true));
 
-        Messages.Message response = Messages.Message.newBuilder()
-                .setReadResponse(readResponse)
+        Messages.Message message = Messages.Message.newBuilder()
+                .setReadResponse(response)
                 .build();
 
-        context.writeAndFlush(response);
+        context.writeAndFlush(message);
     }
 
     private Messages.ReadResponse createReadResponse(String value, long timestamp, boolean fresh) {
@@ -91,6 +107,19 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
                 .setTimestamp(timestamp)
                 .setFresh(fresh).build();
     }
+
+    private void handleCommitRequest(ChannelHandlerContext context, Messages.CommitRequest request) {
+
+        TransactionMetadata transaction = activeTransactions.get(request.getTimestamp());
+
+        long timestamp = request.getTimestamp();
+
+        System.err.println("timestamp: " + timestamp);
+        System.err.println("transaction: " + transaction);
+
+        groupMessenger.send(new StateUpdate(request.getTimestamp(), transaction.getApplyAfter(), new HashMap<>(request.getWritesMap())));
+    }
+
 
     /*@Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

@@ -2,7 +2,7 @@ package org.szymie.benchmark;
 
 import org.apache.jmeter.config.Arguments;
 
-public class DefaultRW20PRequest extends BaseJMeterRequest {
+public class OptimisticDefaultRW20PRequest extends BaseOptimisticJMeterRequest {
 
     @Override
     public Arguments getDefaultParameters() {

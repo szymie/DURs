@@ -16,7 +16,7 @@ public class Test1 {
 
         String aString = transaction.read("a");
 
-        int a = Integer.parseInt(aString == null ? "0" : aString);
+        int a = Integer.parseInt(aString.isEmpty() ? "0" : aString);
 
         System.err.println(a);
 

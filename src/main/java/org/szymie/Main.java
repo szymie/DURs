@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -28,7 +30,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 public class Main implements CommandLineRunner {
 
     public static class ExtendedDefaultParser extends DefaultParser {
@@ -227,9 +229,8 @@ public class Main implements CommandLineRunner {
 
         @Bean
         public StateUpdateReceiver stateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions,
-                                                       ResourceRepository resourceRepository, Map<Long, String> sessionIds,
-                                                       SimpMessageSendingOperations messagingTemplate) {
-            return new StateUpdateReceiver(activeTransactions, resourceRepository, sessionIds, messagingTemplate);
+                                                       ResourceRepository resourceRepository,  Map<Long, ChannelHandlerContext> contexts) {
+            return new StateUpdateReceiver(activeTransactions, resourceRepository, contexts);
         }
 
         @Bean
@@ -253,9 +254,10 @@ public class Main implements CommandLineRunner {
         }
 
         @Bean
-        public PessimisticServerChannelInboundHandlerFactory pessimisticServerChannelInboundHandlerFactory(ResourceRepository resourceRepository,
-                                                                                                           AtomicLong timestamp, Map<Long, ChannelHandlerContext> contexts) {
-            return new PessimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp, contexts);
+        public PessimisticServerChannelInboundHandlerFactory pessimisticServerChannelInboundHandlerFactory(
+                ResourceRepository resourceRepository, AtomicLong timestamp, Map<Long, ChannelHandlerContext> contexts,
+                Map<Long, TransactionMetadata> actimeTransactions, GroupMessenger groupMessenger) {
+            return new PessimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp, contexts, actimeTransactions, groupMessenger);
         }
 
         @Bean

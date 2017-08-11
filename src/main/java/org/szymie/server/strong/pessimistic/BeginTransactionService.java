@@ -29,7 +29,7 @@ public class BeginTransactionService extends SerializableService {
         long newTransactionTimestamp = timestamp.incrementAndGet();
 
         request = (Messages.BeginTransactionRequest) o;
-        TransactionMetadata newTransaction = new TransactionMetadata(request.getReads().keySet(), request.getWrites().keySet());
+        TransactionMetadata newTransaction = new TransactionMetadata(request.getReadsMap().keySet(), request.getWritesMap().keySet());
 
         activeTransactions.put(newTransactionTimestamp, newTransaction);
 
@@ -64,7 +64,7 @@ public class BeginTransactionService extends SerializableService {
     }
 
     private boolean isAwaitingToStartNeeded(TransactionMetadata transaction) {
-        return !transaction.isFinished() && !Collections.disjoint(request.getReads().keySet(), transaction.getWrites());
+        return !transaction.isFinished() && !Collections.disjoint(request.getReadsMap().keySet(), transaction.getWrites());
     }
 
     private boolean isApplyingAfterNeeded(TransactionMetadata transaction) {
@@ -72,7 +72,7 @@ public class BeginTransactionService extends SerializableService {
         Set<String> readsAndWrites = new HashSet<>(transaction.getReads());
         readsAndWrites.addAll(transaction.getWrites());
 
-        return !transaction.isFinished() && !Collections.disjoint(request.getWrites().keySet(), readsAndWrites);
+        return !transaction.isFinished() && !Collections.disjoint(request.getWritesMap().keySet(), readsAndWrites);
     }
 
     @Override

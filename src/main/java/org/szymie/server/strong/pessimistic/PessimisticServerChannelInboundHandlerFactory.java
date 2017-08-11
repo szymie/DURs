@@ -14,15 +14,21 @@ public class PessimisticServerChannelInboundHandlerFactory implements ChannelInb
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
     private Map<Long, ChannelHandlerContext> contexts;
+    private Map<Long, TransactionMetadata> activeTransactions;
+    private GroupMessenger groupMessenger;
 
-    public PessimisticServerChannelInboundHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp, Map<Long, ChannelHandlerContext> contexts) {
+    public PessimisticServerChannelInboundHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp,
+                                                         Map<Long, ChannelHandlerContext> contexts, Map<Long, TransactionMetadata> activeTransactions,
+                                                         GroupMessenger groupMessenger) {
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
         this.contexts = contexts;
+        this.activeTransactions = activeTransactions;
+        this.groupMessenger = groupMessenger;
     }
 
     @Override
     public ChannelInboundHandler create() {
-        return new PessimisticServerMessageHandler(resourceRepository, timestamp, contexts);
+        return new PessimisticServerMessageHandler(resourceRepository, timestamp, contexts, activeTransactions, groupMessenger);
     }
 }

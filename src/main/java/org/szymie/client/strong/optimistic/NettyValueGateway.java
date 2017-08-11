@@ -1,6 +1,7 @@
 package org.szymie.client.strong.optimistic;
 
 import org.szymie.Configuration;
+import org.szymie.client.strong.pessimistic.RemoteGateway;
 import org.szymie.messages.Messages;
 import org.szymie.messages.ReadResponse;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
@@ -9,10 +10,10 @@ import java.util.Map;
 
 public class NettyValueGateway extends BaseValueGateway {
 
-    private NettyRemoteGateway remoteGateway;
+    private RemoteGateway remoteGateway;
     private Configuration configuration;
 
-    public NettyValueGateway(NettyRemoteGateway remoteGateway) {
+    public NettyValueGateway(RemoteGateway remoteGateway) {
         this.remoteGateway = remoteGateway;
         configuration = new Configuration();
     }

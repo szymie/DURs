@@ -5,15 +5,18 @@ import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.szymie.Benchmark;
 import org.szymie.client.strong.optimistic.NettySerializableTransaction;
+import org.szymie.client.strong.optimistic.Transaction;
 
 import java.util.*;
 
-public class BaseJMeterRequest extends AbstractJavaSamplerClient {
+public abstract class BaseJMeterRequest extends AbstractJavaSamplerClient {
 
     private List<String> keys;
-    private Random random;
-    private long delayInMillis;
-    private Map<String, Integer> operations;
+    Random random;
+    long delayInMillis;
+    Map<String, Integer> operations;
+    Map<String, Integer> reads;
+    Map<String, Integer> writes;
 
     @Override
     public void setupTest(JavaSamplerContext context) {
@@ -34,49 +37,9 @@ public class BaseJMeterRequest extends AbstractJavaSamplerClient {
         }
 
         random = new Random(Thread.currentThread().getId());
+        reads = new HashMap<>();
+        writes = new HashMap<>();
         operations = generateOperations(numberOfReads, numberOfWrites);
-    }
-
-    @Override
-    public SampleResult runTest(JavaSamplerContext javaSamplerContext) {
-
-
-        SampleResult result = new SampleResult();
-
-        result.sampleStart();
-
-        NettySerializableTransaction transaction = new NettySerializableTransaction();
-
-        boolean commit;
-
-        do {
-            transaction.begin();
-
-            operations.forEach((key, operation) -> {
-
-                if((operation & Benchmark.Operations.READ) != 0) {
-                    transaction.read(key);
-                }
-
-                if((operation & Benchmark.Operations.WRITE) != 0) {
-                    transaction.write(key, String.valueOf(random.nextInt()));
-                }
-            });
-
-            if(delayInMillis != 0) {
-                try {
-                    Thread.sleep(delayInMillis);
-                } catch (InterruptedException ignore) { }
-            }
-
-            commit = transaction.commit();
-
-        } while (!commit);
-
-        result.sampleEnd();
-        result.setSuccessful(true);
-
-        return result;
     }
 
     private Map<String, Integer> generateOperations(int numberOfReads, int numberOfWrites) {
@@ -87,6 +50,7 @@ public class BaseJMeterRequest extends AbstractJavaSamplerClient {
             String key = keys.get(random.nextInt(keys.size()));
             if(operations.put(key, Benchmark.Operations.READ) == null) {
                 i++;
+                reads.put(key, reads.getOrDefault(key, 0) + 1);
             }
         }
 
@@ -94,9 +58,24 @@ public class BaseJMeterRequest extends AbstractJavaSamplerClient {
             String key = keys.get(random.nextInt(keys.size()));
             if(operations.put(key, operations.getOrDefault(key, 0) | Benchmark.Operations.WRITE) == null) {
                 i++;
+                writes.put(key, reads.getOrDefault(key, 0) + 1);
             }
         }
 
         return operations;
+    }
+
+    void executeOperations(Transaction transaction) {
+
+        operations.forEach((key, operation) -> {
+
+            if((operation & Benchmark.Operations.READ) != 0) {
+                transaction.read(key);
+            }
+
+            if((operation & Benchmark.Operations.WRITE) != 0) {
+                transaction.write(key, String.valueOf(random.nextInt()));
+            }
+        });
     }
 }
