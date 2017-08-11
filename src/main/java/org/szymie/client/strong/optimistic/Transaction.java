@@ -1,9 +1,7 @@
 package org.szymie.client.strong.optimistic;
 
-public interface Transaction {
+import org.szymie.client.strong.ReadWriteRemoveCommitTransaction;
+
+public interface Transaction extends ReadWriteRemoveCommitTransaction {
     void begin();
-    String read(String key);
-    void write(String key, String value);
-    void remove(String key);
-    boolean commit();
 }

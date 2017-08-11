@@ -4,6 +4,7 @@ import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.szymie.Benchmark;
+import org.szymie.client.strong.ReadWriteRemoveCommitTransaction;
 import org.szymie.client.strong.optimistic.NettySerializableTransaction;
 import org.szymie.client.strong.optimistic.Transaction;
 
@@ -65,7 +66,7 @@ public abstract class BaseJMeterRequest extends AbstractJavaSamplerClient {
         return operations;
     }
 
-    void executeOperations(Transaction transaction) {
+    void executeOperations(ReadWriteRemoveCommitTransaction transaction) {
 
         operations.forEach((key, operation) -> {
 
