@@ -1,12 +1,13 @@
 package org.szymie.benchmark;
 
 import com.fasterxml.jackson.databind.ser.Serializers;
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.szymie.Benchmark;
 import org.szymie.client.strong.optimistic.NettySerializableTransaction;
 
-public class BaseOptimisticJMeterRequest extends BaseJMeterRequest {
+public abstract class BaseOptimisticJMeterRequest extends BaseJMeterRequest {
 
     @Override
     public SampleResult runTest(JavaSamplerContext javaSamplerContext) {
@@ -39,5 +40,4 @@ public class BaseOptimisticJMeterRequest extends BaseJMeterRequest {
 
         return result;
     }
-
 }

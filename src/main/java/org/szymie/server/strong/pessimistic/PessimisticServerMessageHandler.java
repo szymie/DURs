@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler<Messages.Message> {
 
     private ResourceRepository resourceRepository;
-    private AtomicLong timestamp;
+    private final AtomicLong timestamp;
     private SerializableClient client;
     private Map<Long, ChannelHandlerContext> contexts;
 
@@ -52,6 +52,7 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
                 handleBeginTransactionRequest(ctx, msg.getBeginTransactionRequest());
                 break;
             case READREQUEST:
+                System.err.println("Read request from " + msg.getReadRequest().getTimestamp());
                 handleReadRequest(ctx, msg.getReadRequest());
                 break;
             case COMMITREQUEST:
@@ -109,6 +110,16 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
     }
 
     private void handleCommitRequest(ChannelHandlerContext context, Messages.CommitRequest request) {
+
+        try {
+            synchronized(timestamp) {
+                while(timestamp.get() < request.getTimestamp()) {
+                    timestamp.wait();
+                }
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         TransactionMetadata transaction = activeTransactions.get(request.getTimestamp());
 

@@ -26,12 +26,17 @@ public class BeginTransactionService extends SerializableService {
 
         System.err.println("REQUEST");
 
-        long newTransactionTimestamp = timestamp.incrementAndGet();
 
         request = (Messages.BeginTransactionRequest) o;
         TransactionMetadata newTransaction = new TransactionMetadata(request.getReadsMap().keySet(), request.getWritesMap().keySet());
 
+        long newTransactionTimestamp = timestamp.get() + 1;
         activeTransactions.put(newTransactionTimestamp, newTransaction);
+
+        synchronized (timestamp) {
+            timestamp.set(newTransactionTimestamp);
+            timestamp.notify();
+        }
 
         System.err.println("activeTransactions: " + activeTransactions.size());
 
@@ -56,6 +61,10 @@ public class BeginTransactionService extends SerializableService {
         }
 
         System.err.println(newTransactionTimestamp + " can start " + newTransaction.getAwaitingToStart().isEmpty());
+
+        newTransaction.getAwaitingToStart().forEach(transactionId -> {
+            System.err.println(newTransactionTimestamp + " is waiting for " + transactionId);
+        });
 
         return Messages.BeginTransactionResponse.newBuilder()
                 .setTimestamp(newTransactionTimestamp)

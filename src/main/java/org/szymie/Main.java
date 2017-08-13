@@ -229,14 +229,17 @@ public class Main implements CommandLineRunner {
 
         @Bean
         public StateUpdateReceiver stateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions,
-                                                       ResourceRepository resourceRepository,  Map<Long, ChannelHandlerContext> contexts) {
-            return new StateUpdateReceiver(activeTransactions, resourceRepository, contexts);
+                                                       ResourceRepository resourceRepository,  Map<Long, ChannelHandlerContext> contexts,
+                                                       AtomicLong timestamp) {
+            return new StateUpdateReceiver(activeTransactions, resourceRepository, contexts, timestamp);
         }
 
         @Bean
         public Map<Long, TransactionMetadata> activeTransactions() {
             return new ConcurrentHashMap<>();
         }
+
+
 
         @Bean
         public String groupName() {

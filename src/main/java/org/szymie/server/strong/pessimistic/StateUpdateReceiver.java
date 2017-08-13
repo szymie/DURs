@@ -11,6 +11,7 @@ import org.szymie.messages.StateUpdate;
 import org.szymie.server.strong.optimistic.ResourceRepository;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreator {
@@ -18,14 +19,16 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
     private Map<Long, TransactionMetadata> activeTransactions;
     private ResourceRepository resourceRepository;
     private Map<Long, ChannelHandlerContext> contexts;
+    private final AtomicLong timestamp;
     private long lastApplied;
     private SortedSet<StateUpdate> waitingUpdates;
 
     public StateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions, ResourceRepository resourceRepository,
-                               Map<Long, ChannelHandlerContext> contexts) {
+                               Map<Long, ChannelHandlerContext> contexts, AtomicLong timestamp) {
         this.activeTransactions = activeTransactions;
         this.resourceRepository = resourceRepository;
         this.contexts = contexts;
+        this.timestamp = timestamp;
         lastApplied = 0;
         waitingUpdates = new TreeSet<>();
     }
@@ -33,11 +36,6 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
     //multiple deliveries
     @Override
     public void receive(Message message) {
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-        }
 
         System.err.println("message:" + message.getObject());
 
@@ -47,7 +45,7 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
 
     private void tryToDeliver(StateUpdate stateUpdate) {
 
-        System.err.println("Check lastApplied(" + lastApplied + ") and applyAfter(" + stateUpdate.getApplyAfter() + ")");
+        System.err.println("Check [" + stateUpdate.getTimestamp() + "] lastApplied(" + lastApplied + ") and applyAfter(" + stateUpdate.getApplyAfter() + ")");
 
         if(lastApplied >= stateUpdate.getApplyAfter()) {
 
@@ -61,7 +59,7 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
 
                 if(lastApplied >= waitingUpdate.getApplyAfter()) {
                     deliver(waitingUpdate);
-                    lastApplied = waitingUpdate.getTimestamp();
+                    lastApplied = Math.max(lastApplied, waitingUpdate.getTimestamp());
                     waitingUpdatesToRemove.add(waitingUpdate);
                 } else {
                     break;
@@ -72,15 +70,19 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
         } else {
             System.err.println("waitingUpdate: " + stateUpdate.getTimestamp());
             waitingUpdates.add(stateUpdate);
+            waitingUpdates.forEach(su -> System.err.println("waitingUpdate tm: " + su.getTimestamp()));
         }
     }
 
     private void deliver(StateUpdate stateUpdate) {
 
         long transactionTimestamp = stateUpdate.getTimestamp();
+
+        waitForActiveTransaction(transactionTimestamp);
+
         TransactionMetadata transaction = activeTransactions.get(transactionTimestamp);
 
-        System.err.println("1");
+        System.err.println("1 " + transaction == null);
 
         transaction.acquireForWrite();
 
@@ -94,6 +96,8 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
         Set<Long> awaitingForMe = transaction.getAwaitingForMe();
 
         for(Long waitingTransactionTimestamp : awaitingForMe) {
+
+            waitForActiveTransaction(waitingTransactionTimestamp);
 
             TransactionMetadata waitingTransaction = activeTransactions.get(waitingTransactionTimestamp);
 
@@ -113,6 +117,10 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
                     Messages.Message message = Messages.Message.newBuilder().setBeginTransactionResponse(response).build();
 
                     context.writeAndFlush(message);
+
+                    contexts.remove(waitingTransactionTimestamp);
+
+                    System.err.println(transactionTimestamp + " answered that " + waitingTransactionTimestamp + " can start");
                 }
             }
 
@@ -131,6 +139,22 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
         System.err.println("4");
 
         System.err.println("activeTransactions in update: " + activeTransactions.size());
+        activeTransactions.forEach((aLong, transactionMetadata) -> {
+            System.err.println("activeTransactions in update: " + aLong + " can start " + transactionMetadata.getAwaitingToStart().isEmpty());
+        });
+    }
+
+    private void waitForActiveTransaction(long transactionTimestamp) {
+
+        try {
+            synchronized(timestamp) {
+                while(timestamp.get() < transactionTimestamp) {
+                    timestamp.wait();
+                }
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void commitTransaction(StateUpdate stateUpdate) {

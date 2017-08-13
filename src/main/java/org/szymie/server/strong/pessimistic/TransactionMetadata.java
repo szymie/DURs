@@ -18,6 +18,8 @@ public class TransactionMetadata {
     private boolean finished;
     private ReadWriteLock lock;
 
+    private boolean canStart;
+
     public TransactionMetadata(Set<String> reads, Set<String> writes) {
 
         this.reads = reads;
@@ -30,6 +32,8 @@ public class TransactionMetadata {
         finished = false;
 
         lock = new ReentrantReadWriteLock();
+
+        canStart = false;
     }
 
     public TransactionMetadata(Set<String> reads, Set<String> writes, Set<Long> awaitingForMe, Set<Long> awaitingToStart, long applyAfter, boolean finished) {
@@ -88,5 +92,13 @@ public class TransactionMetadata {
 
     public Set<String> getWrites() {
         return writes;
+    }
+
+    public boolean canStart() {
+        return canStart;
+    }
+
+    public void setCanStart(boolean canStart) {
+        this.canStart = canStart;
     }
 }
