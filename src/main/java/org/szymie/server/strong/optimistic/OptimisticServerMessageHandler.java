@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.szymie.messages.Messages;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.szymie.messages.Messages.Message;
@@ -12,10 +13,12 @@ public class OptimisticServerMessageHandler extends SimpleChannelInboundHandler<
 
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
+    private ConcurrentSkipListSet<Long> liveTransactions;
 
-    public OptimisticServerMessageHandler(ResourceRepository resourceRepository, AtomicLong timestamp) {
+    public OptimisticServerMessageHandler(ResourceRepository resourceRepository, AtomicLong timestamp, ConcurrentSkipListSet<Long> liveTransactions) {
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
+        this.liveTransactions = liveTransactions;
     }
 
     @Override
@@ -32,7 +35,13 @@ public class OptimisticServerMessageHandler extends SimpleChannelInboundHandler<
 
     private void handleReadRequest(ChannelHandlerContext context, Messages.ReadRequest request) {
 
-        long transactionTimestamp = request.getTimestamp() == Long.MAX_VALUE ? timestamp.get() : request.getTimestamp();
+        boolean firstRead = request.getTimestamp() == Long.MAX_VALUE;
+
+        long transactionTimestamp = firstRead ? timestamp.get() : request.getTimestamp();
+
+        if(firstRead) {
+            liveTransactions.add(transactionTimestamp);
+        }
 
         Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
 

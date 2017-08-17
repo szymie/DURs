@@ -15,13 +15,14 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class SerializableCertificationService extends SerializableService implements DisposableBean {
+public class SerializableCertificationService extends SerializableService {
 
     @Value("${id}")
     private int id;
@@ -29,46 +30,13 @@ public class SerializableCertificationService extends SerializableService implem
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
 
-    private AtomicInteger throughputCounter;
-    private Thread throughputCounterThread;
+    private ConcurrentSkipListSet<Long> liveTransactions;
 
-    private PerformanceMeasurer performanceMeasurer;
-    private List<Double> performanceResults;
-
-    public SerializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp) {
+    public SerializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp, ConcurrentSkipListSet<Long> liveTransactions) {
 
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
-        throughputCounter = new AtomicInteger(0);
-        performanceResults = new LinkedList<>();
-
-        DecimalFormat decimalFormat = new DecimalFormat("#.##");
-        decimalFormat.setRoundingMode(RoundingMode.CEILING);
-
-        performanceMeasurer = new PerformanceMeasurer(10);
-
-        throughputCounterThread = new Thread(() -> {
-
-            while(!Thread.currentThread().isInterrupted()) {
-
-                int currentThroughput = throughputCounter.getAndSet(0);
-
-                performanceMeasurer.addMeasurePoint(currentThroughput);
-
-                double averageThroughput = performanceMeasurer.getThroughput();
-
-                if(averageThroughput != 0) {
-                    System.err.println(decimalFormat.format(averageThroughput));
-                    performanceResults.add(averageThroughput);
-                }
-
-                try {
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(1));
-                } catch (InterruptedException ignore) { }
-            }
-        });
-
-        throughputCounterThread.start();
+        this.liveTransactions = liveTransactions;
     }
 
     @Override
@@ -83,9 +51,6 @@ public class SerializableCertificationService extends SerializableService implem
         if(certificationSuccessful) {
 
             applyChanges(request);
-
-            throughputCounter.incrementAndGet();
-
             System.err.println("TRUE");
 
             return new CertificationResponse(true);
@@ -114,6 +79,12 @@ public class SerializableCertificationService extends SerializableService implem
 
     private void applyChanges(CertificationRequest request) {
 
+        Long oldestTransaction = liveTransactions.pollFirst();
+
+        if(oldestTransaction != null) {
+            resourceRepository.removeOutdatedVersions(oldestTransaction);
+        }
+
         long time = timestamp.incrementAndGet();
         request.writtenValues.forEach((key, value) -> {
 
@@ -137,22 +108,7 @@ public class SerializableCertificationService extends SerializableService implem
     protected Object makeObjectSnapshot() {
         System.err.println("makeObjectSnapshot");
         Map<String, ValueWithTimestamp> state = resourceRepository.getKeys().stream()
-                .collect(Collectors.toMap(Function.identity(), key -> resourceRepository.get(key, Integer.MAX_VALUE).get()));
+                .collect(Collectors.toMap(Function.identity(), key -> resourceRepository.get(key, Long.MAX_VALUE).get()));
         return new AbstractMap.SimpleEntry<>(timestamp.longValue(), state);
-    }
-
-    @Override
-    public void destroy() throws Exception {
-
-        throughputCounterThread.interrupt();
-
-        Calendar currentTime = Calendar.getInstance();
-        currentTime.setTime(Date.from(Instant.now()));
-
-        String now = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
-
-        try(PrintWriter out = new PrintWriter(String.format("results-%s-%d", now, id))) {
-            performanceResults.forEach(out::println);
-        }
     }
 }

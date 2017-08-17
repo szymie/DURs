@@ -17,7 +17,6 @@ import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfigurat
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.szymie.client.strong.optimistic.TransactionFactory;
 import org.szymie.server.strong.ChannelInboundHandlerFactory;
 import org.szymie.server.strong.ReplicaServer;
@@ -62,7 +61,15 @@ public class Main implements CommandLineRunner {
             String[] allArguments = (String[]) ArrayUtils.addAll(args, arguments);
 
             SpringApplication application = new SpringApplication(Main.class);
-            application.run(allArguments);
+
+            try {
+                application.run(allArguments);
+            } catch (Throwable e) {
+                System.err.println("Uncaught exception: " + e.getMessage());
+                e.printStackTrace(System.err);
+            }
+
+
         }
     }
 
@@ -168,32 +175,21 @@ public class Main implements CommandLineRunner {
         @Value("${port}")
         protected int port;
 
-        /*@Bean
-        public ActorSystem actorSystem() {
-
-            Properties properties = new Properties();
-            properties.setProperty("akka.remote.netty.tcp.hostname", address);
-            properties.setProperty("akka.remote.netty.tcp.port", String.valueOf(port));
-
-            Config overrides = ConfigFactory.parseProperties(properties);
-            Config config = overrides.withFallback(ConfigFactory.load());
-
-            return ActorSystem.create(String.format("replica-%d", id), config);
+        @Bean
+        public ConcurrentSkipListSet<Long> liveTransactions() {
+            return new ConcurrentSkipListSet<>();
         }
 
         @Bean
-        public ActorRef frontActor(ActorSystem actorSystem, ResourceRepository resourceRepository, AtomicLong timestamp) {
-            return actorSystem.actorOf(Props.create(FrontActor.class, resourceRepository, timestamp), "front");
-        }*/
-
-        @Bean
-        public OptimisticServerChannelInboundHandlerFactory optimisticChannelHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp) {
-            return new OptimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp);
+        public OptimisticServerChannelInboundHandlerFactory optimisticChannelHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp,
+                                                                                            ConcurrentSkipListSet<Long> liveTransactions) {
+            return new OptimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp, liveTransactions);
         }
 
         @Bean
-        public SerializableCertificationService serializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp) {
-            return new SerializableCertificationService(resourceRepository, timestamp);
+        public SerializableCertificationService serializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp,
+                                                                                 ConcurrentSkipListSet<Long> liveTransactions) {
+            return new SerializableCertificationService(resourceRepository, timestamp, liveTransactions);
         }
     }
 
@@ -227,45 +223,54 @@ public class Main implements CommandLineRunner {
     @Profile("pessimistic")
     private static class PessimisticConfig {
 
-        @Bean
+        @Value("${id}")
+        protected int id;
+
+        /*@Bean
         public StateUpdateReceiver stateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions,
                                                        ResourceRepository resourceRepository,  Map<Long, ChannelHandlerContext> contexts,
                                                        AtomicLong timestamp) {
             return new StateUpdateReceiver(activeTransactions, resourceRepository, contexts, timestamp);
-        }
+        }*/
 
         @Bean
         public Map<Long, TransactionMetadata> activeTransactions() {
-            return new ConcurrentHashMap<>();
+            return new HashMap<>();
         }
 
-
+        @Bean
+        public BlockingMap<Long, Boolean> activeTransactionFlags() {
+            return new BlockingMap<>();
+        }
 
         @Bean
         public String groupName() {
             return "cluster-0";
         }
 
-        @Bean
+        /*@Bean
         public GroupMessenger groupMessenger(String groupName, StateUpdateReceiver receiver) {
             return new GroupMessenger(groupName, receiver);
-        }
+        }*/
 
         @Bean
-        public Map<Long, ChannelHandlerContext> contexts() {
-            return new ConcurrentHashMap<>();
+        public BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts() {
+            return new BlockingMap<>();
         }
 
         @Bean
         public PessimisticServerChannelInboundHandlerFactory pessimisticServerChannelInboundHandlerFactory(
-                ResourceRepository resourceRepository, AtomicLong timestamp, Map<Long, ChannelHandlerContext> contexts,
-                Map<Long, TransactionMetadata> actimeTransactions, GroupMessenger groupMessenger) {
-            return new PessimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp, contexts, actimeTransactions, groupMessenger);
+                ResourceRepository resourceRepository, AtomicLong timestamp, BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
+                Map<Long, TransactionMetadata> activeTransactions,
+                BlockingMap<Long, Boolean> activeTransactionFlags) {
+            return new PessimisticServerChannelInboundHandlerFactory(id, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags);
         }
 
         @Bean
-        public BeginTransactionService beginTransactionService(AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions) {
-            return new BeginTransactionService(activeTransactions, timestamp);
+        public TransactionService transactionService(Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long,
+                BlockingQueue<ChannelHandlerContext>> contexts, ResourceRepository resourceRepository,
+                                                     BlockingMap<Long, Boolean> aciveTransactionFlags) {
+            return new TransactionService(id, activeTransactions, contexts, resourceRepository, aciveTransactionFlags);
         }
     }
 

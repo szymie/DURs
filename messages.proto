@@ -22,8 +22,9 @@ message WriteRequest {
 }
 
 message BeginTransactionRequest {
-  map<string, int32> reads = 1;
-  map<string, int32> writes = 2;
+  int32 id = 1;
+  map<string, int32> reads = 2;
+  map<string, int32> writes = 3;
 }
 
 message BeginTransactionResponse {
@@ -39,6 +40,15 @@ message CommitRequest {
 message CommitResponse {
 }
 
+message StateUpdateRequest {
+    int64 timestamp = 1;
+    int64 applyAfter = 2;
+    map<string, string> writes = 3;
+}
+
+message StateUpdateResponse {
+}
+
 message Message {
 
   oneof oneof_messages {
@@ -51,6 +61,8 @@ message Message {
 
     CommitRequest commitRequest = 6;
     CommitResponse commitResponse = 7;
+
+    StateUpdateRequest stateUpdateRequest = 8;
   }
 
 }

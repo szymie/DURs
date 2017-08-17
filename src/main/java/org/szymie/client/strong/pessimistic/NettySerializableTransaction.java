@@ -19,6 +19,10 @@ public class NettySerializableTransaction implements Transaction {
         valueGateway = new NettyValueGateway(remoteGateway);
     }
 
+    public long getTimestamp() {
+        return valueGateway.getTransactionData().timestamp;
+    }
+
     @Override
     public void begin(Map<String, Integer> reads, Map<String, Integer> writes) {
 

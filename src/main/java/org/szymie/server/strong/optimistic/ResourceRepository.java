@@ -58,4 +58,12 @@ public class ResourceRepository {
     public Set<String> getKeys() {
         return values.keySet();
     }
+
+    public void removeOutdatedVersions(long version) {
+        values.forEach((key, versions) -> {
+            Long highestKey = versions.lastKey();
+            Long upperBound = Math.min(highestKey, version);
+            versions.headMap(upperBound).clear();
+        });
+    }
 }

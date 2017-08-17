@@ -5,8 +5,7 @@ import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.szymie.Benchmark;
 import org.szymie.client.strong.ReadWriteRemoveCommitTransaction;
-import org.szymie.client.strong.optimistic.NettySerializableTransaction;
-import org.szymie.client.strong.optimistic.Transaction;
+import org.szymie.client.strong.pessimistic.NettySerializableTransaction;
 
 import java.util.*;
 
@@ -18,6 +17,7 @@ public abstract class BaseJMeterRequest extends AbstractJavaSamplerClient {
     Map<String, Integer> operations;
     Map<String, Integer> reads;
     Map<String, Integer> writes;
+    String replicas;
 
     @Override
     public void setupTest(JavaSamplerContext context) {
@@ -30,6 +30,8 @@ public abstract class BaseJMeterRequest extends AbstractJavaSamplerClient {
         delayInMillis = context.getIntParameter("delayInMillis");
 
         int numberOfKeys = context.getIntParameter("numberOfKeys");
+
+        replicas = context.getParameter("replicaAddresses");
 
         keys = new ArrayList<>(numberOfKeys);
 
@@ -68,15 +70,30 @@ public abstract class BaseJMeterRequest extends AbstractJavaSamplerClient {
 
     void executeOperations(ReadWriteRemoveCommitTransaction transaction) {
 
-        operations.forEach((key, operation) -> {
+        //NettySerializableTransaction t = (NettySerializableTransaction) transaction;
+
+        //int i = 0;
+
+        for (Map.Entry<String, Integer> operationAndKey : operations.entrySet()) {
+
+            String key = operationAndKey.getKey();
+            int operation = operationAndKey.getValue();
 
             if((operation & Benchmark.Operations.READ) != 0) {
+                //System.err.println(t.getTimestamp() + " trying to read " + i);
                 transaction.read(key);
+                //System.err.println(t.getTimestamp() + " read " + i);
+                //i++;
             }
 
             if((operation & Benchmark.Operations.WRITE) != 0) {
                 transaction.write(key, String.valueOf(random.nextInt()));
             }
+        }
+
+
+        operations.forEach((key, operation) -> {
+
         });
     }
 }

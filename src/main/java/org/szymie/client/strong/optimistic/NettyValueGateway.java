@@ -18,6 +18,11 @@ public class NettyValueGateway extends BaseValueGateway {
         configuration = new Configuration();
     }
 
+    public NettyValueGateway(RemoteGateway remoteGateway, Configuration configuration) {
+        this.remoteGateway = remoteGateway;
+        this.configuration = configuration;
+    }
+
     @Override
     public void openSession() {
         Map.Entry<Integer, String> replicaEndpoint = configuration.getRandomReplicaEndpoint();

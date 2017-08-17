@@ -2,6 +2,7 @@ package org.szymie.client.strong.optimistic;
 
 import lsr.paxos.client.ReplicationException;
 import lsr.paxos.client.SerializableClient;
+import org.szymie.Configuration;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
 
@@ -16,8 +17,12 @@ public class NettySerializableTransaction implements Transaction {
     private SerializableClient client;
 
     public NettySerializableTransaction() {
+        this(new Configuration());
+    }
 
-        this.valueGateway = new NettyValueGateway(new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory())));
+    public NettySerializableTransaction(Configuration configuration) {
+
+        this.valueGateway = new NettyValueGateway(new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory())), configuration);
         state = TransactionState.NOT_STARTED;
 
         try {

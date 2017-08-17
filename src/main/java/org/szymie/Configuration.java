@@ -10,11 +10,18 @@ public class Configuration {
     private String fileName;
     private Properties properties;
     private Random random;
+    private Map<String, String> cache;
 
     public Configuration() {
         fileName = "config.properties";
         properties = new Properties();
         random = new Random(System.nanoTime());
+        cache = new HashMap<>();
+    }
+
+    public Configuration(Map<String, String> properties) {
+        this();
+        cache.putAll(properties);
     }
 
     public Configuration(String fileName) {
@@ -28,27 +35,30 @@ public class Configuration {
 
     public String get(String key) {
 
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
+        return cache.computeIfAbsent(key, requestedKey -> {
 
-        try {
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
 
-            if(inputStream == null) {
-                throw new RuntimeException(new FileNotFoundException("config file '" + fileName + "' not found in the classpath"));
-            }
+            try {
 
-            properties.load(inputStream);
-            return properties.getProperty(key);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
+                if(inputStream == null) {
+                    throw new RuntimeException(new FileNotFoundException("config file '" + fileName + "' not found in the classpath"));
+                }
 
-            if(inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException ignore) {
+                properties.load(inputStream);
+                return properties.getProperty(requestedKey);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+
+                if(inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException ignore) {
+                    }
                 }
             }
-        }
+        });
     }
 
     public Map.Entry<Integer, String> getRandomReplicaEndpoint() {

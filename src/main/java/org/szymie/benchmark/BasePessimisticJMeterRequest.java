@@ -20,6 +20,10 @@ public abstract class BasePessimisticJMeterRequest extends BaseJMeterRequest {
 
         transaction.begin(reads, writes);
 
+        long timestamp = transaction.getTimestamp();
+
+        System.err.println(timestamp + " started");
+
         executeOperations(transaction);
 
         /*if(delayInMillis != 0) {
@@ -28,7 +32,11 @@ public abstract class BasePessimisticJMeterRequest extends BaseJMeterRequest {
             } catch (InterruptedException ignore) { }
         }*/
 
+        System.err.println(timestamp + " trying to commit");
+
         transaction.commit();
+
+        System.err.println(timestamp + " committed");
 
         result.sampleEnd();
         result.setSuccessful(true);

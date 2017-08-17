@@ -14,9 +14,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreator {
+public class StateUpdateReceiver extends ReceiverAdapter {
 
-    private Map<Long, TransactionMetadata> activeTransactions;
+    /*private Map<Long, TransactionMetadata> activeTransactions;
     private ResourceRepository resourceRepository;
     private Map<Long, ChannelHandlerContext> contexts;
     private final AtomicLong timestamp;
@@ -181,7 +181,7 @@ public class StateUpdateReceiver extends ReceiverAdapter implements HeadersCreat
             context.writeAndFlush(message);
             contexts.remove(transactionTimestamp);
         }
-    }
+    }*/
 
     @Override
     public void viewAccepted(View view) {
