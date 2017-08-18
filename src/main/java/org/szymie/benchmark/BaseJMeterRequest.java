@@ -4,6 +4,7 @@ import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.szymie.Benchmark;
+import org.szymie.Configuration;
 import org.szymie.client.strong.ReadWriteRemoveCommitTransaction;
 import org.szymie.client.strong.pessimistic.NettySerializableTransaction;
 
@@ -17,7 +18,7 @@ public abstract class BaseJMeterRequest extends AbstractJavaSamplerClient {
     Map<String, Integer> operations;
     Map<String, Integer> reads;
     Map<String, Integer> writes;
-    String replicas;
+    Configuration configuration;
 
     @Override
     public void setupTest(JavaSamplerContext context) {
@@ -31,7 +32,20 @@ public abstract class BaseJMeterRequest extends AbstractJavaSamplerClient {
 
         int numberOfKeys = context.getIntParameter("numberOfKeys");
 
-        replicas = context.getParameter("replicaAddresses");
+        String replicas = context.getParameter("replicaAddresses");
+        String paxosProcesses = context.getParameter("paxosProcesses");
+
+        Map<String, String> properties = new HashMap<>();
+
+        if(replicas != null) {
+            properties.put("replicas", replicas);
+        }
+
+        if(paxosProcesses != null) {
+            properties.put("paxosProcesses", paxosProcesses);
+        }
+
+        configuration = new Configuration(properties);
 
         keys = new ArrayList<>(numberOfKeys);
 

@@ -34,6 +34,10 @@ public class Configuration {
     }
 
     public String get(String key) {
+        return get(key, null);
+    }
+
+    public String get(String key, String defaultValue) {
 
         return cache.computeIfAbsent(key, requestedKey -> {
 
@@ -46,7 +50,7 @@ public class Configuration {
                 }
 
                 properties.load(inputStream);
-                return properties.getProperty(requestedKey);
+                return properties.getProperty(requestedKey, defaultValue);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {

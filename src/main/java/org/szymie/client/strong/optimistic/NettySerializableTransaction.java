@@ -1,16 +1,20 @@
 package org.szymie.client.strong.optimistic;
 
+import lsr.common.PID;
 import lsr.paxos.client.ReplicationException;
 import lsr.paxos.client.SerializableClient;
 import org.szymie.Configuration;
+import org.szymie.PaxosProcessesCreator;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
-public class NettySerializableTransaction implements Transaction {
+public class NettySerializableTransaction implements Transaction, PaxosProcessesCreator {
 
     private NettyValueGateway valueGateway;
     private TransactionState state;
@@ -25,8 +29,17 @@ public class NettySerializableTransaction implements Transaction {
         this.valueGateway = new NettyValueGateway(new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory())), configuration);
         state = TransactionState.NOT_STARTED;
 
+        String paxosProcesses = configuration.get("paxosProcesses", "");
+        List<PID> processes = createPaxosProcesses(paxosProcesses);
+
+        InputStream paxosProperties = getClass().getClassLoader().getResourceAsStream("paxos.properties");
+
         try {
-            client = new SerializableClient(new lsr.common.Configuration(getClass().getClassLoader().getResourceAsStream("paxos.properties")));
+            if(processes.isEmpty()) {
+                client = new SerializableClient(new lsr.common.Configuration(paxosProperties));
+            } else {
+                client = new SerializableClient(new lsr.common.Configuration(processes, paxosProperties));
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

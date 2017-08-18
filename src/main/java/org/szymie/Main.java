@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.netty.channel.ChannelHandlerContext;
+import lsr.common.PID;
 import lsr.paxos.replica.Replica;
 import lsr.service.SerializableService;
 import org.apache.commons.cli.*;
@@ -24,13 +25,15 @@ import org.szymie.server.strong.ServerChannelInitializer;
 import org.szymie.server.strong.optimistic.*;
 import org.szymie.server.strong.pessimistic.*;
 
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
-public class Main implements CommandLineRunner {
+public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
     public static class ExtendedDefaultParser extends DefaultParser {
 
@@ -54,7 +57,7 @@ public class Main implements CommandLineRunner {
             runBenchmark(commandLine);
         } else {
 
-            String[] arguments = Stream.of("id", "port", "address")
+            String[] arguments = Stream.of("id", "port", "address", "paxosProcesses")
                     .map(argument -> String.format("--%s=%s", argument, commandLine.getOptionValue(argument)))
                     .toArray(String[]::new);
 
@@ -87,6 +90,7 @@ public class Main implements CommandLineRunner {
         addToOptions(options, null, "id", true);
         addToOptions(options, null, "port", true);
         addToOptions(options, null, "address", true);
+        addToOptions(options, null, "paxosProcesses", true);
         addToOptions(options, null, "keys", true);
         addToOptions(options, null, "threads", true);
         addToOptions(options, null, "readsInQuery", true);
@@ -155,6 +159,9 @@ public class Main implements CommandLineRunner {
 
     @Value("${port}")
     protected int port;
+
+    @Value("${paxosProcesses:\"\"}")
+    protected String paxosProcesses;
 
     private SerializableService service;
 
@@ -276,7 +283,18 @@ public class Main implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        Replica replica = new Replica(new lsr.common.Configuration(getClass().getClassLoader().getResourceAsStream("paxos.properties")), id, service);
+
+        Replica replica;
+        InputStream paxosProperties = getClass().getClassLoader().getResourceAsStream("paxos.properties");
+
+        List<PID> processes = createPaxosProcesses(paxosProcesses);
+
+        if(!processes.isEmpty()) {
+            replica = new Replica(new lsr.common.Configuration(processes, paxosProperties), id, service);
+        } else {
+            replica = new Replica(new lsr.common.Configuration(paxosProperties), id, service);
+        }
+
         replica.start();
     }
 }

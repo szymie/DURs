@@ -20,10 +20,7 @@ public abstract class BaseOptimisticJMeterRequest extends BaseJMeterRequest {
 
         result.sampleStart();
 
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("replicas", replicas);
-
-        NettySerializableTransaction transaction = new NettySerializableTransaction(new Configuration(configuration));
+        NettySerializableTransaction transaction = new NettySerializableTransaction(configuration);
 
         boolean commit;
 
