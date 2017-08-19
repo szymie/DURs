@@ -8,6 +8,8 @@ public interface DefaultRW20Request {
 
         Arguments params = new Arguments();
 
+        params.addArgument("replicas", "${replicas}");
+        params.addArgument("paxosProcesses", "${paxosProcesses}");
         params.addArgument("numberOfReadsInQuery", "100");
         params.addArgument("numberOfReads", "8");
         params.addArgument("numberOfWrites", "2");

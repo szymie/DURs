@@ -3,6 +3,9 @@ package org.szymie.benchmark;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.testelement.property.JMeterProperty;
+import org.apache.jmeter.threads.JMeterContext;
+import org.apache.jmeter.threads.JMeterContextService;
 import org.szymie.Benchmark;
 import org.szymie.Configuration;
 import org.szymie.client.strong.ReadWriteRemoveCommitTransaction;
@@ -32,17 +35,30 @@ public abstract class BaseJMeterRequest extends AbstractJavaSamplerClient {
 
         int numberOfKeys = context.getIntParameter("numberOfKeys");
 
-        String replicas = context.getParameter("replicaAddresses");
+        String replicas = context.getParameter("replicas");
         String paxosProcesses = context.getParameter("paxosProcesses");
 
         Map<String, String> properties = new HashMap<>();
 
         if(replicas != null) {
+            System.err.println("replicas: " + replicas);
             properties.put("replicas", replicas);
+        } else {
+            System.err.println("null");
+
+            JMeterProperty replicas1 = JMeterContextService.getContext().getCurrentSampler().getProperty("replicas");
+            JMeterProperty replicas2 = JMeterContextService.getContext().getCurrentSampler().getProperty("${replicas}");
+
+            System.err.println("replicas1: " + replicas1);
+            System.err.println("replicas2: " + replicas2);
+
         }
 
         if(paxosProcesses != null) {
+            System.err.println("paxosProcesses: " + paxosProcesses);
             properties.put("paxosProcesses", paxosProcesses);
+        } else {
+            System.err.println("null");
         }
 
         configuration = new Configuration(properties);
@@ -104,10 +120,5 @@ public abstract class BaseJMeterRequest extends AbstractJavaSamplerClient {
                 transaction.write(key, String.valueOf(random.nextInt()));
             }
         }
-
-
-        operations.forEach((key, operation) -> {
-
-        });
     }
 }
