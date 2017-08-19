@@ -1,20 +1,17 @@
 package org.szymie.benchmark;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
+
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
-import org.szymie.Benchmark;
-import org.szymie.Configuration;
 import org.szymie.client.strong.optimistic.NettySerializableTransaction;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public abstract class BaseOptimisticJMeterRequest extends BaseJMeterRequest {
+public class OptimisticRWJMeterRequest extends BaseRWJMeterRequest {
 
     @Override
     public SampleResult runTest(JavaSamplerContext javaSamplerContext) {
+
+        System.err.println("start");
 
         SampleResult result = new SampleResult();
 
@@ -30,6 +27,8 @@ public abstract class BaseOptimisticJMeterRequest extends BaseJMeterRequest {
             attempts++;
 
             transaction.begin();
+
+            System.err.println("executeOperations");
 
             executeOperations(transaction);
 
