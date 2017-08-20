@@ -39,10 +39,6 @@ public class OptimisticServerMessageHandler extends SimpleChannelInboundHandler<
 
         long transactionTimestamp = firstRead ? timestamp.get() : request.getTimestamp();
 
-        if(firstRead) {
-            liveTransactions.add(transactionTimestamp);
-        }
-
         Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
 
         Messages.ReadResponse readResponse = valueOptional.map(valueWithTimestamp ->

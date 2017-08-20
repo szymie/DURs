@@ -79,12 +79,6 @@ public class SerializableCertificationService extends SerializableService {
 
     private void applyChanges(CertificationRequest request) {
 
-        Long oldestTransaction = liveTransactions.pollFirst();
-
-        if(oldestTransaction != null) {
-            resourceRepository.removeOutdatedVersions(oldestTransaction);
-        }
-
         long time = timestamp.incrementAndGet();
         request.writtenValues.forEach((key, value) -> {
 
