@@ -9,22 +9,16 @@ import org.szymie.client.strong.pessimistic.RemoteGateway;
 import org.szymie.messages.Messages;
 import org.szymie.server.strong.ChannelInboundHandlerFactory;
 
-public class NettyRemoteGateway implements DisposableBean, RemoteGateway {
+public class NettyRemoteGateway implements RemoteGateway {
 
     private Bootstrap bootstrap;
     private Channel channel;
     private EventLoopGroup workerGroup;
     private BaseClientMessageHandler handler;
+    private ClientChannelInitializer clientChannelInitializer;
 
     public  NettyRemoteGateway(ClientChannelInitializer clientChannelInitializer) {
-
-        workerGroup = new NioEventLoopGroup();
-
-        bootstrap = new Bootstrap();
-        bootstrap.group(workerGroup);
-        bootstrap.channel(NioSocketChannel.class);
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-        bootstrap.handler(clientChannelInitializer);
+        this.clientChannelInitializer = clientChannelInitializer;
     }
 
     public <T> void send(T object) {
@@ -40,6 +34,14 @@ public class NettyRemoteGateway implements DisposableBean, RemoteGateway {
         String[] addressAndPort = endPoint.split(":");
 
         try {
+
+            workerGroup = new NioEventLoopGroup(1);
+            bootstrap = new Bootstrap();
+            bootstrap.group(workerGroup);
+            bootstrap.channel(NioSocketChannel.class);
+            bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+            bootstrap.handler(clientChannelInitializer);
+
             channel = bootstrap.connect(addressAndPort[0], Integer.parseInt(addressAndPort[1])).sync().channel();
             handler =  channel.pipeline().get(BaseClientMessageHandler.class);
         } catch (InterruptedException e) {
@@ -50,14 +52,10 @@ public class NettyRemoteGateway implements DisposableBean, RemoteGateway {
 
     public void disconnect() {
         try {
-            channel.close().sync();
+            channel.closeFuture().sync();
+            workerGroup.shutdownGracefully();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        workerGroup.shutdownGracefully();
     }
 }
