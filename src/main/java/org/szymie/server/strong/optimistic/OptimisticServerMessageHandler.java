@@ -1,11 +1,13 @@
 package org.szymie.server.strong.optimistic;
 
+import com.google.common.collect.TreeMultiset;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.szymie.messages.Messages;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
 
 import static org.szymie.messages.Messages.Message;
 
@@ -13,12 +15,15 @@ public class OptimisticServerMessageHandler extends SimpleChannelInboundHandler<
 
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
-    private ConcurrentSkipListSet<Long> liveTransactions;
+    private TreeMultiset<Long> liveTransactions;
+    private Lock liveTransactionsLock;
 
-    public OptimisticServerMessageHandler(ResourceRepository resourceRepository, AtomicLong timestamp, ConcurrentSkipListSet<Long> liveTransactions) {
+    public OptimisticServerMessageHandler(ResourceRepository resourceRepository, AtomicLong timestamp,
+                                          TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
         this.liveTransactions = liveTransactions;
+        this.liveTransactionsLock = liveTransactionsLock;
     }
 
     @Override
@@ -30,7 +35,25 @@ public class OptimisticServerMessageHandler extends SimpleChannelInboundHandler<
             case READREQUEST:
                 handleReadRequest(ctx, msg.getReadRequest());
                 break;
+            case COMMITREQUEST:
+                handleCommitRequest(ctx, msg.getCommitRequest());
+                break;
         }
+    }
+
+    private void handleCommitRequest(ChannelHandlerContext context, Messages.CommitRequest commitRequest) {
+
+        liveTransactionsLock.lock();
+        liveTransactions.remove(commitRequest.getTimestamp());
+        liveTransactionsLock.unlock();
+
+        Messages.CommitResponse commitResponse = Messages.CommitResponse.newBuilder().build();
+
+        Message response = Message.newBuilder()
+                .setCommitResponse(commitResponse)
+                .build();
+
+        context.writeAndFlush(response);
     }
 
     private void handleReadRequest(ChannelHandlerContext context, Messages.ReadRequest request) {
@@ -38,6 +61,12 @@ public class OptimisticServerMessageHandler extends SimpleChannelInboundHandler<
         boolean firstRead = request.getTimestamp() == Long.MAX_VALUE;
 
         long transactionTimestamp = firstRead ? timestamp.get() : request.getTimestamp();
+
+        if(firstRead) {
+            liveTransactionsLock.lock();
+            liveTransactions.add(transactionTimestamp);
+            liveTransactionsLock.unlock();
+        }
 
         Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
 

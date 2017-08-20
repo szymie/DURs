@@ -1,5 +1,7 @@
 package org.szymie.server.strong.optimistic;
 
+import com.google.common.collect.Multiset;
+import com.google.common.collect.TreeMultiset;
 import lsr.service.SerializableService;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,13 +33,16 @@ public class SerializableCertificationService extends SerializableService {
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
 
-    private ConcurrentSkipListSet<Long> liveTransactions;
+    private TreeMultiset<Long> liveTransactions;
+    private Lock liveTransactionsLock;
 
-    public SerializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp, ConcurrentSkipListSet<Long> liveTransactions) {
+    public SerializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp,
+                                            TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
 
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
         this.liveTransactions = liveTransactions;
+        this.liveTransactionsLock = liveTransactionsLock;
     }
 
     @Override
@@ -88,6 +94,18 @@ public class SerializableCertificationService extends SerializableService {
                 resourceRepository.put(key, value.value, time);
             }
         });
+
+        liveTransactionsLock.lock();
+
+        Multiset.Entry<Long> oldestTransaction = liveTransactions.firstEntry();
+
+        if(oldestTransaction != null) {
+            Long oldestTransactionTimestamp = oldestTransaction.getElement();
+            resourceRepository.removeOutdatedVersions(oldestTransactionTimestamp);
+        }
+
+        liveTransactions.remove(request.timestamp);
+        liveTransactionsLock.unlock();
     }
 
     @Override

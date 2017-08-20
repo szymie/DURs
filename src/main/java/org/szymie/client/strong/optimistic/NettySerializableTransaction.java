@@ -7,6 +7,7 @@ import org.szymie.Configuration;
 import org.szymie.PaxosProcessesCreator;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
+import org.szymie.messages.Messages;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +17,11 @@ import java.util.List;
 
 public class NettySerializableTransaction implements Transaction, PaxosProcessesCreator {
 
+    private NettyRemoteGateway remoteGateway;
     private NettyValueGateway valueGateway;
     private TransactionState state;
     private SerializableClient client;
+
 
     public NettySerializableTransaction() {
         this(new Configuration());
@@ -26,7 +29,9 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
 
     public NettySerializableTransaction(Configuration configuration) {
 
-        this.valueGateway = new NettyValueGateway(new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory())), configuration);
+        remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory()));
+
+        this.valueGateway = new NettyValueGateway(remoteGateway, configuration);
         state = TransactionState.NOT_STARTED;
 
         String paxosProcesses = configuration.get("paxosProcesses", "");
@@ -99,6 +104,17 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
         CertificationResponse response;
 
         if(request.writtenValues.isEmpty()) {
+
+            Messages.CommitRequest commitRequest = Messages.CommitRequest.newBuilder()
+                    .setTimestamp(transactionData.timestamp)
+                    .build();
+
+            Messages.Message message = Messages.Message.newBuilder()
+                    .setCommitRequest(commitRequest)
+                    .build();
+
+            remoteGateway.sendAndReceive(message , Messages.CommitResponse.class);
+
             response = new CertificationResponse(true);
         } else {
             response = commitUpdateTransaction(request);

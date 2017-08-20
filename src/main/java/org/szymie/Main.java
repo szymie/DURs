@@ -1,6 +1,7 @@
 package org.szymie;
 
 import akka.actor.ActorSystem;
+import com.google.common.collect.TreeMultiset;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.netty.channel.ChannelHandlerContext;
@@ -29,6 +30,8 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -183,20 +186,25 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         protected int port;
 
         @Bean
-        public ConcurrentSkipListSet<Long> liveTransactions() {
-            return new ConcurrentSkipListSet<>();
+        public TreeMultiset<Long> liveTransactions() {
+            return TreeMultiset.create();
+        }
+
+        @Bean
+        public Lock liveTransactionsLock() {
+            return new ReentrantLock(true);
         }
 
         @Bean
         public OptimisticServerChannelInboundHandlerFactory optimisticChannelHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp,
-                                                                                            ConcurrentSkipListSet<Long> liveTransactions) {
-            return new OptimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp, liveTransactions);
+                                                                                            TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+            return new OptimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp, liveTransactions, liveTransactionsLock);
         }
 
         @Bean
         public SerializableCertificationService serializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp,
-                                                                                 ConcurrentSkipListSet<Long> liveTransactions) {
-            return new SerializableCertificationService(resourceRepository, timestamp, liveTransactions);
+                                                                                 TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+            return new SerializableCertificationService(resourceRepository, timestamp, liveTransactions, liveTransactionsLock);
         }
     }
 
