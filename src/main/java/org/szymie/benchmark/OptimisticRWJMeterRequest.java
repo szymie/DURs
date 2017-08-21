@@ -42,11 +42,8 @@ public class OptimisticRWJMeterRequest extends BaseRWJMeterRequest {
 
         } while (!commit);
 
-        System.err.println("committed");
-
         result.sampleEnd();
         result.setSuccessful(true);
-        result.setSampleCount(attempts);
 
         return result;
     }
