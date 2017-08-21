@@ -41,6 +41,8 @@ public class OptimisticROJMeterRequest extends BaseROJMeterRequest {
 
         } while (!commit);
 
+        System.err.println("committed");
+
         result.sampleEnd();
         result.setSuccessful(true);
         result.setSampleCount(attempts);

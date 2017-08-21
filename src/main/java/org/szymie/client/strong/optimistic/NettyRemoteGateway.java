@@ -31,17 +31,17 @@ public class NettyRemoteGateway implements RemoteGateway {
 
     public void connect(String endPoint) {
 
+        workerGroup = new NioEventLoopGroup(1);
+
+        bootstrap = new Bootstrap();
+        bootstrap.group(workerGroup);
+        bootstrap.channel(NioSocketChannel.class);
+        bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+        bootstrap.handler(clientChannelInitializer);
+
         String[] addressAndPort = endPoint.split(":");
 
         try {
-
-            workerGroup = new NioEventLoopGroup(1);
-            bootstrap = new Bootstrap();
-            bootstrap.group(workerGroup);
-            bootstrap.channel(NioSocketChannel.class);
-            bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-            bootstrap.handler(clientChannelInitializer);
-
             channel = bootstrap.connect(addressAndPort[0], Integer.parseInt(addressAndPort[1])).sync().channel();
             handler =  channel.pipeline().get(BaseClientMessageHandler.class);
         } catch (InterruptedException e) {
@@ -52,7 +52,7 @@ public class NettyRemoteGateway implements RemoteGateway {
 
     public void disconnect() {
         try {
-            channel.closeFuture().sync();
+            channel.close().sync();
             workerGroup.shutdownGracefully();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
