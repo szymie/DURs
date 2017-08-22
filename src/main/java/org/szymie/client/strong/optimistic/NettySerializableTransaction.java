@@ -126,7 +126,9 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
             state = TransactionState.ABORTED;
         }
 
-        valueGateway.closeSession();
+        if(valueGateway.isSessionOpen()) {
+            valueGateway.closeSession();
+        }
 
         return response.success;
     }

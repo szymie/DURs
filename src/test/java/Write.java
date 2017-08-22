@@ -4,7 +4,7 @@ import org.szymie.client.strong.optimistic.NettySerializableTransaction;
 import java.util.HashMap;
 import java.util.stream.IntStream;
 
-public class ReadB {
+public class Write {
 
     public static void main(String[] args) {
 
@@ -16,19 +16,7 @@ public class ReadB {
 
         t.begin();
 
-
-        long sum = IntStream.range(0, 300).mapToLong(i -> {
-
-            String read = t.read("key" + i);
-
-            if (read == null) {
-                return 1L;
-            } else {
-                return 0L;
-            }
-        }).sum();
-
-        System.out.println("sum: "+ sum);
+        IntStream.range(0, 300).forEach(i -> t.write("key" + i, "val"));
 
         t.commit();
     }
