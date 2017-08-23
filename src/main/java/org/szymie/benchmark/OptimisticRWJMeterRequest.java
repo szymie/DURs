@@ -32,12 +32,6 @@ public class OptimisticRWJMeterRequest extends BaseRWJMeterRequest {
 
             executeOperations(transaction);
 
-            if(delayInMillis != 0) {
-                try {
-                    Thread.sleep(delayInMillis);
-                } catch (InterruptedException ignore) { }
-            }
-
             commit = transaction.commit();
 
         } while (!commit);

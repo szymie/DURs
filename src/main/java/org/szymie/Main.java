@@ -60,7 +60,7 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
             runBenchmark(commandLine);
         } else {
 
-            String[] arguments = Stream.of("id", "port", "address", "paxosProcesses")
+            String[] arguments = Stream.of("id", "port", "address", "paxosProcesses", "bossThreads", "workerThreads")
                     .map(argument -> String.format("--%s=%s", argument, commandLine.getOptionValue(argument)))
                     .toArray(String[]::new);
 
@@ -94,6 +94,8 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         addToOptions(options, null, "port", true);
         addToOptions(options, null, "address", true);
         addToOptions(options, null, "paxosProcesses", true);
+        addToOptions(options, null, "bossThreads", true);
+        addToOptions(options, null, "workerThreads", true);
         addToOptions(options, null, "keys", true);
         addToOptions(options, null, "threads", true);
         addToOptions(options, null, "readsInQuery", true);
@@ -166,6 +168,12 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
     @Value("${paxosProcesses:\"\"}")
     protected String paxosProcesses;
 
+    @Value("${bossThreads:0}")
+    protected int bossThreads;
+
+    @Value("${workerThreads:0}")
+    protected int workerThreads;
+
     private SerializableService service;
 
     @Autowired
@@ -217,7 +225,7 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
     public ReplicaServer replicaServer(ServerChannelInitializer serverChannelInitializer) {
 
         try {
-            ReplicaServer replicaServer = new ReplicaServer(port, serverChannelInitializer);
+            ReplicaServer replicaServer = new ReplicaServer(port, serverChannelInitializer, bossThreads, workerThreads);
             replicaServer.start();
             return replicaServer;
         } catch (InterruptedException e) {

@@ -13,11 +13,12 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient {
+public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient implements Sleep {
 
     List<String> keys;
     Random random;
     long delayInMillis;
+    int randomDelayInMillis;
     int numberOfKeys;
     Map<String, Integer> operations;
     Map<String, Integer> reads;
@@ -47,7 +48,8 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient {
 
         int numberOfReads = context.getIntParameter("numberOfReads");
         int numberOfWrites = context.getIntParameter("numberOfWrites");
-        delayInMillis = context.getIntParameter("delayInMillis");
+        delayInMillis = context.getLongParameter("delayInMillis", 0);
+        randomDelayInMillis = context.getIntParameter("randomDelayInMillis", 0);
         numberOfKeys = context.getIntParameter("numberOfKeys");
 
         String replicas = context.getParameter("replicas");
@@ -116,6 +118,15 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient {
             if((operation & Benchmark.Operations.WRITE) != 0) {
                 transaction.write(key, String.valueOf(random.nextInt()));
             }
+        }
+
+        if(delayInMillis != 0) {
+            sleep(delayInMillis);
+        }
+
+        if(randomDelayInMillis != 0) {
+            int randomDelay = random.nextInt(randomDelayInMillis);
+            sleep(randomDelay);
         }
     }
 }

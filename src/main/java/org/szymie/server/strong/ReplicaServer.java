@@ -10,19 +10,32 @@ public class ReplicaServer implements DisposableBean {
 
     private int port;
     private ServerChannelInitializer serverChannelInitializer;
+    private int bossThreads;
+    private int workerThreads;
     private EventLoopGroup bossGroup;
-    private EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private EventLoopGroup workerGroup;
     private ChannelFuture channelFuture;
 
-    public ReplicaServer(int port, ServerChannelInitializer serverChannelInitializer) {
+    public ReplicaServer(int port, ServerChannelInitializer serverChannelInitializer, int bossThreads, int workerThreads) {
         this.port = port;
         this.serverChannelInitializer = serverChannelInitializer;
+        this.bossThreads = bossThreads;
+        this.workerThreads = workerThreads;
     }
 
     public void start() throws InterruptedException {
 
-        bossGroup = new NioEventLoopGroup();
-        workerGroup = new NioEventLoopGroup();
+        if(bossThreads != 0) {
+            bossGroup = new NioEventLoopGroup(bossThreads);
+        } else {
+            bossGroup = new NioEventLoopGroup();
+        }
+
+        if(workerThreads != 0) {
+            workerGroup = new NioEventLoopGroup(workerThreads);
+        } else {
+            workerGroup = new NioEventLoopGroup();
+        }
 
         ServerBootstrap bootstrap = new ServerBootstrap();
 

@@ -12,11 +12,12 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient {
+public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient implements Sleep {
 
     List<String> keys;
     Random random;
     long delayInMillis;
+    int randomDelayInMillis;
     int numberOfKeys;
     Map<String, Integer> reads;
     Map<String, Integer> operations;
@@ -43,11 +44,9 @@ public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient {
         super.setupTest(context);
 
         int numberOfReadsInQuery = context.getIntParameter("numberOfReadsInQuery");
-        System.err.println("numberOfReadsInQuery: " + numberOfReadsInQuery);
-        delayInMillis = context.getIntParameter("delayInMillis");
-        System.err.println("delayInMillis: " + delayInMillis);
+        delayInMillis = context.getLongParameter("delayInMillis", 0);
+        randomDelayInMillis = context.getIntParameter("randomDelayInMillis", 0);
         numberOfKeys = context.getIntParameter("numberOfKeys");
-        System.err.println("numberOfKeys: " + numberOfKeys);
 
         String replicas = context.getParameter("replicas");
         String paxosProcesses = context.getParameter("paxosProcesses");
@@ -96,6 +95,15 @@ public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient {
 
         for (Map.Entry<String, Integer> read : reads.entrySet()) {
             transaction.read(read.getKey());
+        }
+
+        if(delayInMillis != 0) {
+            sleep(delayInMillis);
+        }
+
+        if(randomDelayInMillis != 0) {
+            int randomDelay = random.nextInt(randomDelayInMillis);
+            sleep(randomDelay);
         }
     }
 }
