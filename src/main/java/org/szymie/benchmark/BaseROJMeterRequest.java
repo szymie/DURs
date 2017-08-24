@@ -33,6 +33,7 @@ public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient impl
 
         params.addArgument("numberOfReadsInQuery", "${numberOfReadsInQuery}");
         params.addArgument("delayInMillis", "${delayInMillis}");
+        params.addArgument("randomDelayInMillis", "${randomDelayInMillis}");
         params.addArgument("numberOfKeys", "${numberOfKeys}");
 
         return params;

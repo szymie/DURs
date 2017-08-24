@@ -36,6 +36,7 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
         params.addArgument("numberOfReads", "${numberOfReads}");
         params.addArgument("numberOfWrites", "${numberOfWrites}");
         params.addArgument("delayInMillis", "${delayInMillis}");
+        params.addArgument("randomDelayInMillis", "${randomDelayInMillis}");
         params.addArgument("numberOfKeys", "${numberOfKeys}");
 
         return params;

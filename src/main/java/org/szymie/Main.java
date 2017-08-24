@@ -168,10 +168,10 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
     @Value("${paxosProcesses:\"\"}")
     protected String paxosProcesses;
 
-    @Value("${bossThreads:0}")
+    @Value("${bossThreads}")
     protected int bossThreads;
 
-    @Value("${workerThreads:0}")
+    @Value("${workerThreads}")
     protected int workerThreads;
 
     private SerializableService service;
@@ -223,6 +223,9 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
     @Bean
     public ReplicaServer replicaServer(ServerChannelInitializer serverChannelInitializer) {
+
+        System.err.println("bossThreads: " + bossThreads);
+        System.err.println("workerThreads: " + workerThreads);
 
         try {
             ReplicaServer replicaServer = new ReplicaServer(port, serverChannelInitializer, bossThreads, workerThreads);

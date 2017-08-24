@@ -1,13 +1,21 @@
 package org.szymie.client.strong.optimistic;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ChannelFactory;
 import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoop;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.socket.oio.OioSocketChannel;
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.socket.oio.OioClientSocketChannelFactory;
 import org.springframework.beans.factory.DisposableBean;
+import org.szymie.client.NettyEventLoopGroupFactory2;
 import org.szymie.client.strong.pessimistic.RemoteGateway;
 import org.szymie.messages.Messages;
 import org.szymie.server.strong.ChannelInboundHandlerFactory;
+import org.szymie.client.NettyEventLoopGroupFactory;
 
 public class NettyRemoteGateway implements RemoteGateway {
 
@@ -31,7 +39,7 @@ public class NettyRemoteGateway implements RemoteGateway {
 
     public void connect(String endPoint) {
 
-        workerGroup = new NioEventLoopGroup(1);
+        workerGroup = NettyEventLoopGroupFactory2.getInstance(30);
 
         bootstrap = new Bootstrap();
         bootstrap.group(workerGroup);
@@ -53,7 +61,6 @@ public class NettyRemoteGateway implements RemoteGateway {
     public void disconnect() {
         try {
             channel.close().sync();
-            workerGroup.shutdownGracefully();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
