@@ -20,6 +20,7 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
     long delayInMillis;
     int randomDelayInMillis;
     int numberOfKeys;
+    int numberOfClientThreads;
     Map<String, Integer> operations;
     Map<String, Integer> reads;
     Map<String, Integer> writes;
@@ -38,6 +39,7 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
         params.addArgument("delayInMillis", "${delayInMillis}");
         params.addArgument("randomDelayInMillis", "${randomDelayInMillis}");
         params.addArgument("numberOfKeys", "${numberOfKeys}");
+        params.addArgument("numberOfClientThreads", "${numberOfClientThreads}");
 
         return params;
     }
@@ -52,6 +54,9 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
         delayInMillis = context.getLongParameter("delayInMillis", 0);
         randomDelayInMillis = context.getIntParameter("randomDelayInMillis", 0);
         numberOfKeys = context.getIntParameter("numberOfKeys");
+        numberOfClientThreads = context.getIntParameter("numberOfClientThreads",0);
+
+        System.err.println("numberOfClientThreads: " + numberOfClientThreads);
 
         String replicas = context.getParameter("replicas");
         String paxosProcesses = context.getParameter("paxosProcesses");

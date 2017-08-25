@@ -24,12 +24,16 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
 
 
     public NettySerializableTransaction() {
-        this(new Configuration());
+        this(0, new Configuration());
     }
 
     public NettySerializableTransaction(Configuration configuration) {
+        this(0, configuration);
+    }
 
-        remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory()));
+    public NettySerializableTransaction(int numberOfClientThreads, Configuration configuration) {
+
+        remoteGateway = new NettyRemoteGateway(numberOfClientThreads, new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory()));
 
         this.valueGateway = new NettyValueGateway(remoteGateway, configuration);
         state = TransactionState.NOT_STARTED;
