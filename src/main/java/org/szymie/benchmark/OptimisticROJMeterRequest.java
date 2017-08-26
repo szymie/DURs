@@ -40,6 +40,11 @@ public class OptimisticROJMeterRequest extends BaseROJMeterRequest {
         result.sampleEnd();
         result.setSuccessful(true);
 
+        if(attempts > 1) {
+            result.setErrorCount(1);
+            result.setSuccessful(false);
+        }
+
         return result;
     }
 }
