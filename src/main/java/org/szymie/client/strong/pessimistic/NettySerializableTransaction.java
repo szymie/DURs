@@ -1,7 +1,7 @@
 package org.szymie.client.strong.pessimistic;
 
 
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.szymie.client.strong.RemoteGateway;
 import org.szymie.client.strong.optimistic.*;
 import org.szymie.messages.*;
 

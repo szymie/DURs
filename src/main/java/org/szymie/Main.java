@@ -1,9 +1,6 @@
 package org.szymie;
 
-import akka.actor.ActorSystem;
 import com.google.common.collect.TreeMultiset;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import io.netty.channel.ChannelHandlerContext;
 import lsr.common.PID;
 import lsr.paxos.replica.Replica;
@@ -19,7 +16,11 @@ import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfigurat
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-import org.szymie.client.strong.optimistic.TransactionFactory;
+import org.szymie.client.strong.optimistic.ClientChannelInitializer;
+import org.szymie.client.strong.optimistic.NettyRemoteGateway;
+import org.szymie.client.strong.optimistic.OptimisticClientMessageHandlerFactory;
+import org.szymie.client.strong.RemoteGateway;
+import org.szymie.messages.Messages;
 import org.szymie.server.strong.ChannelInboundHandlerFactory;
 import org.szymie.server.strong.ReplicaServer;
 import org.szymie.server.strong.ServerChannelInitializer;
@@ -32,6 +33,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -56,8 +58,9 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
         CommandLine commandLine = createCommandLine(args);
 
-        if(commandLine.hasOption("B")) {
-            runBenchmark(commandLine);
+        if(commandLine.hasOption("I")) {
+            runInit(commandLine);
+            System.exit(0);
         } else {
 
             String[] arguments = Stream.of("id", "port", "address", "paxosProcesses", "bossThreads", "workerThreads")
@@ -74,8 +77,6 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
                 System.err.println("Uncaught exception: " + e.getMessage());
                 e.printStackTrace(System.err);
             }
-
-
         }
     }
 
@@ -89,20 +90,15 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
         Options options = new Options();
 
-        addToOptions(options, "B", "benchmark", false);
+        addToOptions(options, "I", "init", false);
         addToOptions(options, null, "id", true);
         addToOptions(options, null, "port", true);
-        addToOptions(options, null, "address", true);
         addToOptions(options, null, "paxosProcesses", true);
+        addToOptions(options, null, "replicas", true);
         addToOptions(options, null, "bossThreads", true);
         addToOptions(options, null, "workerThreads", true);
-        addToOptions(options, null, "keys", true);
-        addToOptions(options, null, "threads", true);
-        addToOptions(options, null, "readsInQuery", true);
-        addToOptions(options, null, "readsInUpdate", true);
-        addToOptions(options, null, "writesInUpdate", true);
-        addToOptions(options, null, "delay", true);
-        addToOptions(options, null, "saturation", true);
+        addToOptions(options, null, "numberOfKeys", true);
+        addToOptions(options, null, "initNumberOfValues", true);
 
         return options;
     }
@@ -111,52 +107,34 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         options.addOption(Option.builder(shortOption).longOpt(longOption).hasArg(hasArg).build());
     }
 
-    private static void runBenchmark(CommandLine commandLine) {
+    private static void runInit(CommandLine commandLine) {
 
-        String address = commandLine.getOptionValue("address", "127.0.0.1");
-        String port = commandLine.getOptionValue("port", "2550");
-        int numberOfKeys = Integer.parseInt(commandLine.getOptionValue("keys"));
-        int numberOfThreads = Integer.parseInt(commandLine.getOptionValue("threads"));
-        int readsInQuery = Integer.parseInt(commandLine.getOptionValue("readsInQuery"));
-        int readsInUpdate = Integer.parseInt(commandLine.getOptionValue("readsInUpdate"));
-        int writesInUpdate = Integer.parseInt(commandLine.getOptionValue("writesInUpdate"));
-        long delay = Long.parseLong(commandLine.getOptionValue("delay"));
-        int saturation = Integer.parseInt(commandLine.getOptionValue("saturation"));
+        NettyRemoteGateway remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory()));
+        String replicas = commandLine.getOptionValue("replicas");
 
-        Properties properties = new Properties();
-        properties.setProperty("akka.remote.netty.tcp.hostname", address);
-        properties.setProperty("akka.remote.netty.tcp.port", port);
+        int numberOfKeys = Integer.parseInt(commandLine.getOptionValue("numberOfKeys"));
+        int initNumberOfValues = Integer.parseInt(commandLine.getOptionValue("initNumberOfValues"));
 
-        Config overrides = ConfigFactory.parseProperties(properties);
-        Config config = overrides.withFallback(ConfigFactory.load());
+        int[] initKeys = ThreadLocalRandom.current().ints(0, numberOfKeys).distinct().limit(initNumberOfValues).toArray();
 
-        ActorSystem actorSystem = ActorSystem.create("client", config);
-        TransactionFactory transactionFactory = new TransactionFactory();
+        Map<String, String> writes = new HashMap<>();
 
-        Benchmark benchmark = new Benchmark(transactionFactory, numberOfKeys, readsInQuery, readsInUpdate, writesInUpdate, delay);
-
-        Benchmark.SaturationLevel saturationLevel = Benchmark.SaturationLevel.LOW;
-
-        for(Benchmark.SaturationLevel level : Benchmark.SaturationLevel.values()) {
-            if(saturation > level.value) {
-                saturationLevel = level;
-            }
+        for(int initKey : initKeys) {
+            writes.put("key" + initKey, "1");
         }
 
-        ExecutorService executor = Executors.newFixedThreadPool(1);
-        Benchmark.SaturationLevel finalSaturationLevel = saturationLevel;
-        Future<?> benchmarkTask = executor.submit(() -> benchmark.execute(finalSaturationLevel, numberOfThreads));
+        Messages.InitRequest initRequest = Messages.InitRequest.newBuilder()
+                .putAllWrites(writes)
+                .build();
 
-        Scanner in = new Scanner(System.in);
-        in.next();
+        Messages.Message request = Messages.Message.newBuilder()
+                .setInitRequest(initRequest)
+                .build();
 
-        benchmark.stop();
-
-        try {
-            benchmarkTask.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+        Stream.of(replicas.split(",")).forEach(replica -> {
+            remoteGateway.connect(replica);
+            remoteGateway.sendAndReceive(request, Messages.InitResponse.class);
+        });
     }
 
     @Value("${id}")

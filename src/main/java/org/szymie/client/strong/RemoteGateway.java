@@ -1,4 +1,4 @@
-package org.szymie.client.strong.pessimistic;
+package org.szymie.client.strong;
 
 public interface RemoteGateway {
 

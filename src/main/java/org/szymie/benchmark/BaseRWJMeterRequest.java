@@ -122,7 +122,7 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
             }
 
             if((operation & Benchmark.Operations.WRITE) != 0) {
-                transaction.write(key, String.valueOf(random.nextInt()));
+                transaction.write(key, String.valueOf(random.nextInt(numberOfKeys)));
             }
         }
 

@@ -38,7 +38,26 @@ public class OptimisticServerMessageHandler extends SimpleChannelInboundHandler<
             case COMMITREQUEST:
                 handleCommitRequest(ctx, msg.getCommitRequest());
                 break;
+            case INITREQUEST:
+                handleInitRequest(ctx, msg.getInitRequest());
         }
+    }
+
+    private void handleInitRequest(ChannelHandlerContext context, Messages.InitRequest initRequest) {
+
+        resourceRepository.clear();
+
+        long timestamp = this.timestamp.incrementAndGet();
+        initRequest.getWritesMap().forEach((key, value) ->  resourceRepository.put(key, value, timestamp));
+
+        Messages.InitResponse initResponse = Messages.InitResponse.newBuilder()
+                .build();
+
+        Message response = Message.newBuilder()
+                .setInitResponse(initResponse)
+                .build();
+
+        context.writeAndFlush(response);
     }
 
     private void handleCommitRequest(ChannelHandlerContext context, Messages.CommitRequest commitRequest) {

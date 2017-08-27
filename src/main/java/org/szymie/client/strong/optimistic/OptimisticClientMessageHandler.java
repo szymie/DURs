@@ -24,6 +24,9 @@ class OptimisticClientMessageHandler extends BaseClientMessageHandler {
                 Messages.CommitResponse commitResponse = msg.getCommitResponse();
                 setResponse(new Response<>(commitResponse));
                 break;
+            case INITRESPONSE:
+                Messages.InitResponse initResponse = msg.getInitResponse();
+                setResponse(new Response<>(initResponse));
         }
     }
 }

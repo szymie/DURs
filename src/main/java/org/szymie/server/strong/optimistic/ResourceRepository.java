@@ -66,4 +66,8 @@ public class ResourceRepository {
             versions.headMap(upperBound).clear();
         });
     }
+
+    public void clear() {
+        values.clear();
+    }
 }

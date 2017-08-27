@@ -1,10 +1,9 @@
 package org.szymie.client.strong.optimistic;
 
 import org.szymie.Configuration;
-import org.szymie.client.strong.pessimistic.RemoteGateway;
+import org.szymie.client.strong.RemoteGateway;
 import org.szymie.messages.Messages;
 import org.szymie.messages.ReadResponse;
-import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
 import java.util.Map;
 

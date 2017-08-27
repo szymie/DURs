@@ -4,7 +4,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.szymie.client.NettyEventLoopGroupFactory;
-import org.szymie.client.strong.pessimistic.RemoteGateway;
+import org.szymie.client.strong.RemoteGateway;
 
 public class NettyRemoteGateway implements RemoteGateway {
 

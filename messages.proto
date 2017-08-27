@@ -41,12 +41,19 @@ message CommitResponse {
 }
 
 message StateUpdateRequest {
-    int64 timestamp = 1;
-    int64 applyAfter = 2;
-    map<string, string> writes = 3;
+  int64 timestamp = 1;
+  int64 applyAfter = 2;
+  map<string, string> writes = 3;
 }
 
 message StateUpdateResponse {
+}
+
+message InitRequest {
+  map<string, string> writes = 1;
+}
+
+message InitResponse {
 }
 
 message Message {
@@ -63,6 +70,9 @@ message Message {
     CommitResponse commitResponse = 7;
 
     StateUpdateRequest stateUpdateRequest = 8;
+
+    InitRequest initRequest = 9;
+    InitResponse initResponse = 10;
   }
 
 }
