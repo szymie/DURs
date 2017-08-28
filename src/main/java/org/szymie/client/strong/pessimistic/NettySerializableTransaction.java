@@ -1,6 +1,7 @@
 package org.szymie.client.strong.pessimistic;
 
 
+import org.szymie.Configuration;
 import org.szymie.client.strong.RemoteGateway;
 import org.szymie.client.strong.optimistic.*;
 import org.szymie.messages.*;
@@ -15,8 +16,16 @@ public class NettySerializableTransaction implements Transaction {
     private boolean readOnly;
 
     public NettySerializableTransaction() {
-        remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new PessimisticClientMessageHandlerFactory()));
-        valueGateway = new NettyValueGateway(remoteGateway);
+        this(new Configuration());
+    }
+
+    public NettySerializableTransaction(Configuration configuration) {
+        this(0, configuration);
+    }
+
+    public NettySerializableTransaction(int numberOfClientThreads, Configuration configuration) {
+        remoteGateway = new NettyRemoteGateway(numberOfClientThreads, new ClientChannelInitializer(new PessimisticClientMessageHandlerFactory()));
+        valueGateway = new NettyValueGateway(remoteGateway, configuration);
     }
 
     public long getTimestamp() {

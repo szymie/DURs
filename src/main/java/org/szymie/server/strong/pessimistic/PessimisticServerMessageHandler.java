@@ -2,27 +2,30 @@ package org.szymie.server.strong.pessimistic;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lsr.common.PID;
 import lsr.paxos.client.ReplicationException;
 import lsr.paxos.client.SerializableClient;
 import org.szymie.BlockingMap;
+import org.szymie.PaxosProcessesCreator;
 import org.szymie.messages.BeginTransactionResponse;
 import org.szymie.messages.Messages;
 import org.szymie.messages.StateUpdate;
+import org.szymie.server.strong.BaseServerMessageHandler;
 import org.szymie.server.strong.optimistic.ResourceRepository;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler<Messages.Message> {
+public class PessimisticServerMessageHandler extends BaseServerMessageHandler implements PaxosProcessesCreator {
 
     private int id;
-    private ResourceRepository resourceRepository;
-    private final AtomicLong timestamp;
     private SerializableClient client;
     private BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts;
 
@@ -30,31 +33,47 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
 
     private BlockingMap<Long, Boolean> activeTransactionFlags;
 
-    public PessimisticServerMessageHandler(int id, ResourceRepository resourceRepository, AtomicLong timestamp,
+    public PessimisticServerMessageHandler(int id, String paxosProcesses, ResourceRepository resourceRepository, AtomicLong timestamp,
                                            BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                                            Map<Long, TransactionMetadata> activeTransactions,
                                            BlockingMap<Long, Boolean> activeTransactionFlags) {
 
+        super(resourceRepository, timestamp);
+
         this.id = id;
-        this.resourceRepository = resourceRepository;
-        this.timestamp = timestamp;
         this.contexts = contexts;
         this.activeTransactions = activeTransactions;
 
+        List<PID> processes = createPaxosProcesses(paxosProcesses);
+
+        InputStream paxosProperties = getClass().getClassLoader().getResourceAsStream("paxos.properties");
+
         try {
-            client = new SerializableClient(new lsr.common.Configuration(getClass().getClassLoader().getResourceAsStream("paxos.properties")));
+
+            System.err.println("creating");
+
+            if(processes.isEmpty()) {
+                client = new SerializableClient(new lsr.common.Configuration(paxosProperties));
+            } else {
+                client = new SerializableClient(new lsr.common.Configuration(processes, paxosProperties));
+            }
+
             client.connect();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        System.err.println("created");
+
         this.activeTransactionFlags = activeTransactionFlags;
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, Messages.Message msg) {
+    public void channelRead0(ChannelHandlerContext ctx, Messages.Message msg) throws Exception {
 
-        System.err.println("msg " + msg);
+        System.err.println("msg");
+
+        super.channelRead0(ctx, msg);
 
         switch (msg.getOneofMessagesCase()) {
             case BEGINTRANSACTIONREQUEST:
@@ -72,7 +91,6 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
 
     private void handleBeginTransactionRequest(ChannelHandlerContext context, Messages.BeginTransactionRequest request) {
 
-
         try {
 
             Messages.BeginTransactionRequest requestWithId = Messages.BeginTransactionRequest.newBuilder(request)
@@ -83,7 +101,7 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
                     .setBeginTransactionRequest(requestWithId)
                     .build());
 
-            System.err.println("for " + response.getTimestamp() + " context should have been set at "+ id);
+            System.err.println("for " + response.getTimestamp() + " context should have been set at " + id);
 
             BlockingQueue<ChannelHandlerContext> contextHolder = contexts.get(response.getTimestamp());
 
@@ -111,7 +129,9 @@ public class PessimisticServerMessageHandler extends SimpleChannelInboundHandler
 
     private void handleReadRequest(ChannelHandlerContext context, Messages.ReadRequest request) {
 
-        long transactionTimestamp = request.getTimestamp() == Long.MAX_VALUE ? timestamp.get() : request.getTimestamp();
+        boolean firstRead = request.getTimestamp() == Long.MAX_VALUE;
+
+        long transactionTimestamp = firstRead ? timestamp.get() : request.getTimestamp();
 
         Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
 

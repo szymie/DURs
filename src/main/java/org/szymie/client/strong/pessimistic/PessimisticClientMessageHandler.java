@@ -22,6 +22,9 @@ class PessimisticClientMessageHandler extends BaseClientMessageHandler {
             case READRESPONSE:
                 setResponse(new Response<>(msg.getReadResponse()));
                 break;
+            case INITRESPONSE:
+                Messages.InitResponse initResponse = msg.getInitResponse();
+                setResponse(new Response<>(initResponse));
         }
     }
 }

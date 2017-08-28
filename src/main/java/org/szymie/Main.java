@@ -20,6 +20,7 @@ import org.szymie.client.strong.optimistic.ClientChannelInitializer;
 import org.szymie.client.strong.optimistic.NettyRemoteGateway;
 import org.szymie.client.strong.optimistic.OptimisticClientMessageHandlerFactory;
 import org.szymie.client.strong.RemoteGateway;
+import org.szymie.client.strong.pessimistic.PessimisticClientMessageHandlerFactory;
 import org.szymie.messages.Messages;
 import org.szymie.server.strong.ChannelInboundHandlerFactory;
 import org.szymie.server.strong.ReplicaServer;
@@ -109,7 +110,8 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
     private static void runInit(CommandLine commandLine) {
 
-        NettyRemoteGateway remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory()));
+        //NettyRemoteGateway remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory()));
+        NettyRemoteGateway remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new PessimisticClientMessageHandlerFactory()));
         String replicas = commandLine.getOptionValue("replicas");
 
         int numberOfKeys = Integer.parseInt(commandLine.getOptionValue("numberOfKeys"));
@@ -133,7 +135,9 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
         Stream.of(replicas.split(",")).forEach(replica -> {
             remoteGateway.connect(replica);
+            System.err.println("connected");
             remoteGateway.sendAndReceive(request, Messages.InitResponse.class);
+            remoteGateway.disconnect();
         });
     }
 
@@ -143,7 +147,7 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
     @Value("${port}")
     protected int port;
 
-    @Value("${paxosProcesses:\"\"}")
+    @Value("${paxosProcesses}")
     protected String paxosProcesses;
 
     @Value("${bossThreads}")
@@ -230,6 +234,9 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         @Value("${id}")
         protected int id;
 
+        @Value("${paxosProcesses}")
+        protected String paxosProcesses;
+
         /*@Bean
         public StateUpdateReceiver stateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions,
                                                        ResourceRepository resourceRepository,  Map<Long, ChannelHandlerContext> contexts,
@@ -267,14 +274,14 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
                 ResourceRepository resourceRepository, AtomicLong timestamp, BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                 Map<Long, TransactionMetadata> activeTransactions,
                 BlockingMap<Long, Boolean> activeTransactionFlags) {
-            return new PessimisticServerChannelInboundHandlerFactory(id, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags);
+            return new PessimisticServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags);
         }
 
         @Bean
         public TransactionService transactionService(Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long,
                 BlockingQueue<ChannelHandlerContext>> contexts, ResourceRepository resourceRepository,
-                                                     BlockingMap<Long, Boolean> aciveTransactionFlags) {
-            return new TransactionService(id, activeTransactions, contexts, resourceRepository, aciveTransactionFlags);
+                                                     BlockingMap<Long, Boolean> activeTransactionFlags) {
+            return new TransactionService(id, activeTransactions, contexts, resourceRepository, activeTransactionFlags);
         }
     }
 

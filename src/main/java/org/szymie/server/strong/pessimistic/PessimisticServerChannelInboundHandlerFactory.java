@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class PessimisticServerChannelInboundHandlerFactory implements ChannelInboundHandlerFactory {
 
     private int id;
+    private String paxosProcesses;
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
     private BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts;
@@ -22,11 +23,12 @@ public class PessimisticServerChannelInboundHandlerFactory implements ChannelInb
 
     private BlockingMap<Long, Boolean> activeTransactionFlags;
 
-    public PessimisticServerChannelInboundHandlerFactory(int id, ResourceRepository resourceRepository, AtomicLong timestamp,
+    public PessimisticServerChannelInboundHandlerFactory(int id, String paxosProcesses, ResourceRepository resourceRepository, AtomicLong timestamp,
                                                          BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts, Map<Long, TransactionMetadata> activeTransactions,
                                                          BlockingMap<Long, Boolean> activeTransactionFlags) {
 
         this.id = id;
+        this.paxosProcesses = paxosProcesses;
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
         this.contexts = contexts;
@@ -38,6 +40,6 @@ public class PessimisticServerChannelInboundHandlerFactory implements ChannelInb
 
     @Override
     public ChannelInboundHandler create() {
-        return new PessimisticServerMessageHandler(id, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags);
+        return new PessimisticServerMessageHandler(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags);
     }
 }

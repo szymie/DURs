@@ -25,17 +25,17 @@ public class ReplicaServer implements DisposableBean {
 
     public void start() throws InterruptedException {
 
-        if(bossThreads != 0) {
-            bossGroup = new NioEventLoopGroup(bossThreads);
-        } else {
+        //if(bossThreads != 0) {
+            //bossGroup = new NioEventLoopGroup(bossThreads);
+        //} else {
             bossGroup = new NioEventLoopGroup();
-        }
+        //}
 
-        if(workerThreads != 0) {
-            workerGroup = new NioEventLoopGroup(workerThreads);
-        } else {
+        //if(workerThreads != 0) {
+            //workerGroup = new NioEventLoopGroup(workerThreads);
+        //} else {
             workerGroup = new NioEventLoopGroup();
-        }
+        //}
 
         ServerBootstrap bootstrap = new ServerBootstrap();
 

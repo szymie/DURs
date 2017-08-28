@@ -24,7 +24,7 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
 
 
     public NettySerializableTransaction() {
-        this(0, new Configuration());
+        this(new Configuration());
     }
 
     public NettySerializableTransaction(Configuration configuration) {
