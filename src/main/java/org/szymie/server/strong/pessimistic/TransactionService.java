@@ -1,5 +1,6 @@
 package org.szymie.server.strong.pessimistic;
 
+import com.google.common.collect.TreeMultiset;
 import io.netty.channel.ChannelHandlerContext;
 import lsr.service.SerializableService;
 import org.szymie.BlockingMap;
@@ -10,11 +11,11 @@ import org.szymie.server.strong.optimistic.ResourceRepository;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.locks.Lock;
 
 public class TransactionService extends SerializableService {
 
     private int id;
-    private Messages.Message message;
     private Messages.BeginTransactionRequest request;
     private Map<Long, TransactionMetadata> activeTransactions;
     private long timestamp;
@@ -27,9 +28,13 @@ public class TransactionService extends SerializableService {
 
     private BlockingMap<Long, Boolean> activeTransactionFlags;
 
-    public TransactionService(int id, Map<Long, TransactionMetadata> activeTransactions,
-                              BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts, ResourceRepository resourceRepository,
-                              BlockingMap<Long, Boolean> activeTransactionFlags) {
+    private TreeMultiset<Long> liveTransactions;
+    private Lock liveTransactionsLock;
+
+    public TransactionService(int id, Map<Long, TransactionMetadata> activeTransactions, ResourceRepository resourceRepository,
+                              BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
+                              BlockingMap<Long, Boolean> activeTransactionFlags,
+                              TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
         this.id = id;
         this.activeTransactions = activeTransactions;
         this.contexts = contexts;
@@ -39,6 +44,9 @@ public class TransactionService extends SerializableService {
         waitingUpdates = new TreeSet<>();
 
         this.activeTransactionFlags = activeTransactionFlags;
+
+        this.liveTransactions = liveTransactions;
+        this.liveTransactionsLock = liveTransactionsLock;
     }
 
     @Override
@@ -46,7 +54,7 @@ public class TransactionService extends SerializableService {
 
         System.err.println("REQUEST");
 
-        message = (Messages.Message) o;
+        Messages.Message message = (Messages.Message) o;
 
         switch (message.getOneofMessagesCase()) {
             case BEGINTRANSACTIONREQUEST:
@@ -236,6 +244,10 @@ public class TransactionService extends SerializableService {
                 resourceRepository.put(key, value, time);
             }
         });
+
+        liveTransactionsLock.lock();
+        liveTransactions.remove(stateUpdate.getTimestamp());
+        liveTransactionsLock.unlock();
     }
 
     private void notifyAboutTransactionCommit(long transactionTimestamp) {

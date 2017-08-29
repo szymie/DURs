@@ -1,6 +1,7 @@
 package org.szymie.server.strong.pessimistic;
 
 
+import com.google.common.collect.TreeMultiset;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
 import org.szymie.BlockingMap;
@@ -10,6 +11,7 @@ import org.szymie.server.strong.optimistic.ResourceRepository;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
 
 public class PessimisticServerChannelInboundHandlerFactory implements ChannelInboundHandlerFactory {
 
@@ -23,9 +25,13 @@ public class PessimisticServerChannelInboundHandlerFactory implements ChannelInb
 
     private BlockingMap<Long, Boolean> activeTransactionFlags;
 
+    private TreeMultiset<Long> liveTransactions;
+    private Lock liveTransactionsLock;
+
     public PessimisticServerChannelInboundHandlerFactory(int id, String paxosProcesses, ResourceRepository resourceRepository, AtomicLong timestamp,
                                                          BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts, Map<Long, TransactionMetadata> activeTransactions,
-                                                         BlockingMap<Long, Boolean> activeTransactionFlags) {
+                                                         BlockingMap<Long, Boolean> activeTransactionFlags,
+                                                         TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
 
         this.id = id;
         this.paxosProcesses = paxosProcesses;
@@ -36,10 +42,13 @@ public class PessimisticServerChannelInboundHandlerFactory implements ChannelInb
         this.groupMessenger = groupMessenger;
 
         this.activeTransactionFlags = activeTransactionFlags;
+
+        this.liveTransactions = liveTransactions;
+        this.liveTransactionsLock = liveTransactionsLock;
     }
 
     @Override
     public ChannelInboundHandler create() {
-        return new PessimisticServerMessageHandler(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags);
+        return new PessimisticServerMessageHandler(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock);
     }
 }

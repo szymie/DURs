@@ -6,6 +6,7 @@ import org.szymie.client.strong.RemoteGateway;
 import org.szymie.client.strong.optimistic.*;
 import org.szymie.messages.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -77,22 +78,22 @@ public class NettySerializableTransaction implements Transaction {
     @Override
     public boolean commit() {
 
-        if(!readOnly) {
+        Map<String, String> writes = new HashMap<>();
 
-            Map<String, String> writes = valueGateway.getTransactionData().writtenValues.entrySet().stream()
+        if(!readOnly) {
+            writes = valueGateway.getTransactionData().writtenValues.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().value));
 
             writes.forEach((key, value) -> System.err.println(valueGateway.getTransactionData().timestamp + ") " + key + ": " + value));
-
-            Messages.CommitRequest request = Messages.CommitRequest.newBuilder()
-                    .setTimestamp(valueGateway.getTransactionData().timestamp)
-                    .putAllWrites(writes)
-                    .build();
-
-            Messages.Message message = Messages.Message.newBuilder().setCommitRequest(request).build();
-
-            remoteGateway.sendAndReceive(message, Messages.CommitResponse.class);
         }
+
+        Messages.CommitRequest request = Messages.CommitRequest.newBuilder()
+                .setTimestamp(valueGateway.getTransactionData().timestamp)
+                .putAllWrites(writes).build();
+
+        Messages.Message message = Messages.Message.newBuilder().setCommitRequest(request).build();
+
+        remoteGateway.sendAndReceive(message, Messages.CommitResponse.class);
 
         valueGateway.closeSession();
 

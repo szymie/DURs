@@ -237,6 +237,16 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         @Value("${paxosProcesses}")
         protected String paxosProcesses;
 
+        @Bean
+        public TreeMultiset<Long> liveTransactions() {
+            return TreeMultiset.create();
+        }
+
+        @Bean
+        public Lock liveTransactionsLock() {
+            return new ReentrantLock(true);
+        }
+
         /*@Bean
         public StateUpdateReceiver stateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions,
                                                        ResourceRepository resourceRepository,  Map<Long, ChannelHandlerContext> contexts,
@@ -273,15 +283,17 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         public PessimisticServerChannelInboundHandlerFactory pessimisticServerChannelInboundHandlerFactory(
                 ResourceRepository resourceRepository, AtomicLong timestamp, BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                 Map<Long, TransactionMetadata> activeTransactions,
-                BlockingMap<Long, Boolean> activeTransactionFlags) {
-            return new PessimisticServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags);
+                BlockingMap<Long, Boolean> activeTransactionFlags,
+                TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+            return new PessimisticServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock);
         }
 
         @Bean
         public TransactionService transactionService(Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long,
                 BlockingQueue<ChannelHandlerContext>> contexts, ResourceRepository resourceRepository,
-                                                     BlockingMap<Long, Boolean> activeTransactionFlags) {
-            return new TransactionService(id, activeTransactions, contexts, resourceRepository, activeTransactionFlags);
+                                                     BlockingMap<Long, Boolean> activeTransactionFlags,
+                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+            return new TransactionService(id, activeTransactions, resourceRepository, contexts, activeTransactionFlags, liveTransactions, liveTransactionsLock);
         }
     }
 

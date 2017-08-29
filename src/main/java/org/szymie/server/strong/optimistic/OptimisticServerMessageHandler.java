@@ -38,19 +38,19 @@ public class OptimisticServerMessageHandler extends BaseServerMessageHandler {
         }
     }
 
-    private void handleCommitRequest(ChannelHandlerContext context, Messages.CommitRequest commitRequest) {
+    private void handleCommitRequest(ChannelHandlerContext context, Messages.CommitRequest request) {
 
         liveTransactionsLock.lock();
-        liveTransactions.remove(commitRequest.getTimestamp());
+        liveTransactions.remove(request.getTimestamp());
         liveTransactionsLock.unlock();
 
         Messages.CommitResponse commitResponse = Messages.CommitResponse.newBuilder().build();
 
-        Messages.Message response = Messages.Message.newBuilder()
+        Messages.Message message = Messages.Message.newBuilder()
                 .setCommitResponse(commitResponse)
                 .build();
 
-        context.writeAndFlush(response);
+        context.writeAndFlush(message);
     }
 
     private void handleReadRequest(ChannelHandlerContext context, Messages.ReadRequest request) {
@@ -71,11 +71,11 @@ public class OptimisticServerMessageHandler extends BaseServerMessageHandler {
                 createReadResponse(valueWithTimestamp.value, transactionTimestamp, valueWithTimestamp.fresh))
                 .orElse(createReadResponse("", transactionTimestamp, true));
 
-        Messages.Message response = Messages.Message.newBuilder()
+        Messages.Message message = Messages.Message.newBuilder()
                 .setReadResponse(readResponse)
                 .build();
 
-        context.writeAndFlush(response);
+        context.writeAndFlush(message);
     }
 
     private Messages.ReadResponse createReadResponse(String value, long timestamp, boolean fresh) {
