@@ -1,5 +1,6 @@
 package org.szymie.server.strong.pessimistic;
 
+import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import io.netty.channel.ChannelHandlerContext;
 import lsr.service.SerializableService;
@@ -246,6 +247,14 @@ public class TransactionService extends SerializableService {
         });
 
         liveTransactionsLock.lock();
+
+        Multiset.Entry<Long> oldestTransaction = liveTransactions.firstEntry();
+
+        if(oldestTransaction != null) {
+            Long oldestTransactionTimestamp = oldestTransaction.getElement();
+            resourceRepository.removeOutdatedVersions(oldestTransactionTimestamp);
+        }
+
         liveTransactions.remove(stateUpdate.getTimestamp());
         liveTransactionsLock.unlock();
     }

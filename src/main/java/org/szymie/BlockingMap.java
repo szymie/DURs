@@ -26,7 +26,7 @@ public class BlockingMap<K, V> {
 
         try {
             queue.put(value);
-            return queue.offer(value);
+            return true;
         } catch (InterruptedException e) {
             throw new IllegalStateException(e);
         }

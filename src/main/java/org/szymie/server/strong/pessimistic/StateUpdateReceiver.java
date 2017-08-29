@@ -5,27 +5,31 @@ import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
 import org.jgroups.View;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.szymie.BlockingMap;
 import org.szymie.messages.CommitResponse;
 import org.szymie.messages.Messages;
 import org.szymie.messages.StateUpdate;
 import org.szymie.server.strong.optimistic.ResourceRepository;
 
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class StateUpdateReceiver extends ReceiverAdapter {
 
-    /*private Map<Long, TransactionMetadata> activeTransactions;
+    private Map<Long, TransactionMetadata> activeTransactions;
+    private BlockingMap<Long, Boolean> activeTransactionFlags;
     private ResourceRepository resourceRepository;
-    private Map<Long, ChannelHandlerContext> contexts;
+    private BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts;
     private final AtomicLong timestamp;
     private long lastApplied;
     private SortedSet<StateUpdate> waitingUpdates;
 
-    public StateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions, ResourceRepository resourceRepository,
-                               Map<Long, ChannelHandlerContext> contexts, AtomicLong timestamp) {
+    public StateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long, Boolean> activeTransactionFlags,
+                               ResourceRepository resourceRepository, BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts, AtomicLong timestamp) {
         this.activeTransactions = activeTransactions;
+        this.activeTransactionFlags = activeTransactionFlags;
         this.resourceRepository = resourceRepository;
         this.contexts = contexts;
         this.timestamp = timestamp;
@@ -80,9 +84,10 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
         waitForActiveTransaction(transactionTimestamp);
 
+        activeTransactionFlags.get(transactionTimestamp);
         TransactionMetadata transaction = activeTransactions.get(transactionTimestamp);
 
-        System.err.println("1 " + transaction == null);
+        System.err.println("1");
 
         transaction.acquireForWrite();
 
@@ -97,17 +102,25 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
         for(Long waitingTransactionTimestamp : awaitingForMe) {
 
-            waitForActiveTransaction(waitingTransactionTimestamp);
-
+            activeTransactionFlags.get(waitingTransactionTimestamp);
             TransactionMetadata waitingTransaction = activeTransactions.get(waitingTransactionTimestamp);
 
             waitingTransaction.getAwaitingToStart().remove(transactionTimestamp);
 
             if(waitingTransaction.getAwaitingToStart().isEmpty()) {
 
-                ChannelHandlerContext context = contexts.get(waitingTransactionTimestamp);
+                BlockingQueue<ChannelHandlerContext> contextHolder = contexts.get(waitingTransactionTimestamp);
 
-                if(context != null) {
+                if(contextHolder != null) {
+
+                    ChannelHandlerContext context;
+
+                    try {
+                        context = contextHolder.take();
+                        contextHolder.put(context);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
 
                     Messages.BeginTransactionResponse response = Messages.BeginTransactionResponse.newBuilder()
                             .setTimestamp(waitingTransactionTimestamp)
@@ -117,8 +130,6 @@ public class StateUpdateReceiver extends ReceiverAdapter {
                     Messages.Message message = Messages.Message.newBuilder().setBeginTransactionResponse(response).build();
 
                     context.writeAndFlush(message);
-
-                    contexts.remove(waitingTransactionTimestamp);
 
                     System.err.println(transactionTimestamp + " answered that " + waitingTransactionTimestamp + " can start");
                 }
@@ -134,6 +145,7 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
         System.err.println("3");
 
+        activeTransactionFlags.remove(transactionTimestamp);
         activeTransactions.remove(transactionTimestamp);
 
         System.err.println("4");
@@ -173,15 +185,18 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
     private void notifyAboutTransactionCommit(long transactionTimestamp) {
 
-        ChannelHandlerContext context = contexts.get(transactionTimestamp);
+        BlockingQueue<ChannelHandlerContext> contextHolder = contexts.get(transactionTimestamp);
 
-        if(context != null) {
+        if(contextHolder != null) {
+            ChannelHandlerContext context = contextHolder.peek();
             Messages.CommitResponse response = Messages.CommitResponse.newBuilder().build();
             Messages.Message message = Messages.Message.newBuilder().setCommitResponse(response).build();
             context.writeAndFlush(message);
             contexts.remove(transactionTimestamp);
+
+            System.err.println("Notified about commit");
         }
-    }*/
+    }
 
     @Override
     public void viewAccepted(View view) {
