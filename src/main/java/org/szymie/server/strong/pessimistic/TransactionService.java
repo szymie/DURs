@@ -12,6 +12,7 @@ import org.szymie.server.strong.optimistic.ResourceRepository;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 
 public class TransactionService extends SerializableService {
@@ -19,7 +20,7 @@ public class TransactionService extends SerializableService {
     private int id;
     private Messages.BeginTransactionRequest request;
     private Map<Long, TransactionMetadata> activeTransactions;
-    private long timestamp;
+    private AtomicLong timestamp;
     private long lastApplied;
     private ResourceRepository resourceRepository;
 
@@ -32,22 +33,21 @@ public class TransactionService extends SerializableService {
     private TreeMultiset<Long> liveTransactions;
     private Lock liveTransactionsLock;
 
-    public TransactionService(int id, Map<Long, TransactionMetadata> activeTransactions, ResourceRepository resourceRepository,
-                              BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
+    public TransactionService(int id, ResourceRepository resourceRepository, AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions,
                               BlockingMap<Long, Boolean> activeTransactionFlags,
+                              BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                               TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
         this.id = id;
-        this.activeTransactions = activeTransactions;
-        this.contexts = contexts;
-        this.timestamp = 0;
-        this.lastApplied = 0;
         this.resourceRepository = resourceRepository;
-        waitingUpdates = new TreeSet<>();
-
+        this.timestamp = timestamp;
+        this.activeTransactions = activeTransactions;
         this.activeTransactionFlags = activeTransactionFlags;
-
+        this.contexts = contexts;
         this.liveTransactions = liveTransactions;
         this.liveTransactionsLock = liveTransactionsLock;
+
+        lastApplied = 0;
+        waitingUpdates = new TreeSet<>();
     }
 
     @Override
@@ -74,10 +74,9 @@ public class TransactionService extends SerializableService {
 
         TransactionMetadata newTransaction = new TransactionMetadata(beginTransactionRequest.getReadsMap().keySet(), beginTransactionRequest.getWritesMap().keySet());
 
-        long newTransactionTimestamp = timestamp++;
+        long newTransactionTimestamp = timestamp.getAndAdd(1);
 
         System.err.println("activeTransactions: " + activeTransactions.size());
-
 
         if(id == beginTransactionRequest.getId()) {
             System.err.println("set context for in id: " + id + " where timestamp: " + newTransactionTimestamp);
@@ -106,7 +105,6 @@ public class TransactionService extends SerializableService {
         newTransaction.getAwaitingToStart().forEach(transactionId -> {
             System.err.println(newTransactionTimestamp + " is waiting for " + transactionId);
         });
-
 
         return Messages.BeginTransactionResponse.newBuilder()
                 .setTimestamp(newTransactionTimestamp)
