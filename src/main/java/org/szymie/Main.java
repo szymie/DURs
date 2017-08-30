@@ -8,6 +8,7 @@ import lsr.service.SerializableService;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -186,13 +187,13 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         }
 
         @Bean
-        public OptimisticServerChannelInboundHandlerFactory optimisticChannelHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp,
+        public OptimisticServerChannelInboundHandlerFactory optimisticChannelHandlerFactory(ResourceRepository resourceRepository, @Qualifier("timestamp") AtomicLong timestamp,
                                                                                             TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
             return new OptimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp, liveTransactions, liveTransactionsLock);
         }
 
         @Bean
-        public SerializableCertificationService serializableCertificationService(ResourceRepository resourceRepository, AtomicLong timestamp,
+        public SerializableCertificationService serializableCertificationService(ResourceRepository resourceRepository, @Qualifier("timestamp") AtomicLong timestamp,
                                                                                  TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
             return new SerializableCertificationService(resourceRepository, timestamp, liveTransactions, liveTransactionsLock);
         }
@@ -218,7 +219,7 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         }
     }
 
-    @Bean
+    @Bean(name = "timestamp")
     public AtomicLong timestamp() {
         return new AtomicLong(0);
     }
@@ -269,6 +270,12 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
             return "cluster-0";
         }
 
+
+        @Bean(name = "lastCommitted")
+        public AtomicLong lastCommitted() {
+            return new AtomicLong(0);
+        }
+
         /*@Bean
         public GroupMessenger groupMessenger(String groupName, StateUpdateReceiver receiver) {
             return new GroupMessenger(groupName, receiver);
@@ -281,19 +288,21 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
         @Bean
         public PessimisticServerChannelInboundHandlerFactory pessimisticServerChannelInboundHandlerFactory(
-                ResourceRepository resourceRepository, AtomicLong timestamp, BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
+                ResourceRepository resourceRepository, @Qualifier("timestamp") AtomicLong timestamp, BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                 Map<Long, TransactionMetadata> activeTransactions,
                 BlockingMap<Long, Boolean> activeTransactionFlags,
-                TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
-            return new PessimisticServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock);
+                TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
+                @Qualifier("lastCommitted") AtomicLong lastCommitted) {
+            return new PessimisticServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock, lastCommitted);
         }
 
         @Bean
-        public TransactionService transactionService(AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long,
+        public TransactionService transactionService(@Qualifier("timestamp") AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long,
                 BlockingQueue<ChannelHandlerContext>> contexts, ResourceRepository resourceRepository,
                                                      BlockingMap<Long, Boolean> activeTransactionFlags,
-                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
-            return new TransactionService(id, resourceRepository, timestamp, activeTransactions, activeTransactionFlags, contexts, liveTransactions, liveTransactionsLock);
+                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
+                                                     @Qualifier("lastCommitted") AtomicLong lastCommitted) {
+            return new TransactionService(id, resourceRepository, timestamp, activeTransactions, activeTransactionFlags, contexts, liveTransactions, liveTransactionsLock, lastCommitted);
         }
     }
 

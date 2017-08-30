@@ -67,6 +67,10 @@ public class ResourceRepository {
         });
     }
 
+    public Map<Long, ValueWrapper<String>> getAll(String key) {
+        return values.get(key);
+    }
+
     public void clear() {
         values.clear();
     }

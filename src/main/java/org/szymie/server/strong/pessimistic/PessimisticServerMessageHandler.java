@@ -37,11 +37,14 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
     private TreeMultiset<Long> liveTransactions;
     private Lock liveTransactionsLock;
 
+    private AtomicLong lastCommitted;
+
     public PessimisticServerMessageHandler(int id, String paxosProcesses, ResourceRepository resourceRepository, AtomicLong timestamp,
                                            BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                                            Map<Long, TransactionMetadata> activeTransactions,
                                            BlockingMap<Long, Boolean> activeTransactionFlags,
-                                           TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+                                           TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
+                                           AtomicLong lastCommitted) {
 
         super(resourceRepository, timestamp);
 
@@ -51,6 +54,8 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
 
         this.liveTransactions = liveTransactions;
         this.liveTransactionsLock = liveTransactionsLock;
+
+        this.lastCommitted = lastCommitted;
 
         List<PID> processes = createPaxosProcesses(paxosProcesses);
 
@@ -139,7 +144,7 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
 
         boolean firstRead = request.getTimestamp() == Long.MAX_VALUE;
 
-        long transactionTimestamp = firstRead ? timestamp.get() : request.getTimestamp();
+        long transactionTimestamp = firstRead ? lastCommitted.get() : request.getTimestamp();
 
         if(firstRead) {
             liveTransactionsLock.lock();

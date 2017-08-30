@@ -56,6 +56,9 @@ message InitRequest {
 message InitResponse {
 }
 
+message ShowResourceRequest {
+}
+
 message Message {
 
   oneof oneof_messages {
@@ -73,6 +76,8 @@ message Message {
 
     InitRequest initRequest = 9;
     InitResponse initResponse = 10;
+
+    ShowResourceRequest showResourceRequest = 11;
   }
 
 }

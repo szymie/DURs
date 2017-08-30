@@ -2,9 +2,12 @@ package org.szymie.server.strong;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.szymie.ValueWrapper;
 import org.szymie.messages.Messages;
 import org.szymie.server.strong.optimistic.ResourceRepository;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class BaseServerMessageHandler extends SimpleChannelInboundHandler<Messages.Message> {
@@ -27,6 +30,17 @@ public abstract class BaseServerMessageHandler extends SimpleChannelInboundHandl
         switch (msg.getOneofMessagesCase()) {
             case INITREQUEST:
                 handleInitRequest(ctx, msg.getInitRequest());
+                break;
+            case SHOWRESOURCEREQUEST:
+
+                Set<String> keys = resourceRepository.getKeys();
+
+                keys.forEach(key -> {
+                    System.out.println("key: "+ key);
+                    Map<Long, ValueWrapper<String>> versions = resourceRepository.getAll(key);
+                    versions.forEach((version, value) -> System.out.println("\tversion: "+ version + ", value: "+ value));
+                });
+
                 break;
         }
     }

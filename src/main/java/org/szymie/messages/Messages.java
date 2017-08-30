@@ -6801,6 +6801,382 @@ public final class Messages {
 
   }
 
+  public interface ShowResourceRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:org.szymie.messages.ShowResourceRequest)
+      com.google.protobuf.MessageOrBuilder {
+  }
+  /**
+   * Protobuf type {@code org.szymie.messages.ShowResourceRequest}
+   */
+  public  static final class ShowResourceRequest extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:org.szymie.messages.ShowResourceRequest)
+      ShowResourceRequestOrBuilder {
+    // Use ShowResourceRequest.newBuilder() to construct.
+    private ShowResourceRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private ShowResourceRequest() {
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private ShowResourceRequest(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.szymie.messages.Messages.internal_static_org_szymie_messages_ShowResourceRequest_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.szymie.messages.Messages.internal_static_org_szymie_messages_ShowResourceRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.szymie.messages.Messages.ShowResourceRequest.class, org.szymie.messages.Messages.ShowResourceRequest.Builder.class);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.szymie.messages.Messages.ShowResourceRequest)) {
+        return super.equals(obj);
+      }
+      org.szymie.messages.Messages.ShowResourceRequest other = (org.szymie.messages.Messages.ShowResourceRequest) obj;
+
+      boolean result = true;
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.szymie.messages.Messages.ShowResourceRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.szymie.messages.Messages.ShowResourceRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.szymie.messages.Messages.ShowResourceRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code org.szymie.messages.ShowResourceRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:org.szymie.messages.ShowResourceRequest)
+        org.szymie.messages.Messages.ShowResourceRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.szymie.messages.Messages.internal_static_org_szymie_messages_ShowResourceRequest_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.szymie.messages.Messages.internal_static_org_szymie_messages_ShowResourceRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.szymie.messages.Messages.ShowResourceRequest.class, org.szymie.messages.Messages.ShowResourceRequest.Builder.class);
+      }
+
+      // Construct using org.szymie.messages.Messages.ShowResourceRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.szymie.messages.Messages.internal_static_org_szymie_messages_ShowResourceRequest_descriptor;
+      }
+
+      public org.szymie.messages.Messages.ShowResourceRequest getDefaultInstanceForType() {
+        return org.szymie.messages.Messages.ShowResourceRequest.getDefaultInstance();
+      }
+
+      public org.szymie.messages.Messages.ShowResourceRequest build() {
+        org.szymie.messages.Messages.ShowResourceRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.szymie.messages.Messages.ShowResourceRequest buildPartial() {
+        org.szymie.messages.Messages.ShowResourceRequest result = new org.szymie.messages.Messages.ShowResourceRequest(this);
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.szymie.messages.Messages.ShowResourceRequest) {
+          return mergeFrom((org.szymie.messages.Messages.ShowResourceRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.szymie.messages.Messages.ShowResourceRequest other) {
+        if (other == org.szymie.messages.Messages.ShowResourceRequest.getDefaultInstance()) return this;
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.szymie.messages.Messages.ShowResourceRequest parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.szymie.messages.Messages.ShowResourceRequest) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:org.szymie.messages.ShowResourceRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:org.szymie.messages.ShowResourceRequest)
+    private static final org.szymie.messages.Messages.ShowResourceRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.szymie.messages.Messages.ShowResourceRequest();
+    }
+
+    public static org.szymie.messages.Messages.ShowResourceRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<ShowResourceRequest>
+        PARSER = new com.google.protobuf.AbstractParser<ShowResourceRequest>() {
+      public ShowResourceRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new ShowResourceRequest(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<ShowResourceRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ShowResourceRequest> getParserForType() {
+      return PARSER;
+    }
+
+    public org.szymie.messages.Messages.ShowResourceRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface MessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:org.szymie.messages.Message)
       com.google.protobuf.MessageOrBuilder {
@@ -6894,6 +7270,15 @@ public final class Messages {
      * <code>.org.szymie.messages.InitResponse initResponse = 10;</code>
      */
     org.szymie.messages.Messages.InitResponseOrBuilder getInitResponseOrBuilder();
+
+    /**
+     * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+     */
+    org.szymie.messages.Messages.ShowResourceRequest getShowResourceRequest();
+    /**
+     * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+     */
+    org.szymie.messages.Messages.ShowResourceRequestOrBuilder getShowResourceRequestOrBuilder();
 
     public org.szymie.messages.Messages.Message.OneofMessagesCase getOneofMessagesCase();
   }
@@ -7076,6 +7461,20 @@ public final class Messages {
               oneofMessagesCase_ = 10;
               break;
             }
+            case 90: {
+              org.szymie.messages.Messages.ShowResourceRequest.Builder subBuilder = null;
+              if (oneofMessagesCase_ == 11) {
+                subBuilder = ((org.szymie.messages.Messages.ShowResourceRequest) oneofMessages_).toBuilder();
+              }
+              oneofMessages_ =
+                  input.readMessage(org.szymie.messages.Messages.ShowResourceRequest.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom((org.szymie.messages.Messages.ShowResourceRequest) oneofMessages_);
+                oneofMessages_ = subBuilder.buildPartial();
+              }
+              oneofMessagesCase_ = 11;
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -7113,6 +7512,7 @@ public final class Messages {
       STATEUPDATEREQUEST(8),
       INITREQUEST(9),
       INITRESPONSE(10),
+      SHOWRESOURCEREQUEST(11),
       ONEOFMESSAGES_NOT_SET(0);
       private final int value;
       private OneofMessagesCase(int value) {
@@ -7138,6 +7538,7 @@ public final class Messages {
           case 8: return STATEUPDATEREQUEST;
           case 9: return INITREQUEST;
           case 10: return INITRESPONSE;
+          case 11: return SHOWRESOURCEREQUEST;
           case 0: return ONEOFMESSAGES_NOT_SET;
           default: return null;
         }
@@ -7353,6 +7754,26 @@ public final class Messages {
       return org.szymie.messages.Messages.InitResponse.getDefaultInstance();
     }
 
+    public static final int SHOWRESOURCEREQUEST_FIELD_NUMBER = 11;
+    /**
+     * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+     */
+    public org.szymie.messages.Messages.ShowResourceRequest getShowResourceRequest() {
+      if (oneofMessagesCase_ == 11) {
+         return (org.szymie.messages.Messages.ShowResourceRequest) oneofMessages_;
+      }
+      return org.szymie.messages.Messages.ShowResourceRequest.getDefaultInstance();
+    }
+    /**
+     * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+     */
+    public org.szymie.messages.Messages.ShowResourceRequestOrBuilder getShowResourceRequestOrBuilder() {
+      if (oneofMessagesCase_ == 11) {
+         return (org.szymie.messages.Messages.ShowResourceRequest) oneofMessages_;
+      }
+      return org.szymie.messages.Messages.ShowResourceRequest.getDefaultInstance();
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -7394,6 +7815,9 @@ public final class Messages {
       }
       if (oneofMessagesCase_ == 10) {
         output.writeMessage(10, (org.szymie.messages.Messages.InitResponse) oneofMessages_);
+      }
+      if (oneofMessagesCase_ == 11) {
+        output.writeMessage(11, (org.szymie.messages.Messages.ShowResourceRequest) oneofMessages_);
       }
     }
 
@@ -7441,6 +7865,10 @@ public final class Messages {
       if (oneofMessagesCase_ == 10) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(10, (org.szymie.messages.Messages.InitResponse) oneofMessages_);
+      }
+      if (oneofMessagesCase_ == 11) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(11, (org.szymie.messages.Messages.ShowResourceRequest) oneofMessages_);
       }
       memoizedSize = size;
       return size;
@@ -7502,6 +7930,10 @@ public final class Messages {
           result = result && getInitResponse()
               .equals(other.getInitResponse());
           break;
+        case 11:
+          result = result && getShowResourceRequest()
+              .equals(other.getShowResourceRequest());
+          break;
         case 0:
         default:
       }
@@ -7555,6 +7987,10 @@ public final class Messages {
         case 10:
           hash = (37 * hash) + INITRESPONSE_FIELD_NUMBER;
           hash = (53 * hash) + getInitResponse().hashCode();
+          break;
+        case 11:
+          hash = (37 * hash) + SHOWRESOURCEREQUEST_FIELD_NUMBER;
+          hash = (53 * hash) + getShowResourceRequest().hashCode();
           break;
         case 0:
         default:
@@ -7782,6 +8218,13 @@ public final class Messages {
             result.oneofMessages_ = initResponseBuilder_.build();
           }
         }
+        if (oneofMessagesCase_ == 11) {
+          if (showResourceRequestBuilder_ == null) {
+            result.oneofMessages_ = oneofMessages_;
+          } else {
+            result.oneofMessages_ = showResourceRequestBuilder_.build();
+          }
+        }
         result.oneofMessagesCase_ = oneofMessagesCase_;
         onBuilt();
         return result;
@@ -7863,6 +8306,10 @@ public final class Messages {
           }
           case INITRESPONSE: {
             mergeInitResponse(other.getInitResponse());
+            break;
+          }
+          case SHOWRESOURCEREQUEST: {
+            mergeShowResourceRequest(other.getShowResourceRequest());
             break;
           }
           case ONEOFMESSAGES_NOT_SET: {
@@ -9209,6 +9656,136 @@ public final class Messages {
         onChanged();;
         return initResponseBuilder_;
       }
+
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.szymie.messages.Messages.ShowResourceRequest, org.szymie.messages.Messages.ShowResourceRequest.Builder, org.szymie.messages.Messages.ShowResourceRequestOrBuilder> showResourceRequestBuilder_;
+      /**
+       * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+       */
+      public org.szymie.messages.Messages.ShowResourceRequest getShowResourceRequest() {
+        if (showResourceRequestBuilder_ == null) {
+          if (oneofMessagesCase_ == 11) {
+            return (org.szymie.messages.Messages.ShowResourceRequest) oneofMessages_;
+          }
+          return org.szymie.messages.Messages.ShowResourceRequest.getDefaultInstance();
+        } else {
+          if (oneofMessagesCase_ == 11) {
+            return showResourceRequestBuilder_.getMessage();
+          }
+          return org.szymie.messages.Messages.ShowResourceRequest.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+       */
+      public Builder setShowResourceRequest(org.szymie.messages.Messages.ShowResourceRequest value) {
+        if (showResourceRequestBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          oneofMessages_ = value;
+          onChanged();
+        } else {
+          showResourceRequestBuilder_.setMessage(value);
+        }
+        oneofMessagesCase_ = 11;
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+       */
+      public Builder setShowResourceRequest(
+          org.szymie.messages.Messages.ShowResourceRequest.Builder builderForValue) {
+        if (showResourceRequestBuilder_ == null) {
+          oneofMessages_ = builderForValue.build();
+          onChanged();
+        } else {
+          showResourceRequestBuilder_.setMessage(builderForValue.build());
+        }
+        oneofMessagesCase_ = 11;
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+       */
+      public Builder mergeShowResourceRequest(org.szymie.messages.Messages.ShowResourceRequest value) {
+        if (showResourceRequestBuilder_ == null) {
+          if (oneofMessagesCase_ == 11 &&
+              oneofMessages_ != org.szymie.messages.Messages.ShowResourceRequest.getDefaultInstance()) {
+            oneofMessages_ = org.szymie.messages.Messages.ShowResourceRequest.newBuilder((org.szymie.messages.Messages.ShowResourceRequest) oneofMessages_)
+                .mergeFrom(value).buildPartial();
+          } else {
+            oneofMessages_ = value;
+          }
+          onChanged();
+        } else {
+          if (oneofMessagesCase_ == 11) {
+            showResourceRequestBuilder_.mergeFrom(value);
+          }
+          showResourceRequestBuilder_.setMessage(value);
+        }
+        oneofMessagesCase_ = 11;
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+       */
+      public Builder clearShowResourceRequest() {
+        if (showResourceRequestBuilder_ == null) {
+          if (oneofMessagesCase_ == 11) {
+            oneofMessagesCase_ = 0;
+            oneofMessages_ = null;
+            onChanged();
+          }
+        } else {
+          if (oneofMessagesCase_ == 11) {
+            oneofMessagesCase_ = 0;
+            oneofMessages_ = null;
+          }
+          showResourceRequestBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+       */
+      public org.szymie.messages.Messages.ShowResourceRequest.Builder getShowResourceRequestBuilder() {
+        return getShowResourceRequestFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+       */
+      public org.szymie.messages.Messages.ShowResourceRequestOrBuilder getShowResourceRequestOrBuilder() {
+        if ((oneofMessagesCase_ == 11) && (showResourceRequestBuilder_ != null)) {
+          return showResourceRequestBuilder_.getMessageOrBuilder();
+        } else {
+          if (oneofMessagesCase_ == 11) {
+            return (org.szymie.messages.Messages.ShowResourceRequest) oneofMessages_;
+          }
+          return org.szymie.messages.Messages.ShowResourceRequest.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.org.szymie.messages.ShowResourceRequest showResourceRequest = 11;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.szymie.messages.Messages.ShowResourceRequest, org.szymie.messages.Messages.ShowResourceRequest.Builder, org.szymie.messages.Messages.ShowResourceRequestOrBuilder> 
+          getShowResourceRequestFieldBuilder() {
+        if (showResourceRequestBuilder_ == null) {
+          if (!(oneofMessagesCase_ == 11)) {
+            oneofMessages_ = org.szymie.messages.Messages.ShowResourceRequest.getDefaultInstance();
+          }
+          showResourceRequestBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              org.szymie.messages.Messages.ShowResourceRequest, org.szymie.messages.Messages.ShowResourceRequest.Builder, org.szymie.messages.Messages.ShowResourceRequestOrBuilder>(
+                  (org.szymie.messages.Messages.ShowResourceRequest) oneofMessages_,
+                  getParentForChildren(),
+                  isClean());
+          oneofMessages_ = null;
+        }
+        oneofMessagesCase_ = 11;
+        onChanged();;
+        return showResourceRequestBuilder_;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -9339,6 +9916,11 @@ public final class Messages {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_szymie_messages_InitResponse_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_org_szymie_messages_ShowResourceRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_org_szymie_messages_ShowResourceRequest_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_szymie_messages_Message_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -9378,25 +9960,27 @@ public final class Messages {
       "uest\022<\n\006writes\030\001 \003(\0132,.org.szymie.messag" +
       "es.InitRequest.WritesEntry\032-\n\013WritesEntr" +
       "y\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\016\n\014Ini" +
-      "tResponse\"\245\005\n\007Message\0227\n\013readRequest\030\001 \001" +
-      "(\0132 .org.szymie.messages.ReadRequestH\000\0229" +
-      "\n\014readResponse\030\002 \001(\0132!.org.szymie.messag" +
-      "es.ReadResponseH\000\0229\n\014writeRequest\030\003 \001(\0132",
-      "!.org.szymie.messages.WriteRequestH\000\022O\n\027" +
-      "beginTransactionRequest\030\004 \001(\0132,.org.szym" +
-      "ie.messages.BeginTransactionRequestH\000\022Q\n" +
-      "\030beginTransactionResponse\030\005 \001(\0132-.org.sz" +
-      "ymie.messages.BeginTransactionResponseH\000" +
-      "\022;\n\rcommitRequest\030\006 \001(\0132\".org.szymie.mes" +
-      "sages.CommitRequestH\000\022=\n\016commitResponse\030" +
-      "\007 \001(\0132#.org.szymie.messages.CommitRespon" +
-      "seH\000\022E\n\022stateUpdateRequest\030\010 \001(\0132\'.org.s" +
-      "zymie.messages.StateUpdateRequestH\000\0227\n\013i",
-      "nitRequest\030\t \001(\0132 .org.szymie.messages.I" +
-      "nitRequestH\000\0229\n\014initResponse\030\n \001(\0132!.org" +
-      ".szymie.messages.InitResponseH\000B\020\n\016oneof" +
-      "_messagesB\037\n\023org.szymie.messagesB\010Messag" +
-      "esb\006proto3"
+      "tResponse\"\025\n\023ShowResourceRequest\"\356\005\n\007Mes" +
+      "sage\0227\n\013readRequest\030\001 \001(\0132 .org.szymie.m" +
+      "essages.ReadRequestH\000\0229\n\014readResponse\030\002 " +
+      "\001(\0132!.org.szymie.messages.ReadResponseH\000",
+      "\0229\n\014writeRequest\030\003 \001(\0132!.org.szymie.mess" +
+      "ages.WriteRequestH\000\022O\n\027beginTransactionR" +
+      "equest\030\004 \001(\0132,.org.szymie.messages.Begin" +
+      "TransactionRequestH\000\022Q\n\030beginTransaction" +
+      "Response\030\005 \001(\0132-.org.szymie.messages.Beg" +
+      "inTransactionResponseH\000\022;\n\rcommitRequest" +
+      "\030\006 \001(\0132\".org.szymie.messages.CommitReque" +
+      "stH\000\022=\n\016commitResponse\030\007 \001(\0132#.org.szymi" +
+      "e.messages.CommitResponseH\000\022E\n\022stateUpda" +
+      "teRequest\030\010 \001(\0132\'.org.szymie.messages.St",
+      "ateUpdateRequestH\000\0227\n\013initRequest\030\t \001(\0132" +
+      " .org.szymie.messages.InitRequestH\000\0229\n\014i" +
+      "nitResponse\030\n \001(\0132!.org.szymie.messages." +
+      "InitResponseH\000\022G\n\023showResourceRequest\030\013 " +
+      "\001(\0132(.org.szymie.messages.ShowResourceRe" +
+      "questH\000B\020\n\016oneof_messagesB\037\n\023org.szymie." +
+      "messagesB\010Messagesb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -9506,12 +10090,18 @@ public final class Messages {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_InitResponse_descriptor,
         new java.lang.String[] { });
-    internal_static_org_szymie_messages_Message_descriptor =
+    internal_static_org_szymie_messages_ShowResourceRequest_descriptor =
       getDescriptor().getMessageTypes().get(11);
+    internal_static_org_szymie_messages_ShowResourceRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_org_szymie_messages_ShowResourceRequest_descriptor,
+        new java.lang.String[] { });
+    internal_static_org_szymie_messages_Message_descriptor =
+      getDescriptor().getMessageTypes().get(12);
     internal_static_org_szymie_messages_Message_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_Message_descriptor,
-        new java.lang.String[] { "ReadRequest", "ReadResponse", "WriteRequest", "BeginTransactionRequest", "BeginTransactionResponse", "CommitRequest", "CommitResponse", "StateUpdateRequest", "InitRequest", "InitResponse", "OneofMessages", });
+        new java.lang.String[] { "ReadRequest", "ReadResponse", "WriteRequest", "BeginTransactionRequest", "BeginTransactionResponse", "CommitRequest", "CommitResponse", "StateUpdateRequest", "InitRequest", "InitResponse", "ShowResourceRequest", "OneofMessages", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -33,10 +33,13 @@ public class TransactionService extends SerializableService {
     private TreeMultiset<Long> liveTransactions;
     private Lock liveTransactionsLock;
 
+    private AtomicLong lastCommitted;
+
     public TransactionService(int id, ResourceRepository resourceRepository, AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions,
                               BlockingMap<Long, Boolean> activeTransactionFlags,
                               BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
-                              TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+                              TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
+                              AtomicLong lastCommitted) {
         this.id = id;
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
@@ -48,6 +51,8 @@ public class TransactionService extends SerializableService {
 
         lastApplied = 0;
         waitingUpdates = new TreeSet<>();
+
+        this.lastCommitted = lastCommitted;
     }
 
     @Override
@@ -243,6 +248,8 @@ public class TransactionService extends SerializableService {
                 resourceRepository.put(key, value, time);
             }
         });
+
+        lastCommitted.getAndAccumulate(time, Math::max);
 
         liveTransactionsLock.lock();
 
