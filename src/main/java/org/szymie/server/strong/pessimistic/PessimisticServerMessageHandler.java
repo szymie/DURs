@@ -37,11 +37,14 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
     private TreeMultiset<Long> liveTransactions;
     private Lock liveTransactionsLock;
 
+    private GroupMessenger groupMessenger;
+
     public PessimisticServerMessageHandler(int id, String paxosProcesses, ResourceRepository resourceRepository, AtomicLong timestamp,
                                            BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                                            Map<Long, TransactionMetadata> activeTransactions,
                                            BlockingMap<Long, Boolean> activeTransactionFlags,
-                                           TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+                                           TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
+                                           GroupMessenger groupMessenger) {
 
         super(resourceRepository, timestamp);
 
@@ -70,6 +73,8 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
         }
 
         this.activeTransactionFlags = activeTransactionFlags;
+
+        this.groupMessenger = groupMessenger;
     }
 
     @Override
@@ -113,11 +118,17 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
 
             BlockingQueue<ChannelHandlerContext> contextHolder = contexts.get(response.getTimestamp());
 
+            System.err.println("for " + response.getTimestamp() + " context holder get at " + id);
+
             try {
                 contextHolder.put(context);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+
+            System.err.println("for " + response.getTimestamp() + " context holder filled at " + id);
+
+            System.err.println("for " + response.getTimestamp() + " start possible " + response.getStartPossible());
 
             if(response.getStartPossible()) {
 
@@ -128,6 +139,8 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
                 System.err.println("want to tell that " + response.getTimestamp() + " can start");
                 context.writeAndFlush(message);
                 System.err.println("told that " + response.getTimestamp() + " can start");
+            } else {
+                System.err.println("for " + response.getTimestamp() + " didn't start");
             }
         } catch (IOException | ClassNotFoundException | ReplicationException e) {
             e.printStackTrace();
@@ -184,7 +197,7 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
             activeTransactionFlags.get(request.getTimestamp());
             TransactionMetadata transaction = activeTransactions.get(request.getTimestamp());
 
-            Messages.StateUpdateRequest stateUpdateRequest = Messages.StateUpdateRequest.newBuilder()
+            /*Messages.StateUpdateRequest stateUpdateRequest = Messages.StateUpdateRequest.newBuilder()
                     .setTimestamp(request.getTimestamp())
                     .setApplyAfter(transaction.getApplyAfter())
                     .putAllWrites(request.getWritesMap())
@@ -196,38 +209,17 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
                     .build();
 
             System.err.println("timestamp: " + timestamp);
-            System.err.println("transaction: " + transaction);
+            System.err.println("transaction: " + transaction);*/
 
-            try {
+            groupMessenger.send(new StateUpdate(request.getTimestamp(), transaction.getApplyAfter(), new HashMap<>(request.getWritesMap())));
+
+            /*try {
                 client.execute(message);
             } catch (IOException | ClassNotFoundException | ReplicationException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
-
-
-    /*@Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-
-        ByteBuf time = ctx.alloc().buffer(4);
-        time.writeInt((int) (System.currentTimeMillis() / 1000L + 2208988800L));
-
-        ChannelFuture f = ctx.writeAndFlush(time);
-
-        //f.sync();
-
-        //ctx.close();
-
-        f.addListener(ChannelFutureListener.CLOSE);
-
-        f.addListener((ChannelFutureListener) future -> {
-            assert f == future;
-            ctx.close();
-        });
-    }*/
-
-
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {

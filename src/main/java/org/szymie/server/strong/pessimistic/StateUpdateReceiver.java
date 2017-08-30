@@ -55,7 +55,7 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
             System.err.println("delivery");
             deliver(stateUpdate);
-            lastApplied = stateUpdate.getTimestamp();
+            lastApplied = Math.max(lastApplied, stateUpdate.getTimestamp());
 
             Set<StateUpdate> waitingUpdatesToRemove = new HashSet<>();
 
@@ -76,13 +76,13 @@ public class StateUpdateReceiver extends ReceiverAdapter {
             waitingUpdates.add(stateUpdate);
             waitingUpdates.forEach(su -> System.err.println("waitingUpdate tm: " + su.getTimestamp()));
         }
+
+        System.err.println("tryToDeliver");
     }
 
     private void deliver(StateUpdate stateUpdate) {
 
         long transactionTimestamp = stateUpdate.getTimestamp();
-
-        waitForActiveTransaction(transactionTimestamp);
 
         activeTransactionFlags.get(transactionTimestamp);
         TransactionMetadata transaction = activeTransactions.get(transactionTimestamp);
@@ -109,7 +109,7 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
             if(waitingTransaction.getAwaitingToStart().isEmpty()) {
 
-                BlockingQueue<ChannelHandlerContext> contextHolder = contexts.get(waitingTransactionTimestamp);
+                BlockingQueue<ChannelHandlerContext> contextHolder = contexts.getOrNull(waitingTransactionTimestamp);
 
                 if(contextHolder != null) {
 
@@ -185,7 +185,7 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
     private void notifyAboutTransactionCommit(long transactionTimestamp) {
 
-        BlockingQueue<ChannelHandlerContext> contextHolder = contexts.get(transactionTimestamp);
+        BlockingQueue<ChannelHandlerContext> contextHolder = contexts.getOrNull(transactionTimestamp);
 
         if(contextHolder != null) {
             ChannelHandlerContext context = contextHolder.peek();
@@ -194,7 +194,7 @@ public class StateUpdateReceiver extends ReceiverAdapter {
             context.writeAndFlush(message);
             contexts.remove(transactionTimestamp);
 
-            System.err.println("Notified about commit");
+            System.err.println("Notified about commit of " + transactionTimestamp);
         }
     }
 

@@ -74,7 +74,7 @@ public class TransactionService extends SerializableService {
 
         TransactionMetadata newTransaction = new TransactionMetadata(beginTransactionRequest.getReadsMap().keySet(), beginTransactionRequest.getWritesMap().keySet());
 
-        long newTransactionTimestamp = timestamp.getAndAdd(1);
+        long newTransactionTimestamp = timestamp.incrementAndGet();
 
         System.err.println("activeTransactions: " + activeTransactions.size());
 
@@ -83,24 +83,30 @@ public class TransactionService extends SerializableService {
             contexts.put(newTransactionTimestamp, new ArrayBlockingQueue<>(1));
         }
 
-        for (Map.Entry<Long, TransactionMetadata> entry : activeTransactions.entrySet()) {
+        boolean startPossible = true;
+
+        for(Map.Entry<Long, TransactionMetadata> entry : activeTransactions.entrySet()) {
 
             TransactionMetadata transaction = entry.getValue();
+            transaction.acquireReadLock();
 
-            if (isAwaitingToStartNeeded(transaction)) {
+            if(isAwaitingToStartNeeded(transaction)) {
                 newTransaction.getAwaitingToStart().add(entry.getKey());
                 transaction.getAwaitingForMe().add(newTransactionTimestamp);
+                startPossible = false;
             }
 
-            if (isApplyingAfterNeeded(transaction)) {
+            if(isApplyingAfterNeeded(transaction)) {
                 newTransaction.setApplyAfter(entry.getKey());
             }
+
+            transaction.releaseReadLock();
         }
 
         activeTransactions.put(newTransactionTimestamp, newTransaction);
         activeTransactionFlags.put(newTransactionTimestamp, true);
 
-        System.err.println(newTransactionTimestamp + " can start " + newTransaction.getAwaitingToStart().isEmpty());
+        System.err.println(newTransactionTimestamp + " can start " + startPossible);
 
         newTransaction.getAwaitingToStart().forEach(transactionId -> {
             System.err.println(newTransactionTimestamp + " is waiting for " + transactionId);
@@ -108,12 +114,12 @@ public class TransactionService extends SerializableService {
 
         return Messages.BeginTransactionResponse.newBuilder()
                 .setTimestamp(newTransactionTimestamp)
-                .setStartPossible(newTransaction.getAwaitingToStart().isEmpty())
+                .setStartPossible(startPossible)
                 .build();
     }
 
     private boolean isAwaitingToStartNeeded(TransactionMetadata transaction) {
-        return !Collections.disjoint(request.getReadsMap().keySet(), transaction.getWrites());
+        return !transaction.isFinished() && !Collections.disjoint(request.getReadsMap().keySet(), transaction.getWrites());
     }
 
     private boolean isApplyingAfterNeeded(TransactionMetadata transaction) {

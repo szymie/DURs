@@ -247,16 +247,16 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
             return new ReentrantLock(true);
         }
 
-        /*@Bean
-        public StateUpdateReceiver stateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions,
-                                                       ResourceRepository resourceRepository,  Map<Long, ChannelHandlerContext> contexts,
+        @Bean
+        public StateUpdateReceiver stateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long, Boolean> activeTransactionFlags,
+                                                       ResourceRepository resourceRepository,  BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                                                        AtomicLong timestamp) {
-            return new StateUpdateReceiver(activeTransactions, resourceRepository, contexts, timestamp);
-        }*/
+            return new StateUpdateReceiver(activeTransactions, activeTransactionFlags, resourceRepository, contexts, timestamp);
+        }
 
         @Bean
         public Map<Long, TransactionMetadata> activeTransactions() {
-            return new HashMap<>();
+            return new ConcurrentHashMap<>();
         }
 
         @Bean
@@ -269,10 +269,10 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
             return "cluster-0";
         }
 
-        /*@Bean
+        @Bean
         public GroupMessenger groupMessenger(String groupName, StateUpdateReceiver receiver) {
             return new GroupMessenger(groupName, receiver);
-        }*/
+        }
 
         @Bean
         public BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts() {
@@ -284,8 +284,9 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
                 ResourceRepository resourceRepository, AtomicLong timestamp, BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                 Map<Long, TransactionMetadata> activeTransactions,
                 BlockingMap<Long, Boolean> activeTransactionFlags,
-                TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
-            return new PessimisticServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock);
+                TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
+                GroupMessenger groupMessenger) {
+            return new PessimisticServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock, groupMessenger);
         }
 
         @Bean

@@ -31,7 +31,8 @@ public class PessimisticServerChannelInboundHandlerFactory implements ChannelInb
     public PessimisticServerChannelInboundHandlerFactory(int id, String paxosProcesses, ResourceRepository resourceRepository, AtomicLong timestamp,
                                                          BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts, Map<Long, TransactionMetadata> activeTransactions,
                                                          BlockingMap<Long, Boolean> activeTransactionFlags,
-                                                         TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+                                                         TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
+                                                         GroupMessenger groupMessenger) {
 
         this.id = id;
         this.paxosProcesses = paxosProcesses;
@@ -49,6 +50,6 @@ public class PessimisticServerChannelInboundHandlerFactory implements ChannelInb
 
     @Override
     public ChannelInboundHandler create() {
-        return new PessimisticServerMessageHandler(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock);
+        return new PessimisticServerMessageHandler(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock, groupMessenger);
     }
 }

@@ -11,7 +11,13 @@ public class GroupMessenger {
     public GroupMessenger(String groupName, Receiver messageReceiver) {
 
         try {
-            channel = new JChannel().setReceiver(messageReceiver);
+
+            channel = new JChannel();
+
+            if(messageReceiver != null) {
+                channel.setReceiver(messageReceiver);
+            }
+
             channel.connect(groupName);
         } catch (Exception e) {
             throw new RuntimeException(e);
