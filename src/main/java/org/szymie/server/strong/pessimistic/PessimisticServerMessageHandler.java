@@ -39,12 +39,15 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
 
     private GroupMessenger groupMessenger;
 
+    private AtomicLong lastCommitted;
+
     public PessimisticServerMessageHandler(int id, String paxosProcesses, ResourceRepository resourceRepository, AtomicLong timestamp,
                                            BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                                            Map<Long, TransactionMetadata> activeTransactions,
                                            BlockingMap<Long, Boolean> activeTransactionFlags,
                                            TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
-                                           GroupMessenger groupMessenger) {
+                                           GroupMessenger groupMessenger,
+                                           AtomicLong lastCommitted) {
 
         super(resourceRepository, timestamp);
 
@@ -75,6 +78,8 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
         this.activeTransactionFlags = activeTransactionFlags;
 
         this.groupMessenger = groupMessenger;
+
+        this.lastCommitted = lastCommitted;
     }
 
     @Override
@@ -106,13 +111,15 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
                     .setId(id)
                     .build();
 
-            Messages.BeginTransactionResponse response = (Messages.BeginTransactionResponse) client.execute(Messages.Message.newBuilder()
+            BeginTransactionResponse response = (BeginTransactionResponse) client.execute(Messages.Message.newBuilder()
                     .setBeginTransactionRequest(requestWithId)
                     .build());
 
             liveTransactionsLock.lock();
             liveTransactions.add(response.getTimestamp());
             liveTransactionsLock.unlock();
+
+            response.setStartPossible(activeTransactionFlags.get(response.getTimestamp()));
 
             System.err.println("for " + response.getTimestamp() + " context should have been set at " + id);
 
@@ -128,12 +135,17 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
 
             System.err.println("for " + response.getTimestamp() + " context holder filled at " + id);
 
-            System.err.println("for " + response.getTimestamp() + " start possible " + response.getStartPossible());
+            System.err.println("for " + response.getTimestamp() + " start possible " + response.isStartPossible());
 
-            if(response.getStartPossible()) {
+            if(response.isStartPossible()) {
+
+                Messages.BeginTransactionResponse beginTransactionResponse = Messages.BeginTransactionResponse.newBuilder()
+                        .setTimestamp(response.getTimestamp())
+                        .setStartPossible(response.isStartPossible())
+                        .build();
 
                 Messages.Message message = Messages.Message.newBuilder()
-                        .setBeginTransactionResponse(response)
+                        .setBeginTransactionResponse(beginTransactionResponse)
                         .build();
 
                 System.err.println("want to tell that " + response.getTimestamp() + " can start");
@@ -152,7 +164,7 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
 
         boolean firstRead = request.getTimestamp() == Long.MAX_VALUE;
 
-        long transactionTimestamp = firstRead ? timestamp.get() : request.getTimestamp();
+        long transactionTimestamp = firstRead ? lastCommitted.get() : request.getTimestamp();
 
         if(firstRead) {
             liveTransactionsLock.lock();

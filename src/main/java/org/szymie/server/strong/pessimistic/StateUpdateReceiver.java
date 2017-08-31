@@ -1,5 +1,7 @@
 package org.szymie.server.strong.pessimistic;
 
+import com.google.common.collect.Multiset;
+import com.google.common.collect.TreeMultiset;
 import io.netty.channel.ChannelHandlerContext;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
@@ -13,7 +15,9 @@ import org.szymie.server.strong.optimistic.ResourceRepository;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 public class StateUpdateReceiver extends ReceiverAdapter {
@@ -22,29 +26,46 @@ public class StateUpdateReceiver extends ReceiverAdapter {
     private BlockingMap<Long, Boolean> activeTransactionFlags;
     private ResourceRepository resourceRepository;
     private BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts;
-    private final AtomicLong timestamp;
+    private TreeMultiset<Long> liveTransactions;
+    private Lock liveTransactionsLock;
+    private AtomicLong lastCommitted;
     private long lastApplied;
     private SortedSet<StateUpdate> waitingUpdates;
+    
+    //private List<Long> delivered = new LinkedList<>();
 
     public StateUpdateReceiver(Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long, Boolean> activeTransactionFlags,
-                               ResourceRepository resourceRepository, BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts, AtomicLong timestamp) {
+                               ResourceRepository resourceRepository, BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
+                               TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
+                               AtomicLong lastCommitted) {
         this.activeTransactions = activeTransactions;
         this.activeTransactionFlags = activeTransactionFlags;
         this.resourceRepository = resourceRepository;
         this.contexts = contexts;
-        this.timestamp = timestamp;
+        this.liveTransactions = liveTransactions;
+        this.liveTransactionsLock = liveTransactionsLock;
+        this.lastCommitted = lastCommitted;
         lastApplied = 0;
         waitingUpdates = new TreeSet<>();
+
+
     }
 
-    //multiple deliveries
     @Override
-    public void receive(Message message) {
+    public synchronized void receive(Message message) {
 
-        System.err.println("message:" + message.getObject());
+        StateUpdate stateUpdate = message.getObject();
+        //delivered.add(stateUpdate.getTimestamp());
 
-        super.receive(message);
+        System.err.println("message:" + message.getObject() + " timestamp: " + stateUpdate.getTimestamp());
+
+        System.err.flush();
+
         tryToDeliver(message.getObject());
+
+        /*System.err.println(delivered.stream().sorted()
+                .map(String::valueOf)
+                .collect(Collectors.joining(", ")));*/
     }
 
     private void tryToDeliver(StateUpdate stateUpdate) {
@@ -156,19 +177,6 @@ public class StateUpdateReceiver extends ReceiverAdapter {
         });
     }
 
-    private void waitForActiveTransaction(long transactionTimestamp) {
-
-        try {
-            synchronized(timestamp) {
-                while(timestamp.get() < transactionTimestamp) {
-                    timestamp.wait();
-                }
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private void commitTransaction(StateUpdate stateUpdate) {
 
         long time = stateUpdate.getTimestamp();
@@ -181,6 +189,20 @@ public class StateUpdateReceiver extends ReceiverAdapter {
                 resourceRepository.put(key, value, time);
             }
         });
+
+        lastCommitted.getAndAccumulate(time, Math::max);
+
+        liveTransactionsLock.lock();
+
+        Multiset.Entry<Long> oldestTransaction = liveTransactions.firstEntry();
+
+        if(oldestTransaction != null) {
+            Long oldestTransactionTimestamp = oldestTransaction.getElement();
+            resourceRepository.removeOutdatedVersions(oldestTransactionTimestamp);
+        }
+
+        liveTransactions.remove(stateUpdate.getTimestamp());
+        liveTransactionsLock.unlock();
     }
 
     private void notifyAboutTransactionCommit(long transactionTimestamp) {

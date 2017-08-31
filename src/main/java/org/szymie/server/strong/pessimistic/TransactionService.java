@@ -5,6 +5,7 @@ import com.google.common.collect.TreeMultiset;
 import io.netty.channel.ChannelHandlerContext;
 import lsr.service.SerializableService;
 import org.szymie.BlockingMap;
+import org.szymie.messages.BeginTransactionResponse;
 import org.szymie.messages.Messages;
 import org.szymie.messages.StateUpdate;
 import org.szymie.server.strong.optimistic.ResourceRepository;
@@ -68,7 +69,7 @@ public class TransactionService extends SerializableService {
         }
     }
 
-    private Messages.BeginTransactionResponse handleBeginTransaction(Messages.BeginTransactionRequest beginTransactionRequest) {
+    private BeginTransactionResponse handleBeginTransaction(Messages.BeginTransactionRequest beginTransactionRequest) {
 
         request = beginTransactionRequest;
 
@@ -104,7 +105,7 @@ public class TransactionService extends SerializableService {
         }
 
         activeTransactions.put(newTransactionTimestamp, newTransaction);
-        activeTransactionFlags.put(newTransactionTimestamp, true);
+        activeTransactionFlags.put(newTransactionTimestamp, startPossible);
 
         System.err.println(newTransactionTimestamp + " can start " + startPossible);
 
@@ -112,10 +113,7 @@ public class TransactionService extends SerializableService {
             System.err.println(newTransactionTimestamp + " is waiting for " + transactionId);
         });
 
-        return Messages.BeginTransactionResponse.newBuilder()
-                .setTimestamp(newTransactionTimestamp)
-                .setStartPossible(startPossible)
-                .build();
+        return new BeginTransactionResponse(newTransactionTimestamp, startPossible);
     }
 
     private boolean isAwaitingToStartNeeded(TransactionMetadata transaction) {

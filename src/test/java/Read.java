@@ -12,7 +12,7 @@ public class Read {
 
         Map<String, String> properties = new HashMap<>();
 
-        properties.put("replicas", "0-127.0.0.1:8082");
+        properties.put("replicas", "0-127.0.0.1:8080");
 
         Configuration configuration = new Configuration(properties);
 
