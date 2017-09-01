@@ -36,8 +36,7 @@ public class StateUpdateReceiver extends ReceiverAdapter {
         lastApplied = 0;
         waitingUpdates = new TreeSet<>();
     }
-
-    //multiple deliveries
+    
     @Override
     public void receive(Message message) {
 
