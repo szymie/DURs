@@ -55,6 +55,6 @@ public class PessimisticServerChannelInboundHandlerFactory implements ChannelInb
 
     @Override
     public ChannelInboundHandler create() {
-        return new PessimisticServerMessageHandler(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock, groupMessenger, lastCommitted);
+        return new PessimisticServerMessageHandler(id, paxosProcesses, resourceRepository, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock, groupMessenger, lastCommitted);
     }
 }

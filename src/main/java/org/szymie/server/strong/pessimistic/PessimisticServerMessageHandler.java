@@ -34,14 +34,9 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
     private Map<Long, TransactionMetadata> activeTransactions;
     private BlockingMap<Long, Boolean> activeTransactionFlags;
 
-    private TreeMultiset<Long> liveTransactions;
-    private Lock liveTransactionsLock;
-
     private GroupMessenger groupMessenger;
 
-    private AtomicLong lastCommitted;
-
-    public PessimisticServerMessageHandler(int id, String paxosProcesses, ResourceRepository resourceRepository, AtomicLong timestamp,
+    public PessimisticServerMessageHandler(int id, String paxosProcesses, ResourceRepository resourceRepository,
                                            BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                                            Map<Long, TransactionMetadata> activeTransactions,
                                            BlockingMap<Long, Boolean> activeTransactionFlags,
@@ -49,7 +44,7 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
                                            GroupMessenger groupMessenger,
                                            AtomicLong lastCommitted) {
 
-        super(resourceRepository, timestamp);
+        super(resourceRepository, lastCommitted, liveTransactions, liveTransactionsLock);
 
         this.id = id;
         this.contexts = contexts;
@@ -78,8 +73,6 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
         this.activeTransactionFlags = activeTransactionFlags;
 
         this.groupMessenger = groupMessenger;
-
-        this.lastCommitted = lastCommitted;
     }
 
     @Override
@@ -160,63 +153,15 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
         }
     }
 
-    private void handleReadRequest(ChannelHandlerContext context, Messages.ReadRequest request) {
-
-        boolean firstRead = request.getTimestamp() == Long.MAX_VALUE;
-
-        long transactionTimestamp = firstRead ? lastCommitted.get() : request.getTimestamp();
-
-        if(firstRead) {
-            liveTransactionsLock.lock();
-            liveTransactions.add(transactionTimestamp);
-            liveTransactionsLock.unlock();
-        }
-
-        Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
-
-        Messages.ReadResponse response = valueOptional.map(valueWithTimestamp ->
-                createReadResponse(valueWithTimestamp.value, transactionTimestamp, valueWithTimestamp.fresh))
-                .orElse(createReadResponse("", transactionTimestamp, true));
-
-        Messages.Message message = Messages.Message.newBuilder()
-                .setReadResponse(response)
-                .build();
-
-        context.writeAndFlush(message);
-    }
-
-    private Messages.ReadResponse createReadResponse(String value, long timestamp, boolean fresh) {
-        return Messages.ReadResponse.newBuilder()
-                .setValue(value)
-                .setTimestamp(timestamp)
-                .setFresh(fresh).build();
-    }
-
     private void handleCommitRequest(ChannelHandlerContext context, Messages.CommitRequest request) {
 
         if(request.getWritesMap().isEmpty()) {
-
-            liveTransactionsLock.lock();
-            liveTransactions.remove(request.getTimestamp());
-            liveTransactionsLock.unlock();
-
-            Messages.CommitResponse response = Messages.CommitResponse.newBuilder().build();
-            Messages.Message message = Messages.Message.newBuilder().setCommitResponse(response).build();
-
-            context.writeAndFlush(message);
+            commitReadOnlyTransaction(context, request);
         } else {
-
             activeTransactionFlags.get(request.getTimestamp());
             TransactionMetadata transaction = activeTransactions.get(request.getTimestamp());
             groupMessenger.send(new StateUpdate(request.getTimestamp(), transaction.getApplyAfter(), new HashMap<>(request.getWritesMap())));
         }
-    }
-
-
-
-    private StateUpdate createStateUpdateFromRequest(Messages.StateUpdateRequest request) {
-        return new StateUpdate(request.getTimestamp(),
-                request.getApplyAfter(), new HashMap<>(request.getWritesMap()));
     }
 
     @Override

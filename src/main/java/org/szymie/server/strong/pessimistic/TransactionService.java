@@ -22,33 +22,22 @@ public class TransactionService extends SerializableService {
     private Messages.BeginTransactionRequest request;
     private Map<Long, TransactionMetadata> activeTransactions;
     private AtomicLong timestamp;
-    private long lastApplied;
-    private ResourceRepository resourceRepository;
 
-    private Set<StateUpdate> waitingUpdates;
 
     private BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts;
 
     private BlockingMap<Long, Boolean> activeTransactionFlags;
 
-    private TreeMultiset<Long> liveTransactions;
-    private Lock liveTransactionsLock;
 
-    public TransactionService(int id, ResourceRepository resourceRepository, AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions,
+
+    public TransactionService(int id, AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions,
                               BlockingMap<Long, Boolean> activeTransactionFlags,
-                              BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
-                              TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+                              BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts) {
         this.id = id;
-        this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
         this.activeTransactions = activeTransactions;
         this.activeTransactionFlags = activeTransactionFlags;
         this.contexts = contexts;
-        this.liveTransactions = liveTransactions;
-        this.liveTransactionsLock = liveTransactionsLock;
-
-        lastApplied = 0;
-        waitingUpdates = new TreeSet<>();
     }
 
     @Override
@@ -130,24 +119,10 @@ public class TransactionService extends SerializableService {
 
     @Override
     protected void updateToSnapshot(Object o) {
-        /*Map.Entry<Long, Map<Long, TransactionMetadata>> snapshot = (Map.Entry<Long, Map<Long, TransactionMetadata>>) o;
-        snapshot.getValue().entrySet()
-                .forEach(entry -> activeTransactions.put(entry.getKey(),
-                        new TransactionMetadata(entry.getValue().getReads(),
-                                entry.getValue().getWrites(),
-                                entry.getValue().getAwaitingForMe(),
-                                entry.getValue().getAwaitingToStart(),
-                                entry.getValue().getApplyAfter(),
-                                entry.getValue().isFinished()
-                ) ));
-        timestamp = snapshot.getKey();
-        System.err.println("updateToSnapshot");*/
     }
 
     @Override
     protected Object makeObjectSnapshot() {
-        /*System.err.println("makeObjectSnapshot");
-        return new AbstractMap.SimpleEntry<>(timestamp, activeTransactions);*/
         return 1L;
     }
 }

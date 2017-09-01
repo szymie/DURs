@@ -111,7 +111,6 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
     private static void runInit(CommandLine commandLine) {
 
-        //NettyRemoteGateway remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory()));
         NettyRemoteGateway remoteGateway = new NettyRemoteGateway(new ClientChannelInitializer(new PessimisticClientMessageHandlerFactory()));
         String replicas = commandLine.getOptionValue("replicas");
 
@@ -298,10 +297,8 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
         @Bean
         public TransactionService transactionService(@Qualifier("timestamp") AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long,
-                BlockingQueue<ChannelHandlerContext>> contexts, ResourceRepository resourceRepository,
-                                                     BlockingMap<Long, Boolean> activeTransactionFlags,
-                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
-            return new TransactionService(id, resourceRepository, timestamp, activeTransactions, activeTransactionFlags, contexts, liveTransactions, liveTransactionsLock);
+                BlockingQueue<ChannelHandlerContext>> contexts, BlockingMap<Long, Boolean> activeTransactionFlags) {
+            return new TransactionService(id, timestamp, activeTransactions, activeTransactionFlags, contexts);
         }
     }
 
