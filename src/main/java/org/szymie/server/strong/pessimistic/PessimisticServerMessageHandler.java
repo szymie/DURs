@@ -111,7 +111,7 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
                     .setId(id)
                     .build();
 
-            BeginTransactionResponse response = (BeginTransactionResponse) client.execute(Messages.Message.newBuilder()
+            Messages.BeginTransactionResponse response = (Messages.BeginTransactionResponse) client.execute(Messages.Message.newBuilder()
                     .setBeginTransactionRequest(requestWithId)
                     .build());
 
@@ -119,7 +119,7 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
             liveTransactions.add(response.getTimestamp());
             liveTransactionsLock.unlock();
 
-            response.setStartPossible(activeTransactionFlags.get(response.getTimestamp()));
+            boolean startPossible = activeTransactionFlags.get(response.getTimestamp());
 
             System.err.println("for " + response.getTimestamp() + " context should have been set at " + id);
 
@@ -135,13 +135,13 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
 
             System.err.println("for " + response.getTimestamp() + " context holder filled at " + id);
 
-            System.err.println("for " + response.getTimestamp() + " start possible " + response.isStartPossible());
+            System.err.println("for " + response.getTimestamp() + " start possible " + startPossible);
 
-            if(response.isStartPossible()) {
+            if(startPossible) {
 
                 Messages.BeginTransactionResponse beginTransactionResponse = Messages.BeginTransactionResponse.newBuilder()
                         .setTimestamp(response.getTimestamp())
-                        .setStartPossible(response.isStartPossible())
+                        .setStartPossible(true)
                         .build();
 
                 Messages.Message message = Messages.Message.newBuilder()
@@ -208,29 +208,15 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
 
             activeTransactionFlags.get(request.getTimestamp());
             TransactionMetadata transaction = activeTransactions.get(request.getTimestamp());
-
-            /*Messages.StateUpdateRequest stateUpdateRequest = Messages.StateUpdateRequest.newBuilder()
-                    .setTimestamp(request.getTimestamp())
-                    .setApplyAfter(transaction.getApplyAfter())
-                    .putAllWrites(request.getWritesMap())
-                    .build();
-
-            Messages.Message message = Messages.Message
-                    .newBuilder()
-                    .setStateUpdateRequest(stateUpdateRequest)
-                    .build();
-
-            System.err.println("timestamp: " + timestamp);
-            System.err.println("transaction: " + transaction);*/
-
             groupMessenger.send(new StateUpdate(request.getTimestamp(), transaction.getApplyAfter(), new HashMap<>(request.getWritesMap())));
-
-            /*try {
-                client.execute(message);
-            } catch (IOException | ClassNotFoundException | ReplicationException e) {
-                e.printStackTrace();
-            }*/
         }
+    }
+
+
+
+    private StateUpdate createStateUpdateFromRequest(Messages.StateUpdateRequest request) {
+        return new StateUpdate(request.getTimestamp(),
+                request.getApplyAfter(), new HashMap<>(request.getWritesMap()));
     }
 
     @Override
