@@ -109,15 +109,18 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
 
         if(request.writtenValues.isEmpty()) {
 
-            Messages.CommitRequest commitRequest = Messages.CommitRequest.newBuilder()
-                    .setTimestamp(transactionData.timestamp)
-                    .build();
+            if(!request.readValues.isEmpty()) {
 
-            Messages.Message message = Messages.Message.newBuilder()
-                    .setCommitRequest(commitRequest)
-                    .build();
+                Messages.CommitRequest commitRequest = Messages.CommitRequest.newBuilder()
+                        .setTimestamp(transactionData.timestamp)
+                        .build();
 
-            remoteGateway.sendAndReceive(message , Messages.CommitResponse.class);
+                Messages.Message message = Messages.Message.newBuilder()
+                        .setCommitRequest(commitRequest)
+                        .build();
+
+                remoteGateway.sendAndReceive(message , Messages.CommitResponse.class);
+            }
 
             response = new CertificationResponse(true);
         } else {

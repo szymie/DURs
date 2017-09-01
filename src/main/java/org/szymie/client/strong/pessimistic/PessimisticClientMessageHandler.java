@@ -12,7 +12,6 @@ class PessimisticClientMessageHandler extends BaseClientMessageHandler {
         System.err.println("msg " + msg);
 
         switch(msg.getOneofMessagesCase()) {
-
             case BEGINTRANSACTIONRESPONSE:
                 setResponse(new Response<>(msg.getBeginTransactionResponse()));
                 break;
@@ -23,8 +22,7 @@ class PessimisticClientMessageHandler extends BaseClientMessageHandler {
                 setResponse(new Response<>(msg.getReadResponse()));
                 break;
             case INITRESPONSE:
-                Messages.InitResponse initResponse = msg.getInitResponse();
-                setResponse(new Response<>(initResponse));
+                setResponse(new Response<>(msg.getInitResponse()));
         }
     }
 }

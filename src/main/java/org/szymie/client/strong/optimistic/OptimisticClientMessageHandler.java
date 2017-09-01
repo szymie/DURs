@@ -17,16 +17,13 @@ class OptimisticClientMessageHandler extends BaseClientMessageHandler {
 
         switch(msg.getOneofMessagesCase()) {
             case READRESPONSE:
-                Messages.ReadResponse readResponse = msg.getReadResponse();
-                setResponse(new Response<>(readResponse));
+                setResponse(new Response<>(msg.getReadResponse()));
                 break;
             case COMMITRESPONSE:
-                Messages.CommitResponse commitResponse = msg.getCommitResponse();
-                setResponse(new Response<>(commitResponse));
+                setResponse(new Response<>(msg.getCommitResponse()));
                 break;
             case INITRESPONSE:
-                Messages.InitResponse initResponse = msg.getInitResponse();
-                setResponse(new Response<>(initResponse));
+                setResponse(new Response<>(msg.getInitResponse()));
         }
     }
 }

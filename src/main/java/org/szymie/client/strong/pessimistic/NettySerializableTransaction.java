@@ -46,6 +46,8 @@ public class NettySerializableTransaction implements Transaction {
             readOnly = true;
         } else {
 
+            readOnly = false;
+
             Messages.BeginTransactionRequest request = Messages.BeginTransactionRequest.newBuilder()
                     .putAllReads(reads)
                     .putAllWrites(writes)

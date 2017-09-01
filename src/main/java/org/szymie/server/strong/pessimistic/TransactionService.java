@@ -22,13 +22,8 @@ public class TransactionService extends SerializableService {
     private Messages.BeginTransactionRequest request;
     private Map<Long, TransactionMetadata> activeTransactions;
     private AtomicLong timestamp;
-
-
     private BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts;
-
     private BlockingMap<Long, Boolean> activeTransactionFlags;
-
-
 
     public TransactionService(int id, AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions,
                               BlockingMap<Long, Boolean> activeTransactionFlags,
@@ -94,10 +89,7 @@ public class TransactionService extends SerializableService {
         activeTransactionFlags.put(newTransactionTimestamp, startPossible);
 
         System.err.println(newTransactionTimestamp + " can start " + startPossible);
-
-        newTransaction.getAwaitingToStart().forEach(transactionId -> {
-            System.err.println(newTransactionTimestamp + " is waiting for " + transactionId);
-        });
+        newTransaction.getAwaitingToStart().forEach(transactionId -> System.err.println(newTransactionTimestamp + " is waiting for " + transactionId));
 
         return Messages.BeginTransactionResponse.newBuilder()
                 .setStartPossible(startPossible)
