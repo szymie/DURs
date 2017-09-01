@@ -22,7 +22,6 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
     private TransactionState state;
     private SerializableClient client;
 
-
     public NettySerializableTransaction() {
         this(new Configuration());
     }
@@ -165,5 +164,9 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
 
     public TransactionState getState() {
         return state;
+    }
+
+    public long getTimestamp() {
+        return valueGateway.getTransactionData().timestamp;
     }
 }

@@ -5,4 +5,5 @@ public interface ReadWriteRemoveCommitTransaction {
     void write(String key, String value);
     void remove(String key);
     boolean commit();
+    long getTimestamp();
 }

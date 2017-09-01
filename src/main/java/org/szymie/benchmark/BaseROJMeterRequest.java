@@ -98,7 +98,9 @@ public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient impl
     void executeOperations(ReadWriteRemoveCommitTransaction transaction) {
 
         for (Map.Entry<String, Integer> read : reads.entrySet()) {
+            System.err.println(transaction.getTimestamp() + " trying to read key "+ read.getKey());
             transaction.read(read.getKey());
+            System.err.println(transaction.getTimestamp() + " ");
         }
 
         if(delayInMillis != 0) {
