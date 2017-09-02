@@ -73,7 +73,17 @@ message Message {
 
     InitRequest initRequest = 9;
     InitResponse initResponse = 10;
+
+    TransactionExecutionRequest transactionExecutionRequest = 11;
+    TransactionExecutionResponse TransactionExecutionResponse = 12;
   }
 
 }
 
+message TransactionExecutionRequest {
+    repeated string reads = 1;
+    repeated string writes = 2;
+}
+
+message TransactionExecutionResponse {
+}

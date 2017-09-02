@@ -22,12 +22,16 @@ import org.szymie.client.strong.optimistic.NettyRemoteGateway;
 import org.szymie.client.strong.optimistic.OptimisticClientMessageHandlerFactory;
 import org.szymie.client.strong.RemoteGateway;
 import org.szymie.client.strong.pessimistic.PessimisticClientMessageHandlerFactory;
+import org.szymie.client.strong.sequential.SequentialClientMessageHandlerFactory;
 import org.szymie.messages.Messages;
 import org.szymie.server.strong.ChannelInboundHandlerFactory;
 import org.szymie.server.strong.ReplicaServer;
 import org.szymie.server.strong.ServerChannelInitializer;
 import org.szymie.server.strong.optimistic.*;
 import org.szymie.server.strong.pessimistic.*;
+import org.szymie.server.strong.sequential.SequentialExecutionService;
+import org.szymie.server.strong.sequential.SequentialServerChannelInboundHandlerFactory;
+import org.szymie.server.strong.sequential.SimpleResourceRepository;
 
 import java.io.InputStream;
 import java.util.*;
@@ -299,6 +303,32 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         public TransactionService transactionService(@Qualifier("timestamp") AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long,
                 BlockingQueue<ChannelHandlerContext>> contexts, BlockingMap<Long, Boolean> activeTransactionFlags) {
             return new TransactionService(id, timestamp, activeTransactions, activeTransactionFlags, contexts);
+        }
+    }
+
+    @Profile("sequential")
+    private static class SequentialConfig {
+
+        @Value("${id}")
+        protected int id;
+
+        @Value("${paxosProcesses}")
+        protected String paxosProcesses;
+
+
+        @Bean
+        public SequentialServerChannelInboundHandlerFactory sequentialServerChannelInboundHandlerFactory() {
+            return new SequentialServerChannelInboundHandlerFactory(paxosProcesses);
+        }
+
+        @Bean
+        public SimpleResourceRepository simpleResourceRepository() {
+            return new SimpleResourceRepository();
+        }
+
+        @Bean
+        public SequentialExecutionService sequentialExecutionService(SimpleResourceRepository simpleResourceRepository) {
+            return new SequentialExecutionService(simpleResourceRepository);
         }
     }
 
