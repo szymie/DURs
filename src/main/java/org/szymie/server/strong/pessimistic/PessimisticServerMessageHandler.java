@@ -159,7 +159,9 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
             commitReadOnlyTransaction(context, request);
         } else {
             //activeTransactionFlags.get(request.getTimestamp());
+            System.err.println("getting transaction from active " + request.getTimestamp());
             TransactionMetadata transaction = activeTransactions.get(request.getTimestamp());
+            System.err.println("got transaction from active " + request.getTimestamp());
             groupMessenger.send(new StateUpdate(request.getTimestamp(), transaction.getApplyAfter(), new HashMap<>(request.getWritesMap())));
             System.err.println("Sent state update for " + request.getTimestamp());
         }

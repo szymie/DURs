@@ -67,7 +67,11 @@ public class TransactionService extends SerializableService {
 
         boolean startPossible = true;
 
+        System.err.println("will iterate through activeTransactions");
+
         for(Map.Entry<Long, TransactionMetadata> entry : activeTransactions.entrySet()) {
+
+            System.err.println("activeTransaction " + entry.getKey());
 
             TransactionMetadata transaction = entry.getValue();
             transaction.acquireReadLock();
