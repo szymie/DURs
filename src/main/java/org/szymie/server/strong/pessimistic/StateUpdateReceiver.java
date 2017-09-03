@@ -123,40 +123,43 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
         for(Long waitingTransactionTimestamp : awaitingForMe) {
 
-            activeTransactionFlags.get(waitingTransactionTimestamp);
+            //activeTransactionFlags.get(waitingTransactionTimestamp);
             TransactionMetadata waitingTransaction = activeTransactions.get(waitingTransactionTimestamp);
 
-            waitingTransaction.getAwaitingToStart().remove(transactionTimestamp);
+            if(waitingTransaction != null) {
 
-            if(waitingTransaction.getAwaitingToStart().isEmpty()) {
+                waitingTransaction.getAwaitingToStart().remove(transactionTimestamp);
 
-                BlockingQueue<ChannelHandlerContext> contextHolder = contexts.getOrNull(waitingTransactionTimestamp);
+                if(waitingTransaction.getAwaitingToStart().isEmpty()) {
 
-                if(contextHolder != null) {
+                    BlockingQueue<ChannelHandlerContext> contextHolder = contexts.getOrNull(waitingTransactionTimestamp);
 
-                    ChannelHandlerContext context;
+                    if(contextHolder != null) {
 
-                    try {
-                        context = contextHolder.take();
-                        contextHolder.put(context);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                        ChannelHandlerContext context;
+
+                        try {
+                            context = contextHolder.take();
+                            contextHolder.put(context);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        Messages.BeginTransactionResponse response = Messages.BeginTransactionResponse.newBuilder()
+                                .setTimestamp(waitingTransactionTimestamp)
+                                .setStartPossible(true)
+                                .build();
+
+                        Messages.Message message = Messages.Message.newBuilder().setBeginTransactionResponse(response).build();
+
+                        context.writeAndFlush(message);
+
+                        System.err.println(transactionTimestamp + " answered that " + waitingTransactionTimestamp + " can start");
                     }
-
-                    Messages.BeginTransactionResponse response = Messages.BeginTransactionResponse.newBuilder()
-                            .setTimestamp(waitingTransactionTimestamp)
-                            .setStartPossible(true)
-                            .build();
-
-                    Messages.Message message = Messages.Message.newBuilder().setBeginTransactionResponse(response).build();
-
-                    context.writeAndFlush(message);
-
-                    System.err.println(transactionTimestamp + " answered that " + waitingTransactionTimestamp + " can start");
                 }
-            }
 
-            System.err.println(transactionTimestamp + ": " + waitingTransactionTimestamp + " is waiting for me");
+                System.err.println(transactionTimestamp + ": " + waitingTransactionTimestamp + " is waiting for me");
+            }
         }
 
         System.err.println("2");
