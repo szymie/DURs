@@ -10,9 +10,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class TransactionMetadata {
 
+    private int replicaId;
+    private long timestamp;
     private Set<String> reads;
     private Set<String> writes;
-    private Set<Long> awaitingForMe;
+    private Set<TransactionMetadata> awaitingForMe;
     private Set<Long> awaitingToStart;
     private long applyAfter;
     private boolean finished;
@@ -20,8 +22,10 @@ public class TransactionMetadata {
 
     private boolean canStart;
 
-    public TransactionMetadata(Set<String> reads, Set<String> writes) {
+    public TransactionMetadata(int replicaId, long timestamp, Set<String> reads, Set<String> writes) {
 
+        this.replicaId = replicaId;
+        this.timestamp = timestamp;
         this.reads = reads;
         this.writes = writes;
 
@@ -36,8 +40,8 @@ public class TransactionMetadata {
         canStart = false;
     }
 
-    public TransactionMetadata(Set<String> reads, Set<String> writes, Set<Long> awaitingForMe, Set<Long> awaitingToStart, long applyAfter, boolean finished) {
-        this(reads, writes);
+    public TransactionMetadata(int replicaId, long timestamp, Set<String> reads, Set<String> writes, Set<TransactionMetadata> awaitingForMe, Set<Long> awaitingToStart, long applyAfter, boolean finished) {
+        this(replicaId, timestamp, reads, writes);
         this.reads = reads;
         this.writes = writes;
         this.awaitingForMe = awaitingForMe;
@@ -78,12 +82,29 @@ public class TransactionMetadata {
         return awaitingToStart;
     }
 
-    public Set<Long> getAwaitingForMe() {
+    public Set<TransactionMetadata> getAwaitingForMe() {
         return awaitingForMe;
     }
 
     public void finish() {
         finished = true;
+    }
+
+    public int getReplicaId() {
+        return replicaId;
+    }
+
+    public void setReplicaId(int replicaId) {
+        this.replicaId = replicaId;
+    }
+
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Set<String> getReads() {

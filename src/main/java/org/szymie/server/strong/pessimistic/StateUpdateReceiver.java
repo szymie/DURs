@@ -119,20 +119,17 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
         System.err.println("1.2");
 
-        Set<Long> awaitingForMe = transaction.getAwaitingForMe();
+        Set<TransactionMetadata> awaitingForMe = transaction.getAwaitingForMe();
 
-        for(Long waitingTransactionTimestamp : awaitingForMe) {
+        for(TransactionMetadata waitingTransaction : awaitingForMe) {
 
-            //activeTransactionFlags.get(waitingTransactionTimestamp);
-            TransactionMetadata waitingTransaction = activeTransactions.get(waitingTransactionTimestamp);
-
-            if(waitingTransaction != null) {
+            if(!waitingTransaction.isFinished()) {
 
                 waitingTransaction.getAwaitingToStart().remove(transactionTimestamp);
 
                 if(waitingTransaction.getAwaitingToStart().isEmpty()) {
 
-                    BlockingQueue<ChannelHandlerContext> contextHolder = contexts.getOrNull(waitingTransactionTimestamp);
+                    BlockingQueue<ChannelHandlerContext> contextHolder = contexts.getOrNull(waitingTransaction.getTimestamp());
 
                     if(contextHolder != null) {
 
@@ -146,7 +143,7 @@ public class StateUpdateReceiver extends ReceiverAdapter {
                         }
 
                         Messages.BeginTransactionResponse response = Messages.BeginTransactionResponse.newBuilder()
-                                .setTimestamp(waitingTransactionTimestamp)
+                                .setTimestamp(waitingTransaction.getTimestamp())
                                 .setStartPossible(true)
                                 .build();
 
@@ -154,12 +151,13 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
                         context.writeAndFlush(message);
 
-                        System.err.println(transactionTimestamp + " answered that " + waitingTransactionTimestamp + " can start");
+                        System.err.println(transactionTimestamp + " answered that " + waitingTransaction.getTimestamp() + " can start");
                     }
                 }
 
-                System.err.println(transactionTimestamp + ": " + waitingTransactionTimestamp + " is waiting for me");
             }
+
+            System.err.println(transactionTimestamp + ": " + waitingTransaction.getTimestamp() + " is waiting for me");
         }
 
         System.err.println("2");

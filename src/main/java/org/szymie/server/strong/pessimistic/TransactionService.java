@@ -54,31 +54,27 @@ public class TransactionService extends SerializableService {
 
         request = beginTransactionRequest;
 
-        TransactionMetadata newTransaction = new TransactionMetadata(beginTransactionRequest.getReadsMap().keySet(), beginTransactionRequest.getWritesMap().keySet());
-
         long newTransactionTimestamp = timestamp.incrementAndGet();
+
+        TransactionMetadata newTransaction = new TransactionMetadata(id, newTransactionTimestamp, beginTransactionRequest.getReadsMap().keySet(), beginTransactionRequest.getWritesMap().keySet());
 
         System.err.println("activeTransactions: " + activeTransactions.size());
 
         if(id == beginTransactionRequest.getId()) {
-            System.err.println("set context for in id: " + id + " where timestamp: " + newTransactionTimestamp);
+            System.err.println("set context for at: " + id + " where timestamp: " + newTransactionTimestamp);
             contexts.put(newTransactionTimestamp, new ArrayBlockingQueue<>(1));
         }
 
         boolean startPossible = true;
 
-        System.err.println("will iterate through activeTransactions");
-
         for(Map.Entry<Long, TransactionMetadata> entry : activeTransactions.entrySet()) {
-
-            System.err.println("activeTransaction " + entry.getKey());
 
             TransactionMetadata transaction = entry.getValue();
             transaction.acquireReadLock();
 
             if(isAwaitingToStartNeeded(transaction)) {
                 newTransaction.getAwaitingToStart().add(entry.getKey());
-                transaction.getAwaitingForMe().add(newTransactionTimestamp);
+                transaction.getAwaitingForMe().add(newTransaction);
                 startPossible = false;
             }
 
