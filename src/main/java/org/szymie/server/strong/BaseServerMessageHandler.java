@@ -43,7 +43,7 @@ public abstract class BaseServerMessageHandler extends SimpleChannelInboundHandl
         resourceRepository.clear();
 
         long time = timestamp.incrementAndGet();
-        initRequest.getWritesMap().forEach((key, value) ->  resourceRepository.put(key, value, time));
+        initRequest.getWritesMap().forEach((key, value) -> resourceRepository.put(key, value, time));
 
         Messages.InitResponse initResponse = Messages.InitResponse.newBuilder()
                 .build();
@@ -67,7 +67,7 @@ public abstract class BaseServerMessageHandler extends SimpleChannelInboundHandl
             liveTransactionsLock.unlock();
         }
 
-        Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
+        Optional<ValueWithTimestamp<String>> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
 
         Messages.ReadResponse response = valueOptional.map(valueWithTimestamp ->
                 createReadResponse(valueWithTimestamp.value, transactionTimestamp, valueWithTimestamp.fresh))

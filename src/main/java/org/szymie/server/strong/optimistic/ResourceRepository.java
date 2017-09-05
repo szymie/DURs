@@ -17,7 +17,7 @@ public class ResourceRepository {
         this.values = new ConcurrentHashMap<>();
     }
 
-    public Optional<ValueWithTimestamp> get(String key, long timestamp) {
+    public Optional<ValueWithTimestamp<String>> get(String key, long timestamp) {
 
         NavigableMap<Long, ValueWrapper<String>> versions = values.get(key);
 
@@ -28,7 +28,7 @@ public class ResourceRepository {
 
             if(version != null && lastVersion != null) {
                 boolean fresh = version.getKey().equals(lastVersion.getKey());
-                return Optional.of(new ValueWithTimestamp(lastVersion.getValue().value, lastVersion.getKey(), fresh));
+                return Optional.of(new ValueWithTimestamp<>(lastVersion.getValue().value, lastVersion.getKey(), fresh));
             }
         }
 

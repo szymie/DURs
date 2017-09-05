@@ -1,12 +1,14 @@
-package org.szymie.client.strong.optimistic;
+package org.szymie.client.strong.causal;
 
+import org.szymie.server.strong.causal.ValuesWithTimestamp;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TransactionData {
 
-    public Map<String, ValueWithTimestamp<String>> readValues;
+    public Map<String, ValuesWithTimestamp<String>> readValues;
     public Map<String, ValueWithTimestamp<String>> writtenValues;
     public long timestamp;
 
@@ -22,3 +24,4 @@ public class TransactionData {
         timestamp = Long.MAX_VALUE;
     }
 }
+

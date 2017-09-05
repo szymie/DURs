@@ -68,12 +68,12 @@ public class SerializableCertificationService extends SerializableService {
 
     private boolean certify(CertificationRequest request) {
 
-        for(Map.Entry<String, ValueWithTimestamp> readValue : request.readValues.entrySet()) {
+        for(Map.Entry<String, ValueWithTimestamp<String>> readValue : request.readValues.entrySet()) {
 
-            Optional<ValueWithTimestamp> valueOptional = resourceRepository.get(readValue.getKey(), Integer.MAX_VALUE);
+            Optional<ValueWithTimestamp<String>> valueOptional = resourceRepository.get(readValue.getKey(), Integer.MAX_VALUE);
 
             if(valueOptional.isPresent()) {
-                ValueWithTimestamp value = valueOptional.get();
+                ValueWithTimestamp<String> value = valueOptional.get();
                 if(value.timestamp > request.timestamp) {
                     return false;
                 }
@@ -111,7 +111,7 @@ public class SerializableCertificationService extends SerializableService {
     @Override
     protected void updateToSnapshot(Object o) {
         System.err.println("updateToSnapshot");
-        Map.Entry<Long, Map<String, ValueWithTimestamp>> snapshot = (Map.Entry<Long, Map<String, ValueWithTimestamp>>) o;
+        Map.Entry<Long, Map<String, ValueWithTimestamp<String>>> snapshot = (Map.Entry<Long, Map<String, ValueWithTimestamp<String>>>) o;
         snapshot.getValue().forEach((key, valueWithTimestamp) -> resourceRepository.put(key, valueWithTimestamp.value, valueWithTimestamp.timestamp));
         timestamp.set(snapshot.getKey());
     }
@@ -119,7 +119,7 @@ public class SerializableCertificationService extends SerializableService {
     @Override
     protected Object makeObjectSnapshot() {
         System.err.println("makeObjectSnapshot");
-        Map<String, ValueWithTimestamp> state = resourceRepository.getKeys().stream()
+        Map<String, ValueWithTimestamp<String>> state = resourceRepository.getKeys().stream()
                 .collect(Collectors.toMap(Function.identity(), key -> resourceRepository.get(key, Long.MAX_VALUE).get()));
         return new AbstractMap.SimpleEntry<>(timestamp.longValue(), state);
     }

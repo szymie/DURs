@@ -1,10 +1,17 @@
-package org.szymie.client.strong.optimistic;
+package org.szymie.client.strong.causal;
 
 
+
+import org.szymie.client.strong.optimistic.ValueGateway;
+import org.szymie.messages.CausalReadResponse;
 import org.szymie.messages.ReadResponse;
+import org.szymie.server.strong.causal.ValuesWithTimestamp;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
-public abstract class BaseValueGateway implements ValueGateway {
+import java.util.LinkedList;
+import java.util.List;
+
+public abstract class BaseValueGateway {
 
     protected TransactionData transactionData;
     protected boolean sessionOpen;
@@ -14,12 +21,11 @@ public abstract class BaseValueGateway implements ValueGateway {
         sessionOpen = false;
     }
 
-    @Override
     public boolean isSessionOpen() {
         return sessionOpen;
     }
 
-    public String read(String key) {
+    public List<String> read(String key) {
 
         if(key == null) {
             throw new RuntimeException("empty key cannot be read");
@@ -29,23 +35,24 @@ public abstract class BaseValueGateway implements ValueGateway {
 
         if(value == null) {
 
-            value = transactionData.readValues.get(key);
+            ValuesWithTimestamp<String> values = transactionData.readValues.get(key);
 
-            if(value == null) {
-
-                ReadResponse readResponse = readRemotely(key);
-                value = new ValueWithTimestamp<>(readResponse.value, readResponse.timestamp, readResponse.fresh);
+            if(values == null) {
+                CausalReadResponse causalReadResponse = readRemotely(key);
+                values = new ValuesWithTimestamp<>(causalReadResponse.values, causalReadResponse.timestamp, causalReadResponse.fresh);
             }
+
+            transactionData.readValues.put(key, values);
+            return values.values;
         }
 
-        transactionData.readValues.put(key, value);
-
-        return value.value;
+        ValuesWithTimestamp<String> values = new ValuesWithTimestamp<>(new LinkedList<String>() {{ add(value.value); }}, value.timestamp, value.fresh);
+        transactionData.readValues.put(key, values);
+        return values.values;
     }
 
-    protected abstract ReadResponse readRemotely(String key);
+    protected abstract CausalReadResponse readRemotely(String key);
 
-    @Override
     public void write(String key, String value) {
 
         if(key == null) {
@@ -59,7 +66,6 @@ public abstract class BaseValueGateway implements ValueGateway {
         transactionData.writtenValues.put(key, new ValueWithTimestamp<>(value, Long.MAX_VALUE, true));
     }
 
-    @Override
     public void remove(String key) {
 
         if(key == null) {
@@ -69,12 +75,10 @@ public abstract class BaseValueGateway implements ValueGateway {
         transactionData.writtenValues.put(key, new ValueWithTimestamp<>(null, Long.MAX_VALUE, true));
     }
 
-    @Override
     public void clear() {
         transactionData.clear();
     }
 
-    @Override
     public TransactionData getTransactionData() {
         return transactionData;
     }

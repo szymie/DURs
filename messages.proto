@@ -76,8 +76,9 @@ message Message {
 
     TransactionExecutionRequest transactionExecutionRequest = 11;
     TransactionExecutionResponse TransactionExecutionResponse = 12;
-  }
 
+    CausalReadResponse causalReadResponse = 13;
+  }
 }
 
 message TransactionExecutionRequest {
@@ -86,4 +87,10 @@ message TransactionExecutionRequest {
 }
 
 message TransactionExecutionResponse {
+}
+
+message CausalReadResponse {
+  repeated string values = 1;
+  int64 timestamp = 2;
+  bool fresh = 3;
 }

@@ -27,6 +27,10 @@ import org.szymie.messages.Messages;
 import org.szymie.server.strong.ChannelInboundHandlerFactory;
 import org.szymie.server.strong.ReplicaServer;
 import org.szymie.server.strong.ServerChannelInitializer;
+import org.szymie.server.strong.causal.CausalCertificationService;
+import org.szymie.server.strong.causal.CausalResourceRepository;
+import org.szymie.server.strong.causal.CausalServerChannelInboundHandlerFactory;
+import org.szymie.server.strong.causal.VectorClock;
 import org.szymie.server.strong.optimistic.*;
 import org.szymie.server.strong.pessimistic.*;
 import org.szymie.server.strong.sequential.SequentialExecutionService;
@@ -315,7 +319,6 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         @Value("${paxosProcesses}")
         protected String paxosProcesses;
 
-
         @Bean
         public SequentialServerChannelInboundHandlerFactory sequentialServerChannelInboundHandlerFactory() {
             return new SequentialServerChannelInboundHandlerFactory(paxosProcesses);
@@ -329,6 +332,49 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         @Bean
         public SequentialExecutionService sequentialExecutionService(SimpleResourceRepository simpleResourceRepository) {
             return new SequentialExecutionService(simpleResourceRepository);
+        }
+    }
+
+    @Profile("causal")
+    private static class CausalConfig {
+
+        @Value("${id}")
+        protected int id;
+
+        @Value("${paxosProcesses}")
+        protected String paxosProcesses;
+
+        @Bean
+        public TreeMultiset<Long> liveTransactions() {
+            return TreeMultiset.create();
+        }
+
+        @Bean
+        public Lock liveTransactionsLock() {
+            return new ReentrantLock(true);
+        }
+
+        @Bean
+        public CausalServerChannelInboundHandlerFactory causalServerChannelInboundHandlerFactory(CausalResourceRepository resourceRepository, @Qualifier("timestamp") AtomicLong timestamp,
+                                                                                                 TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock) {
+            return new CausalServerChannelInboundHandlerFactory(paxosProcesses, resourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock);
+        }
+
+        @Bean
+        public VectorClock vectorClock() {
+            int numberOfReplicas = paxosProcesses.split(",").length;
+            return new VectorClock(id, numberOfReplicas);
+        }
+
+        @Bean
+        public CausalResourceRepository causalResourceRepository() {
+            return new CausalResourceRepository();
+        }
+
+        @Bean
+        public CausalCertificationService causalCertificationService(CausalResourceRepository causalResourceRepository, @Qualifier("timestamp") AtomicLong timestamp,
+                                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock) {
+            return new CausalCertificationService(causalResourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock);
         }
     }
 
