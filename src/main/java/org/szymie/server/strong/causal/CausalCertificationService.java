@@ -5,7 +5,9 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import lsr.service.SerializableService;
 import org.springframework.beans.factory.annotation.Value;
+import org.szymie.BlockingMap;
 import org.szymie.messages.CausalCertificationRequest;
+import org.szymie.messages.CausalCertificationResponse;
 import org.szymie.messages.CertificationResponse;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -26,32 +28,92 @@ public class CausalCertificationService extends SerializableService {
 
     private VectorClock vectorClock;
 
-    private LinkedList<CausalCertificationRequest> waitingRequests;
+    private LinkedList<Request> requests;
+    private long sequentialNumber;
+    private BlockingMap<Long, Boolean> responses;
+
+    private class Request {
+
+        int id;
+        long sequentialNumber;
+        CausalCertificationRequest certificationRequest;
+
+        public Request(int id, long sequentialNumber, CausalCertificationRequest certificationRequest) {
+            this.id = id;
+            this.sequentialNumber = sequentialNumber;
+            this.certificationRequest = certificationRequest;
+        }
+    }
 
     public CausalCertificationService(CausalResourceRepository resourceRepository, AtomicLong timestamp,
                                       TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
-                                      VectorClock vectorClock) {
+                                      VectorClock vectorClock,
+                                      BlockingMap<Long, Boolean> responses) {
 
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
         this.liveTransactions = liveTransactions;
         this.liveTransactionsLock = liveTransactionsLock;
         this.vectorClock = vectorClock;
-        waitingRequests = new LinkedList<>();
+        requests = new LinkedList<>();
+        sequentialNumber = 0;
+        this.responses = responses;
     }
 
     @Override
-    protected CertificationResponse execute(Object o) {
-        CausalCertificationRequest request = (CausalCertificationRequest) o;
+    protected CausalCertificationResponse execute(Object o) {
 
-        vectorClock.caused(request.vectorClock)
+        CausalCertificationRequest certificationRequest = (CausalCertificationRequest) o;
+
+        if(vectorClock.caused(certificationRequest.vectorClock)) {
+
+            deliver(new Request(certificationRequest.id, sequentialNumber, certificationRequest));
+
+            boolean delivered;
+
+            do {
+
+                delivered = false;
+
+                for(Iterator<Request> it = requests.iterator(); it.hasNext();) {
+
+                    Request request = it.next();
+
+                    if(vectorClock.caused(request.certificationRequest.vectorClock)) {
+                        deliver(request);
+                        it.remove();
+                        delivered = true;
+                    }
+                }
+
+            } while(delivered);
 
 
+        } else {
+            requests.add(new Request(id, sequentialNumber, certificationRequest));
+        }
 
-        applyChanges(request);
-        return new CertificationResponse(true);
+        return new CausalCertificationResponse(true, sequentialNumber++);
     }
 
+    private void deliver(Request request) {
+
+        System.err.println("delivering " + request.certificationRequest.vectorClock);
+
+        applyChanges(request.certificationRequest);
+
+        if(request.id != id) {
+            vectorClock.increment(request.id);
+
+            System.err.println("incremented" + vectorClock);
+
+        } else {
+            responses.put(request.sequentialNumber, true);
+        }
+
+        System.err.println("after delivery " + vectorClock);
+        System.err.println("at id: " + id);
+    }
 
     private void applyChanges(CausalCertificationRequest request) {
 

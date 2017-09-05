@@ -6,22 +6,23 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lsr.common.PID;
 import lsr.paxos.client.ReplicationException;
 import lsr.paxos.client.SerializableClient;
+import org.szymie.BlockingMap;
 import org.szymie.PaxosProcessesCreator;
 import org.szymie.messages.CausalCertificationRequest;
+import org.szymie.messages.CausalCertificationResponse;
 import org.szymie.messages.Messages;
 import org.szymie.server.strong.optimistic.ResourceRepository;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 
 public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Messages.Message> implements PaxosProcessesCreator {
+
+    private int id;
 
     private SerializableClient client;
 
@@ -33,12 +34,17 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
     private VectorClock vectorClock;
 
-    public CausalServerMessageHandler(String paxosProcesses, CausalResourceRepository resourceRepository, AtomicLong timestamp, TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock) {
+    private BlockingMap<Long, Boolean> responses;
+
+    public CausalServerMessageHandler(int id, String paxosProcesses, CausalResourceRepository resourceRepository, AtomicLong timestamp, TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock, BlockingMap<Long, Boolean> responses) {
+
+        this.id = id;
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
         this.liveTransactions = liveTransactions;
         this.liveTransactionsLock = liveTransactionsLock;
         this.vectorClock = vectorClock;
+        this.responses = responses;
 
         List<PID> processes = createPaxosProcesses(paxosProcesses);
 
@@ -133,7 +139,10 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
         } else {
 
             try {
-                client.execute(new CausalCertificationRequest(new HashMap<>(request.getWritesMap()), request.getTimestamp(), vectorClock.getIncremented()));
+                CausalCertificationResponse response = (CausalCertificationResponse) client.execute(new CausalCertificationRequest(id, new HashMap<String, String>(request.getWritesMap()),
+                        request.getTimestamp(), vectorClock.getAndIncrement()));
+                responses.get(response.sequentialNumber);
+                responses.remove(response.sequentialNumber);
             } catch (IOException | ClassNotFoundException | ReplicationException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);

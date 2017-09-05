@@ -356,8 +356,9 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
         @Bean
         public CausalServerChannelInboundHandlerFactory causalServerChannelInboundHandlerFactory(CausalResourceRepository resourceRepository, @Qualifier("timestamp") AtomicLong timestamp,
-                                                                                                 TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock) {
-            return new CausalServerChannelInboundHandlerFactory(paxosProcesses, resourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock);
+                                                                                                 TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock,
+                                                                                                 BlockingMap<Long, Boolean> responses) {
+            return new CausalServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock, responses);
         }
 
         @Bean
@@ -372,9 +373,14 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         }
 
         @Bean
+        public BlockingMap<Long, Boolean> responses() {
+            return new BlockingMap<>();
+        }
+
+        @Bean
         public CausalCertificationService causalCertificationService(CausalResourceRepository causalResourceRepository, @Qualifier("timestamp") AtomicLong timestamp,
-                                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock) {
-            return new CausalCertificationService(causalResourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock);
+                                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock, BlockingMap<Long, Boolean> responses) {
+            return new CausalCertificationService(causalResourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock, responses);
         }
     }
 

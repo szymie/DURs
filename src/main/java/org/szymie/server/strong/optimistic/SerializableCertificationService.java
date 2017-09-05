@@ -27,9 +27,6 @@ import java.util.stream.Collectors;
 
 public class SerializableCertificationService extends SerializableService {
 
-    @Value("${id}")
-    private int id;
-
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
 

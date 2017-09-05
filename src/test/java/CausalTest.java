@@ -12,13 +12,11 @@ public class  CausalTest {
 
         Map<String, String> properties = new HashMap<>();
 
-        properties.put("replicas", "0-127.0.0.1:8080");
+        properties.put("replicas", "0-127.0.0.1:8081");
 
         Configuration configuration = new Configuration(properties);
 
-        NettyCausalTransaction transaction = new NettyCausalTransaction(configuration);
 
-        transaction.begin();
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -43,7 +41,7 @@ public class  CausalTest {
 
             System.out.println("aValues: " + String.join(", ", aValues));
 
-            transaction1.write("a", "val3");
+            transaction1.write("a", "val0");
 
             transaction1.commit();
         });
@@ -66,13 +64,13 @@ public class  CausalTest {
 
             System.out.println("aValues: " + String.join(", ", aValues));
 
-            transaction2.write("b", "val4");
+            transaction2.write("a", "val1");
 
             transaction2.commit();
         });
 
-        t0.start();
-        t1.start();
+        //t0.start();
+        //t1.start();
 
         try {
             t0.join();
@@ -81,7 +79,11 @@ public class  CausalTest {
             e.printStackTrace();
         }
 
-        List<String> aValues = transaction.read("b");
+        NettyCausalTransaction transaction = new NettyCausalTransaction(configuration);
+
+        transaction.begin();
+
+        List<String> aValues = transaction.read("a");
 
         System.err.println("aValues: " + String.join(", ", aValues));
 
