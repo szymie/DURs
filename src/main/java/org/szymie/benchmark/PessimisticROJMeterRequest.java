@@ -45,8 +45,8 @@ public class PessimisticROJMeterRequest extends BaseROJMeterRequest {
 
         if(attempts > 1) {
             aborted = true;
-            result.setErrorCount(1);
-            result.setSuccessful(false);
+            /*result.setErrorCount(1);
+            result.setSuccessful(false);*/
         }
 
         result.setResponseMessage(createResponseMessage());
