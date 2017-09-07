@@ -10,7 +10,7 @@ public class  CausalTest {
 
     public static void main(String[] args) {
 
-        Map<String, String> properties = new HashMap<>();
+        /*Map<String, String> properties = new HashMap<>();
 
         properties.put("replicas", "0-127.0.0.1:8081");
 
@@ -87,6 +87,6 @@ public class  CausalTest {
 
         System.err.println("aValues: " + String.join(", ", aValues));
 
-        transaction.commit();
+        transaction.commit();*/
     }
 }

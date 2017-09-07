@@ -9,7 +9,9 @@ public class PessimisticRWJMeterRequest extends BaseRWJMeterRequest {
     @Override
     public SampleResult runTest(JavaSamplerContext javaSamplerContext) {
 
-        System.err.println("start");
+        resetStatisticsValues();
+
+        //System.err.println("start");
 
         SampleResult result = new SampleResult();
 
@@ -19,30 +21,32 @@ public class PessimisticRWJMeterRequest extends BaseRWJMeterRequest {
 
         boolean commit;
 
-        int attempts = 0;
-
         do {
-            attempts++;
 
             transaction.begin(reads, writes);
 
-            System.err.println("executeOperations");
+            //System.err.println("executeOperations");
 
             executeOperations(transaction);
 
             commit = transaction.commit();
 
+            attempts++;
+
         } while (!commit);
 
-        System.err.println("committed");
+        //System.err.println("committed");
 
         result.sampleEnd();
         result.setSuccessful(true);
 
         if(attempts > 1) {
+            aborted = true;
             result.setErrorCount(1);
             result.setSuccessful(false);
         }
+
+        result.setResponseMessage(createResponseMessage());
 
         return result;
     }

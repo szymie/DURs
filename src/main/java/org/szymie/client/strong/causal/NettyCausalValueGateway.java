@@ -9,15 +9,18 @@ import java.util.Map;
 
 public class NettyCausalValueGateway extends BaseValueGateway {
 
+    private Session session;
     private RemoteGateway remoteGateway;
     private Configuration configuration;
 
-    public NettyCausalValueGateway(RemoteGateway remoteGateway) {
+    public NettyCausalValueGateway(Session session, RemoteGateway remoteGateway) {
+        this.session = session;
         this.remoteGateway = remoteGateway;
         configuration = new Configuration();
     }
 
-    public NettyCausalValueGateway(RemoteGateway remoteGateway, Configuration configuration) {
+    public NettyCausalValueGateway(Session session, RemoteGateway remoteGateway, Configuration configuration) {
+        this.session = session;
         this.remoteGateway = remoteGateway;
         this.configuration = configuration;
     }
@@ -38,6 +41,7 @@ public class NettyCausalValueGateway extends BaseValueGateway {
         Messages.ReadRequest readRequest = Messages.ReadRequest.newBuilder()
                 .setKey(key)
                 .setTimestamp(transactionData.timestamp)
+                .setLocalClock(session.localClock)
                 .build();
 
         Messages.Message message = Messages.Message.newBuilder()
@@ -48,6 +52,7 @@ public class NettyCausalValueGateway extends BaseValueGateway {
 
         if(transactionData.timestamp == Long.MAX_VALUE) {
             transactionData.timestamp = causalReadResponse.getTimestamp();
+            session.localClock = Math.max(session.localClock, transactionData.timestamp);
         }
 
         return new CausalReadResponse(causalReadResponse.getValuesList(), causalReadResponse.getTimestamp(), causalReadResponse.getFresh());

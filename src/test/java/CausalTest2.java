@@ -2,7 +2,8 @@ import org.szymie.Configuration;
 import org.szymie.client.strong.causal.NettyCausalTransaction;
 
         import org.szymie.client.strong.causal.NettyCausalTransaction;
-        import org.szymie.client.strong.sequential.NettySequentialTransaction;
+import org.szymie.client.strong.causal.Session;
+import org.szymie.client.strong.sequential.NettySequentialTransaction;
         import java.util.HashMap;
         import java.util.List;
         import java.util.Map;
@@ -20,11 +21,15 @@ public class  CausalTest2 {
 
         Map<String, String> properties2 = new HashMap<>();
 
-        properties2.put("replicas", "0-127.0.0.1:8080");
+        properties2.put("replicas", "0-127.0.0.1:8082");
 
         Configuration configuration2 = new Configuration(properties2);
 
-        NettyCausalTransaction transaction2 = new NettyCausalTransaction(configuration2);
+        Session session = new Session();
+
+        session.open();
+
+        NettyCausalTransaction transaction2 = session.newTransaction(configuration2);
 
         transaction2.begin();
 
@@ -35,5 +40,8 @@ public class  CausalTest2 {
         transaction2.write("a", "val1");
 
         transaction2.commit();
+
+
+        session.close();
     }
 }

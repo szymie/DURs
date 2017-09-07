@@ -23,6 +23,19 @@ public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient impl
     Map<String, Integer> reads;
     Map<String, Integer> operations;
     Configuration configuration;
+    long numberOfMultiValueReads;
+    long numberOfReads;
+    boolean aborted;
+    long attempts;
+    long totalMultiValueReadSize;
+
+    void resetStatisticsValues() {
+        numberOfMultiValueReads = 0;
+        numberOfReads = 0;
+        aborted = false;
+        totalMultiValueReadSize = 0;
+        attempts = 0;
+    }
 
     @Override
     public Arguments getDefaultParameters() {
@@ -98,9 +111,10 @@ public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient impl
     void executeOperations(ReadWriteRemoveCommitTransaction transaction) {
 
         for (Map.Entry<String, Integer> read : reads.entrySet()) {
-            System.err.println(transaction.getTimestamp() + " trying to read key "+ read.getKey());
+            //System.err.println(transaction.getTimestamp() + " trying to read key "+ read.getKey());
             transaction.read(read.getKey());
-            System.err.println(transaction.getTimestamp() + " ");
+            //System.err.println(transaction.getTimestamp() + " ");
+            numberOfReads++;
         }
 
         if(delayInMillis != 0) {
@@ -111,5 +125,9 @@ public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient impl
             int randomDelay = random.nextInt(randomDelayInMillis);
             sleep(randomDelay);
         }
+    }
+
+    String createResponseMessage() {
+        return "r=" + numberOfReads / attempts + ":mvr=" + numberOfMultiValueReads + ":tmvr=" + totalMultiValueReadSize + ":a=" + aborted + ":at=" + attempts;
     }
 }

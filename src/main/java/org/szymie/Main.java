@@ -357,7 +357,7 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         @Bean
         public CausalServerChannelInboundHandlerFactory causalServerChannelInboundHandlerFactory(CausalResourceRepository resourceRepository, @Qualifier("timestamp") AtomicLong timestamp,
                                                                                                  TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock,
-                                                                                                 BlockingMap<Long, Boolean> responses) {
+                                                                                                 BlockingMap<Long, Long> responses) {
             return new CausalServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock, responses);
         }
 
@@ -373,13 +373,13 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         }
 
         @Bean
-        public BlockingMap<Long, Boolean> responses() {
+        public BlockingMap<Long, Long> responses() {
             return new BlockingMap<>();
         }
 
         @Bean
         public CausalCertificationService causalCertificationService(CausalResourceRepository causalResourceRepository, @Qualifier("timestamp") AtomicLong timestamp,
-                                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock, BlockingMap<Long, Boolean> responses) {
+                                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock, BlockingMap<Long, Long> responses) {
             return new CausalCertificationService(causalResourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock, responses);
         }
     }

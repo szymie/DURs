@@ -8,6 +8,7 @@ option java_outer_classname = "Messages";
 message ReadRequest {
   string key = 1;
   int64 timestamp = 2;
+  int64 localClock = 3;
 }
 
 message ReadResponse {
@@ -38,6 +39,7 @@ message CommitRequest {
 }
 
 message CommitResponse {
+  int64 timestamp = 1;
 }
 
 message StateUpdateRequest {

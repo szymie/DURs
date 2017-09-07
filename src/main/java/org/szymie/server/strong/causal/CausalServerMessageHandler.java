@@ -17,6 +17,7 @@ import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 
@@ -27,16 +28,16 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
     private SerializableClient client;
 
     protected CausalResourceRepository resourceRepository;
-    protected AtomicLong timestamp;
+    protected final AtomicLong timestamp;
 
     protected TreeMultiset<Long> liveTransactions;
     protected Lock liveTransactionsLock;
 
     private VectorClock vectorClock;
 
-    private BlockingMap<Long, Boolean> responses;
+    private BlockingMap<Long, Long> responses;
 
-    public CausalServerMessageHandler(int id, String paxosProcesses, CausalResourceRepository resourceRepository, AtomicLong timestamp, TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock, BlockingMap<Long, Boolean> responses) {
+    public CausalServerMessageHandler(int id, String paxosProcesses, CausalResourceRepository resourceRepository, AtomicLong timestamp, TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock, BlockingMap<Long, Long> responses) {
 
         this.id = id;
         this.resourceRepository = resourceRepository;
@@ -102,7 +103,26 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
     protected void handleReadRequest(ChannelHandlerContext context, Messages.ReadRequest request) {
 
+
         boolean firstRead = request.getTimestamp() == Long.MAX_VALUE;
+
+        if(firstRead) {
+
+            long requiredLocalClock = request.getLocalClock();
+
+            if(requiredLocalClock > timestamp.get()) {
+
+                try {
+                    synchronized(timestamp) {
+                        while(requiredLocalClock < timestamp.get()) {
+                            timestamp.wait();
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
 
         long transactionTimestamp = firstRead ? timestamp.get() : request.getTimestamp();
 
@@ -138,17 +158,19 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
             commitReadOnlyTransaction(context, request);
         } else {
 
+            long commitTimestamp;
+
             try {
-                CausalCertificationResponse response = (CausalCertificationResponse) client.execute(new CausalCertificationRequest(id, new HashMap<String, String>(request.getWritesMap()),
-                        request.getTimestamp(), vectorClock.getAndIncrement()));
-                responses.get(response.sequentialNumber);
+                CausalCertificationResponse response = (CausalCertificationResponse) client.execute(new CausalCertificationRequest(id, new HashMap<>(request.getWritesMap()),
+                        request.getTimestamp(), vectorClock.getCopy()));
+                commitTimestamp = responses.get(response.sequentialNumber);
                 responses.remove(response.sequentialNumber);
             } catch (IOException | ClassNotFoundException | ReplicationException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
             }
 
-            Messages.CommitResponse response = Messages.CommitResponse.newBuilder().build();
+            Messages.CommitResponse response = Messages.CommitResponse.newBuilder().setTimestamp(commitTimestamp).build();
             Messages.Message message = Messages.Message.newBuilder().setCommitResponse(response).build();
 
             context.writeAndFlush(message);

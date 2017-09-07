@@ -32,6 +32,11 @@ public final class Messages {
      * <code>int64 timestamp = 2;</code>
      */
     long getTimestamp();
+
+    /**
+     * <code>int64 localClock = 3;</code>
+     */
+    long getLocalClock();
   }
   /**
    * Protobuf type {@code org.szymie.messages.ReadRequest}
@@ -47,6 +52,7 @@ public final class Messages {
     private ReadRequest() {
       key_ = "";
       timestamp_ = 0L;
+      localClock_ = 0L;
     }
 
     @java.lang.Override
@@ -83,6 +89,11 @@ public final class Messages {
             case 16: {
 
               timestamp_ = input.readInt64();
+              break;
+            }
+            case 24: {
+
+              localClock_ = input.readInt64();
               break;
             }
           }
@@ -151,6 +162,15 @@ public final class Messages {
       return timestamp_;
     }
 
+    public static final int LOCALCLOCK_FIELD_NUMBER = 3;
+    private long localClock_;
+    /**
+     * <code>int64 localClock = 3;</code>
+     */
+    public long getLocalClock() {
+      return localClock_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -169,6 +189,9 @@ public final class Messages {
       if (timestamp_ != 0L) {
         output.writeInt64(2, timestamp_);
       }
+      if (localClock_ != 0L) {
+        output.writeInt64(3, localClock_);
+      }
     }
 
     public int getSerializedSize() {
@@ -182,6 +205,10 @@ public final class Messages {
       if (timestamp_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(2, timestamp_);
+      }
+      if (localClock_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(3, localClock_);
       }
       memoizedSize = size;
       return size;
@@ -203,6 +230,8 @@ public final class Messages {
           .equals(other.getKey());
       result = result && (getTimestamp()
           == other.getTimestamp());
+      result = result && (getLocalClock()
+          == other.getLocalClock());
       return result;
     }
 
@@ -218,6 +247,9 @@ public final class Messages {
       hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getTimestamp());
+      hash = (37 * hash) + LOCALCLOCK_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getLocalClock());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -351,6 +383,8 @@ public final class Messages {
 
         timestamp_ = 0L;
 
+        localClock_ = 0L;
+
         return this;
       }
 
@@ -375,6 +409,7 @@ public final class Messages {
         org.szymie.messages.Messages.ReadRequest result = new org.szymie.messages.Messages.ReadRequest(this);
         result.key_ = key_;
         result.timestamp_ = timestamp_;
+        result.localClock_ = localClock_;
         onBuilt();
         return result;
       }
@@ -422,6 +457,9 @@ public final class Messages {
         }
         if (other.getTimestamp() != 0L) {
           setTimestamp(other.getTimestamp());
+        }
+        if (other.getLocalClock() != 0L) {
+          setLocalClock(other.getLocalClock());
         }
         onChanged();
         return this;
@@ -540,6 +578,32 @@ public final class Messages {
       public Builder clearTimestamp() {
         
         timestamp_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private long localClock_ ;
+      /**
+       * <code>int64 localClock = 3;</code>
+       */
+      public long getLocalClock() {
+        return localClock_;
+      }
+      /**
+       * <code>int64 localClock = 3;</code>
+       */
+      public Builder setLocalClock(long value) {
+        
+        localClock_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int64 localClock = 3;</code>
+       */
+      public Builder clearLocalClock() {
+        
+        localClock_ = 0L;
         onChanged();
         return this;
       }
@@ -4175,6 +4239,11 @@ public final class Messages {
   public interface CommitResponseOrBuilder extends
       // @@protoc_insertion_point(interface_extends:org.szymie.messages.CommitResponse)
       com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>int64 timestamp = 1;</code>
+     */
+    long getTimestamp();
   }
   /**
    * Protobuf type {@code org.szymie.messages.CommitResponse}
@@ -4188,6 +4257,7 @@ public final class Messages {
       super(builder);
     }
     private CommitResponse() {
+      timestamp_ = 0L;
     }
 
     @java.lang.Override
@@ -4200,6 +4270,7 @@ public final class Messages {
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
+      int mutable_bitField0_ = 0;
       try {
         boolean done = false;
         while (!done) {
@@ -4212,6 +4283,11 @@ public final class Messages {
               if (!input.skipField(tag)) {
                 done = true;
               }
+              break;
+            }
+            case 8: {
+
+              timestamp_ = input.readInt64();
               break;
             }
           }
@@ -4237,6 +4313,15 @@ public final class Messages {
               org.szymie.messages.Messages.CommitResponse.class, org.szymie.messages.Messages.CommitResponse.Builder.class);
     }
 
+    public static final int TIMESTAMP_FIELD_NUMBER = 1;
+    private long timestamp_;
+    /**
+     * <code>int64 timestamp = 1;</code>
+     */
+    public long getTimestamp() {
+      return timestamp_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -4249,6 +4334,9 @@ public final class Messages {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
+      if (timestamp_ != 0L) {
+        output.writeInt64(1, timestamp_);
+      }
     }
 
     public int getSerializedSize() {
@@ -4256,6 +4344,10 @@ public final class Messages {
       if (size != -1) return size;
 
       size = 0;
+      if (timestamp_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(1, timestamp_);
+      }
       memoizedSize = size;
       return size;
     }
@@ -4272,6 +4364,8 @@ public final class Messages {
       org.szymie.messages.Messages.CommitResponse other = (org.szymie.messages.Messages.CommitResponse) obj;
 
       boolean result = true;
+      result = result && (getTimestamp()
+          == other.getTimestamp());
       return result;
     }
 
@@ -4282,6 +4376,9 @@ public final class Messages {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTimestamp());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -4411,6 +4508,8 @@ public final class Messages {
       }
       public Builder clear() {
         super.clear();
+        timestamp_ = 0L;
+
         return this;
       }
 
@@ -4433,6 +4532,7 @@ public final class Messages {
 
       public org.szymie.messages.Messages.CommitResponse buildPartial() {
         org.szymie.messages.Messages.CommitResponse result = new org.szymie.messages.Messages.CommitResponse(this);
+        result.timestamp_ = timestamp_;
         onBuilt();
         return result;
       }
@@ -4474,6 +4574,9 @@ public final class Messages {
 
       public Builder mergeFrom(org.szymie.messages.Messages.CommitResponse other) {
         if (other == org.szymie.messages.Messages.CommitResponse.getDefaultInstance()) return this;
+        if (other.getTimestamp() != 0L) {
+          setTimestamp(other.getTimestamp());
+        }
         onChanged();
         return this;
       }
@@ -4497,6 +4600,32 @@ public final class Messages {
             mergeFrom(parsedMessage);
           }
         }
+        return this;
+      }
+
+      private long timestamp_ ;
+      /**
+       * <code>int64 timestamp = 1;</code>
+       */
+      public long getTimestamp() {
+        return timestamp_;
+      }
+      /**
+       * <code>int64 timestamp = 1;</code>
+       */
+      public Builder setTimestamp(long value) {
+        
+        timestamp_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int64 timestamp = 1;</code>
+       */
+      public Builder clearTimestamp() {
+        
+        timestamp_ = 0L;
+        onChanged();
         return this;
       }
       public final Builder setUnknownFields(
@@ -11802,61 +11931,62 @@ public final class Messages {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016messages.proto\022\023org.szymie.messages\"-\n" +
+      "\n\016messages.proto\022\023org.szymie.messages\"A\n" +
       "\013ReadRequest\022\013\n\003key\030\001 \001(\t\022\021\n\ttimestamp\030\002" +
-      " \001(\003\"?\n\014ReadResponse\022\r\n\005value\030\001 \001(\t\022\021\n\tt" +
-      "imestamp\030\002 \001(\003\022\r\n\005fresh\030\003 \001(\010\"*\n\014WriteRe" +
-      "quest\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"\224\002\n\027Be" +
-      "ginTransactionRequest\022\n\n\002id\030\001 \001(\005\022F\n\005rea" +
-      "ds\030\002 \003(\01327.org.szymie.messages.BeginTran" +
-      "sactionRequest.ReadsEntry\022H\n\006writes\030\003 \003(" +
-      "\01328.org.szymie.messages.BeginTransaction" +
-      "Request.WritesEntry\032,\n\nReadsEntry\022\013\n\003key",
-      "\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\032-\n\013WritesEntry" +
-      "\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\005:\0028\001\"D\n\030Begi" +
-      "nTransactionResponse\022\021\n\ttimestamp\030\001 \001(\003\022" +
-      "\025\n\rstartPossible\030\002 \001(\010\"\221\001\n\rCommitRequest" +
-      "\022\021\n\ttimestamp\030\001 \001(\003\022>\n\006writes\030\002 \003(\0132..or" +
-      "g.szymie.messages.CommitRequest.WritesEn" +
-      "try\032-\n\013WritesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value" +
-      "\030\002 \001(\t:\0028\001\"\020\n\016CommitResponse\"\257\001\n\022StateUp" +
-      "dateRequest\022\021\n\ttimestamp\030\001 \001(\003\022\022\n\napplyA" +
-      "fter\030\002 \001(\003\022C\n\006writes\030\003 \003(\01323.org.szymie.",
-      "messages.StateUpdateRequest.WritesEntry\032" +
-      "-\n\013WritesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001" +
-      "(\t:\0028\001\"\025\n\023StateUpdateResponse\"z\n\013InitReq" +
-      "uest\022<\n\006writes\030\001 \003(\0132,.org.szymie.messag" +
-      "es.InitRequest.WritesEntry\032-\n\013WritesEntr" +
-      "y\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\016\n\014Ini" +
-      "tResponse\"\240\007\n\007Message\0227\n\013readRequest\030\001 \001" +
-      "(\0132 .org.szymie.messages.ReadRequestH\000\0229" +
-      "\n\014readResponse\030\002 \001(\0132!.org.szymie.messag" +
-      "es.ReadResponseH\000\0229\n\014writeRequest\030\003 \001(\0132",
-      "!.org.szymie.messages.WriteRequestH\000\022O\n\027" +
-      "beginTransactionRequest\030\004 \001(\0132,.org.szym" +
-      "ie.messages.BeginTransactionRequestH\000\022Q\n" +
-      "\030beginTransactionResponse\030\005 \001(\0132-.org.sz" +
-      "ymie.messages.BeginTransactionResponseH\000" +
-      "\022;\n\rcommitRequest\030\006 \001(\0132\".org.szymie.mes" +
-      "sages.CommitRequestH\000\022=\n\016commitResponse\030" +
-      "\007 \001(\0132#.org.szymie.messages.CommitRespon" +
-      "seH\000\022E\n\022stateUpdateRequest\030\010 \001(\0132\'.org.s" +
-      "zymie.messages.StateUpdateRequestH\000\0227\n\013i",
-      "nitRequest\030\t \001(\0132 .org.szymie.messages.I" +
-      "nitRequestH\000\0229\n\014initResponse\030\n \001(\0132!.org" +
-      ".szymie.messages.InitResponseH\000\022W\n\033trans" +
-      "actionExecutionRequest\030\013 \001(\01320.org.szymi" +
-      "e.messages.TransactionExecutionRequestH\000" +
-      "\022Y\n\034TransactionExecutionResponse\030\014 \001(\01321" +
-      ".org.szymie.messages.TransactionExecutio" +
-      "nResponseH\000\022E\n\022causalReadResponse\030\r \001(\0132" +
-      "\'.org.szymie.messages.CausalReadResponse" +
-      "H\000B\020\n\016oneof_messages\"<\n\033TransactionExecu",
-      "tionRequest\022\r\n\005reads\030\001 \003(\t\022\016\n\006writes\030\002 \003" +
-      "(\t\"\036\n\034TransactionExecutionResponse\"F\n\022Ca" +
-      "usalReadResponse\022\016\n\006values\030\001 \003(\t\022\021\n\ttime" +
-      "stamp\030\002 \001(\003\022\r\n\005fresh\030\003 \001(\010B\037\n\023org.szymie" +
-      ".messagesB\010Messagesb\006proto3"
+      " \001(\003\022\022\n\nlocalClock\030\003 \001(\003\"?\n\014ReadResponse" +
+      "\022\r\n\005value\030\001 \001(\t\022\021\n\ttimestamp\030\002 \001(\003\022\r\n\005fr" +
+      "esh\030\003 \001(\010\"*\n\014WriteRequest\022\013\n\003key\030\001 \001(\t\022\r" +
+      "\n\005value\030\002 \001(\t\"\224\002\n\027BeginTransactionReques" +
+      "t\022\n\n\002id\030\001 \001(\005\022F\n\005reads\030\002 \003(\01327.org.szymi" +
+      "e.messages.BeginTransactionRequest.Reads" +
+      "Entry\022H\n\006writes\030\003 \003(\01328.org.szymie.messa" +
+      "ges.BeginTransactionRequest.WritesEntry\032",
+      ",\n\nReadsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(" +
+      "\005:\0028\001\032-\n\013WritesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005val" +
+      "ue\030\002 \001(\005:\0028\001\"D\n\030BeginTransactionResponse" +
+      "\022\021\n\ttimestamp\030\001 \001(\003\022\025\n\rstartPossible\030\002 \001" +
+      "(\010\"\221\001\n\rCommitRequest\022\021\n\ttimestamp\030\001 \001(\003\022" +
+      ">\n\006writes\030\002 \003(\0132..org.szymie.messages.Co" +
+      "mmitRequest.WritesEntry\032-\n\013WritesEntry\022\013" +
+      "\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"#\n\016Commit" +
+      "Response\022\021\n\ttimestamp\030\001 \001(\003\"\257\001\n\022StateUpd" +
+      "ateRequest\022\021\n\ttimestamp\030\001 \001(\003\022\022\n\napplyAf",
+      "ter\030\002 \001(\003\022C\n\006writes\030\003 \003(\01323.org.szymie.m" +
+      "essages.StateUpdateRequest.WritesEntry\032-" +
+      "\n\013WritesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(" +
+      "\t:\0028\001\"\025\n\023StateUpdateResponse\"z\n\013InitRequ" +
+      "est\022<\n\006writes\030\001 \003(\0132,.org.szymie.message" +
+      "s.InitRequest.WritesEntry\032-\n\013WritesEntry" +
+      "\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\016\n\014Init" +
+      "Response\"\240\007\n\007Message\0227\n\013readRequest\030\001 \001(" +
+      "\0132 .org.szymie.messages.ReadRequestH\000\0229\n" +
+      "\014readResponse\030\002 \001(\0132!.org.szymie.message",
+      "s.ReadResponseH\000\0229\n\014writeRequest\030\003 \001(\0132!" +
+      ".org.szymie.messages.WriteRequestH\000\022O\n\027b" +
+      "eginTransactionRequest\030\004 \001(\0132,.org.szymi" +
+      "e.messages.BeginTransactionRequestH\000\022Q\n\030" +
+      "beginTransactionResponse\030\005 \001(\0132-.org.szy" +
+      "mie.messages.BeginTransactionResponseH\000\022" +
+      ";\n\rcommitRequest\030\006 \001(\0132\".org.szymie.mess" +
+      "ages.CommitRequestH\000\022=\n\016commitResponse\030\007" +
+      " \001(\0132#.org.szymie.messages.CommitRespons" +
+      "eH\000\022E\n\022stateUpdateRequest\030\010 \001(\0132\'.org.sz",
+      "ymie.messages.StateUpdateRequestH\000\0227\n\013in" +
+      "itRequest\030\t \001(\0132 .org.szymie.messages.In" +
+      "itRequestH\000\0229\n\014initResponse\030\n \001(\0132!.org." +
+      "szymie.messages.InitResponseH\000\022W\n\033transa" +
+      "ctionExecutionRequest\030\013 \001(\01320.org.szymie" +
+      ".messages.TransactionExecutionRequestH\000\022" +
+      "Y\n\034TransactionExecutionResponse\030\014 \001(\01321." +
+      "org.szymie.messages.TransactionExecution" +
+      "ResponseH\000\022E\n\022causalReadResponse\030\r \001(\0132\'" +
+      ".org.szymie.messages.CausalReadResponseH",
+      "\000B\020\n\016oneof_messages\"<\n\033TransactionExecut" +
+      "ionRequest\022\r\n\005reads\030\001 \003(\t\022\016\n\006writes\030\002 \003(" +
+      "\t\"\036\n\034TransactionExecutionResponse\"F\n\022Cau" +
+      "salReadResponse\022\016\n\006values\030\001 \003(\t\022\021\n\ttimes" +
+      "tamp\030\002 \001(\003\022\r\n\005fresh\030\003 \001(\010B\037\n\023org.szymie." +
+      "messagesB\010Messagesb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -11875,7 +12005,7 @@ public final class Messages {
     internal_static_org_szymie_messages_ReadRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_ReadRequest_descriptor,
-        new java.lang.String[] { "Key", "Timestamp", });
+        new java.lang.String[] { "Key", "Timestamp", "LocalClock", });
     internal_static_org_szymie_messages_ReadResponse_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_org_szymie_messages_ReadResponse_fieldAccessorTable = new
@@ -11929,7 +12059,7 @@ public final class Messages {
     internal_static_org_szymie_messages_CommitResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_CommitResponse_descriptor,
-        new java.lang.String[] { });
+        new java.lang.String[] { "Timestamp", });
     internal_static_org_szymie_messages_StateUpdateRequest_descriptor =
       getDescriptor().getMessageTypes().get(7);
     internal_static_org_szymie_messages_StateUpdateRequest_fieldAccessorTable = new

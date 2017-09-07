@@ -23,13 +23,12 @@ public class VectorClock implements Serializable {
         this.vector = vector;
     }
 
-    public synchronized VectorClock getAndIncrement() {
+    public VectorClock getCopy() {
         long[] vectorAcc = Arrays.copyOf(vector, vector.length);
-        vector[id]++;
         return new VectorClock(id, vectorAcc);
     }
 
-    public synchronized void increment(int index) {
+    public void increment(int index) {
         vector[index]++;
     }
 

@@ -25,6 +25,19 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
     Map<String, Integer> reads;
     Map<String, Integer> writes;
     Configuration configuration;
+    long numberOfMultiValueReads;
+    long numberOfReads;
+    boolean aborted;
+    long attempts;
+    long totalMultiValueReadSize;
+
+    void resetStatisticsValues() {
+        numberOfMultiValueReads = 0;
+        numberOfReads = 0;
+        aborted = false;
+        totalMultiValueReadSize = 0;
+        attempts = 0;
+    }
 
     @Override
     public Arguments getDefaultParameters() {
@@ -119,6 +132,7 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
 
             if((operation & Benchmark.Operations.READ) != 0) {
                 transaction.read(key);
+                numberOfReads++;
             }
 
             if((operation & Benchmark.Operations.WRITE) != 0) {
@@ -134,5 +148,9 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
             int randomDelay = random.nextInt(randomDelayInMillis);
             sleep(randomDelay);
         }
+    }
+
+    String createResponseMessage() {
+        return "r=" + numberOfReads / attempts + ":mvr=" + numberOfMultiValueReads + ":tmvr=" + totalMultiValueReadSize + ":a=" + aborted + ":at=" + attempts;
     }
 }

@@ -30,7 +30,7 @@ public class CausalCertificationService extends SerializableService {
 
     private LinkedList<Request> requests;
     private long sequentialNumber;
-    private BlockingMap<Long, Boolean> responses;
+    private BlockingMap<Long, Long> responses;
 
     private class Request {
 
@@ -48,7 +48,7 @@ public class CausalCertificationService extends SerializableService {
     public CausalCertificationService(CausalResourceRepository resourceRepository, AtomicLong timestamp,
                                       TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
                                       VectorClock vectorClock,
-                                      BlockingMap<Long, Boolean> responses) {
+                                      BlockingMap<Long, Long> responses) {
 
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
@@ -100,22 +100,23 @@ public class CausalCertificationService extends SerializableService {
 
         System.err.println("delivering " + request.certificationRequest.vectorClock);
 
-        applyChanges(request.certificationRequest);
+        long time = applyChanges(request.certificationRequest);
 
-        if(request.id != id) {
-            vectorClock.increment(request.id);
-
-            System.err.println("incremented" + vectorClock);
-
-        } else {
-            responses.put(request.sequentialNumber, true);
+        synchronized(timestamp) {
+            timestamp.notifyAll();
         }
+
+        if(request.id == id) {
+            responses.put(request.sequentialNumber, time);
+        }
+
+        vectorClock.increment(request.id);
 
         System.err.println("after delivery " + vectorClock);
         System.err.println("at id: " + id);
     }
 
-    private void applyChanges(CausalCertificationRequest request) {
+    private long applyChanges(CausalCertificationRequest request) {
 
         long time = timestamp.incrementAndGet();
         request.writtenValues.forEach((key, value) -> {
@@ -138,6 +139,8 @@ public class CausalCertificationService extends SerializableService {
 
         liveTransactions.remove(request.timestamp);
         liveTransactionsLock.unlock();
+
+        return time;
     }
 
     @Override

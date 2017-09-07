@@ -5,6 +5,7 @@ import lsr.paxos.client.ReplicationException;
 import lsr.paxos.client.SerializableClient;
 import org.szymie.Configuration;
 import org.szymie.PaxosProcessesCreator;
+import org.szymie.client.strong.ReadWriteRemoveCommitTransaction;
 import org.szymie.client.strong.optimistic.*;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
@@ -17,24 +18,26 @@ import java.util.stream.Collectors;
 
 public class NettyCausalTransaction implements PaxosProcessesCreator {
 
+    private Session session;
     private NettyRemoteGateway remoteGateway;
     private NettyCausalValueGateway valueGateway;
     private TransactionState state;
     private SerializableClient client;
 
-    public NettyCausalTransaction() {
-        this(new Configuration());
+    public NettyCausalTransaction(Session session) {
+        this(session, new Configuration());
     }
 
-    public NettyCausalTransaction(Configuration configuration) {
-        this(0, configuration);
+    public NettyCausalTransaction(Session session, Configuration configuration) {
+        this(session,0, configuration);
     }
 
-    public NettyCausalTransaction(int numberOfClientThreads, Configuration configuration) {
+    public NettyCausalTransaction(Session session, int numberOfClientThreads, Configuration configuration) {
 
         remoteGateway = new NettyRemoteGateway(numberOfClientThreads, new ClientChannelInitializer(new CausalClientMessageHandlerFactory()));
 
-        this.valueGateway = new NettyCausalValueGateway(remoteGateway, configuration);
+        this.valueGateway = new NettyCausalValueGateway(session, remoteGateway, configuration);
+        this.session = session;
     }
 
     public void begin() {
@@ -78,7 +81,7 @@ public class NettyCausalTransaction implements PaxosProcessesCreator {
                         .setCommitRequest(Messages.CommitRequest.newBuilder().setTimestamp(transactionData.timestamp))
                         .build();
 
-                remoteGateway.sendAndReceive(message , Messages.CommitResponse.class);
+                remoteGateway.sendAndReceive(message, Messages.CommitResponse.class);
             }
         } else {
              commitUpdateTransaction(request);
@@ -97,7 +100,9 @@ public class NettyCausalTransaction implements PaxosProcessesCreator {
                 .setCommitRequest(request)
                 .build();
 
-        remoteGateway.sendAndReceive(message , Messages.CommitResponse.class);
+        Messages.CommitResponse commitResponse = remoteGateway.sendAndReceive(message, Messages.CommitResponse.class);
+
+        session.localClock = Math.max(session.localClock, commitResponse.getTimestamp());
     }
 
 

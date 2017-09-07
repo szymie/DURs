@@ -17,11 +17,11 @@ public class CausalServerChannelInboundHandlerFactory implements ChannelInboundH
     private TreeMultiset<Long> liveTransactions;
     private Lock liveTransactionsLock;
     private VectorClock vectorClock;
-    private BlockingMap<Long, Boolean> responses;
+    private BlockingMap<Long, Long> responses;
 
     public CausalServerChannelInboundHandlerFactory(int id, String paxosProcesses, CausalResourceRepository resourceRepository, AtomicLong timestamp,
                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock,
-                                                    BlockingMap<Long, Boolean> responses) {
+                                                    BlockingMap<Long, Long> responses) {
         this.id = id;
         this.paxosProcesses = paxosProcesses;
         this.resourceRepository = resourceRepository;
