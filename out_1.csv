@@ -1,3 +1,0 @@
-timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,Latency,IdleTime,Connect
-1504807035608,1142,RO Request,,r=20:mvr=0:tmvr=0:a=false:at=1,bzm - Concurrency Thread Group 1-1,,true,,0,0,2,2,0,0,0
-1504807036809,596,RW Request,,r=36:mvr=0:tmvr=0:a=false:at=1,bzm - Concurrency Thread Group 1-1,,true,,0,0,2,2,0,0,0
