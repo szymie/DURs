@@ -11,7 +11,7 @@ ID_COUNTER=0
 
 while (( "$#" )); do
 
-ssh -n -f inf109733@$1 "sh -c 'rm -rf jpaxosLogs; cd /home/inf109733/mgr/DURs; nohup java -Dserver.port=8090 -jar target/DURs-1.0-SNAPSHOT.jar -id $ID_COUNTER -port 8080 -paxosProcesses $PAXOS_PROCESSES -bossThreads 0 -workerThreads 0 --spring.profiles.active=$PROFILE > /dev/null 2>&1 &'"
+ssh -n -f inf109733@$1 "sh -c 'cd /home/inf109733/mgr/DURs; rm -rf jpaxosLogs; nohup java -Dserver.port=8090 -jar target/DURs-1.0-SNAPSHOT.jar -id $ID_COUNTER -port 8080 -paxosProcesses $PAXOS_PROCESSES -bossThreads 0 -workerThreads 0 --spring.profiles.active=$PROFILE > /dev/null 2>&1 &'"
 ssh -n -f inf109733@$1 "sh -c 'cd /home/inf109733/mgr/DURs; nohup ../apache-jmeter-3.2/bin/jmeter-server -Djava.rmi.server.hostname=10.10.0.$FIRST_IP > /dev/null 2>&1 &'"	
 
 FIRST_IP=$((FIRST_IP+1))
