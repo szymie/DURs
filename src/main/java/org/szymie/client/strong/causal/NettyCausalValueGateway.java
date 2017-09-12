@@ -38,7 +38,7 @@ public class NettyCausalValueGateway extends BaseValueGateway {
         sessionOpen = false;
     }
 
-    protected CausalReadResponse readRemotely(String key) {
+    protected ReadResponse readRemotely(String key) {
 
         Messages.ReadRequest readRequest = Messages.ReadRequest.newBuilder()
                 .setKey(key)
@@ -59,6 +59,6 @@ public class NettyCausalValueGateway extends BaseValueGateway {
 
         String value = causalReadResponse.getValue();
 
-        return new CausalReadResponse(Arrays.asList(value), causalReadResponse.getTimestamp(), causalReadResponse.getFresh());
+        return new ReadResponse(value, causalReadResponse.getTimestamp(), causalReadResponse.getFresh());
     }
 }

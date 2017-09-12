@@ -8,6 +8,8 @@ import org.szymie.messages.ReadResponse;
 import org.szymie.server.strong.causal.ValuesWithTimestamp;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,20 +40,20 @@ public abstract class BaseValueGateway {
             ValuesWithTimestamp<String> values = transactionData.readValues.get(key);
 
             if(values == null) {
-                CausalReadResponse causalReadResponse = readRemotely(key);
-                values = new ValuesWithTimestamp<>(causalReadResponse.values, causalReadResponse.timestamp, causalReadResponse.fresh);
+                ReadResponse causalReadResponse = readRemotely(key);
+                values = new ValuesWithTimestamp<>(Collections.singletonList(causalReadResponse.value), causalReadResponse.timestamp, causalReadResponse.fresh);
             }
 
             transactionData.readValues.put(key, values);
             return values.values;
         }
 
-        ValuesWithTimestamp<String> values = new ValuesWithTimestamp<>(new LinkedList<String>() {{ add(value.value); }}, value.timestamp, value.fresh);
-        transactionData.readValues.put(key, values);
-        return values.values;
+        //ValuesWithTimestamp<String> values = new ValuesWithTimestamp<>(new LinkedList<String>() {{ add(value.value); }}, value.timestamp, value.fresh);
+        //transactionData.readValues.put(key, values);
+        return Collections.singletonList(value.value);
     }
 
-    protected abstract CausalReadResponse readRemotely(String key);
+    protected abstract ReadResponse readRemotely(String key);
 
     public void write(String key, String value) {
 
