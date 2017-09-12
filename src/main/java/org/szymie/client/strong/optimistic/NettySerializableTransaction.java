@@ -40,13 +40,13 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
         String paxosProcesses = configuration.get("paxosProcesses", "");
         List<PID> processes = createPaxosProcesses(paxosProcesses);
 
-        InputStream paxosProperties = getClass().getClassLoader().getResourceAsStream("paxos.properties");
+        //InputStream paxosProperties = getClass().getClassLoader().getResourceAsStream("paxos.properties");
 
         try {
             if(processes.isEmpty()) {
-                client = new SerializableClient(new lsr.common.Configuration(paxosProperties));
+                client = new SerializableClient(new lsr.common.Configuration(processes));
             } else {
-                client = new SerializableClient(new lsr.common.Configuration(processes, paxosProperties));
+                //client = new SerializableClient(new lsr.common.Configuration(processes, paxosProperties));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
