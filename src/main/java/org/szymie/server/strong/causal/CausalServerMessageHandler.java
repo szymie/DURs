@@ -59,12 +59,12 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
                 client = new SerializableClient(new lsr.common.Configuration(processes, paxosProperties));
             }
 
-            client.connect();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Override
     protected void channelRead0(ChannelHandlerContext ctx, Messages.Message msg) throws Exception {
 
         //System.err.println("causal " + msg);
@@ -163,6 +163,8 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
             long commitTimestamp;
 
             try {
+                client.connect();
+
                 CausalCertificationResponse response = (CausalCertificationResponse) client.execute(new CausalCertificationRequest(id, new HashMap<>(request.getWritesMap()),
                         request.getTimestamp(), vectorClock.getCopy()));
                 commitTimestamp = responses.get(response.sequentialNumber);

@@ -29,7 +29,7 @@ public class NettyCausalTransaction implements PaxosProcessesCreator {
     }
 
     public NettyCausalTransaction(Session session, Configuration configuration) {
-        this(session,0, configuration);
+        this(session, 0, configuration);
     }
 
     public NettyCausalTransaction(Session session, int numberOfClientThreads, Configuration configuration) {
