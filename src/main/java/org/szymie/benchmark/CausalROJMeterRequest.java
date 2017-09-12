@@ -48,14 +48,14 @@ public class CausalROJMeterRequest extends BaseROJMeterRequest {
 
             List<String> values = transaction.read(read.getKey());
 
-            //long valuesSize = values.size();
+            long valuesSize = values.size();
 
             numberOfReads++;
 
-            //if(valuesSize > 1) {
-            //    numberOfMultiValueReads++;
-            //    totalMultiValueReadSize += valuesSize;
-            //}
+            if(valuesSize > 1) {
+                numberOfMultiValueReads++;
+                totalMultiValueReadSize += valuesSize;
+            }
 
             //System.err.println(read.getKey() + " " + String.join(", ", value));
         }

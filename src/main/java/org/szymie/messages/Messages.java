@@ -11128,23 +11128,14 @@ public final class Messages {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated string values = 1;</code>
+     * <code>string values = 1;</code>
      */
-    java.util.List<java.lang.String>
-        getValuesList();
+    java.lang.String getValues();
     /**
-     * <code>repeated string values = 1;</code>
-     */
-    int getValuesCount();
-    /**
-     * <code>repeated string values = 1;</code>
-     */
-    java.lang.String getValues(int index);
-    /**
-     * <code>repeated string values = 1;</code>
+     * <code>string values = 1;</code>
      */
     com.google.protobuf.ByteString
-        getValuesBytes(int index);
+        getValuesBytes();
 
     /**
      * <code>int64 timestamp = 2;</code>
@@ -11168,7 +11159,7 @@ public final class Messages {
       super(builder);
     }
     private CausalReadResponse() {
-      values_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      values_ = "";
       timestamp_ = 0L;
       fresh_ = false;
     }
@@ -11200,11 +11191,8 @@ public final class Messages {
             }
             case 10: {
               java.lang.String s = input.readStringRequireUtf8();
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                values_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00000001;
-              }
-              values_.add(s);
+
+              values_ = s;
               break;
             }
             case 16: {
@@ -11225,9 +11213,6 @@ public final class Messages {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-          values_ = values_.getUnmodifiableView();
-        }
         makeExtensionsImmutable();
       }
     }
@@ -11243,34 +11228,38 @@ public final class Messages {
               org.szymie.messages.Messages.CausalReadResponse.class, org.szymie.messages.Messages.CausalReadResponse.Builder.class);
     }
 
-    private int bitField0_;
     public static final int VALUES_FIELD_NUMBER = 1;
-    private com.google.protobuf.LazyStringList values_;
+    private volatile java.lang.Object values_;
     /**
-     * <code>repeated string values = 1;</code>
+     * <code>string values = 1;</code>
      */
-    public com.google.protobuf.ProtocolStringList
-        getValuesList() {
-      return values_;
+    public java.lang.String getValues() {
+      java.lang.Object ref = values_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        values_ = s;
+        return s;
+      }
     }
     /**
-     * <code>repeated string values = 1;</code>
-     */
-    public int getValuesCount() {
-      return values_.size();
-    }
-    /**
-     * <code>repeated string values = 1;</code>
-     */
-    public java.lang.String getValues(int index) {
-      return values_.get(index);
-    }
-    /**
-     * <code>repeated string values = 1;</code>
+     * <code>string values = 1;</code>
      */
     public com.google.protobuf.ByteString
-        getValuesBytes(int index) {
-      return values_.getByteString(index);
+        getValuesBytes() {
+      java.lang.Object ref = values_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        values_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     public static final int TIMESTAMP_FIELD_NUMBER = 2;
@@ -11303,8 +11292,8 @@ public final class Messages {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      for (int i = 0; i < values_.size(); i++) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, values_.getRaw(i));
+      if (!getValuesBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, values_);
       }
       if (timestamp_ != 0L) {
         output.writeInt64(2, timestamp_);
@@ -11319,13 +11308,8 @@ public final class Messages {
       if (size != -1) return size;
 
       size = 0;
-      {
-        int dataSize = 0;
-        for (int i = 0; i < values_.size(); i++) {
-          dataSize += computeStringSizeNoTag(values_.getRaw(i));
-        }
-        size += dataSize;
-        size += 1 * getValuesList().size();
+      if (!getValuesBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, values_);
       }
       if (timestamp_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
@@ -11351,8 +11335,8 @@ public final class Messages {
       org.szymie.messages.Messages.CausalReadResponse other = (org.szymie.messages.Messages.CausalReadResponse) obj;
 
       boolean result = true;
-      result = result && getValuesList()
-          .equals(other.getValuesList());
+      result = result && getValues()
+          .equals(other.getValues());
       result = result && (getTimestamp()
           == other.getTimestamp());
       result = result && (getFresh()
@@ -11367,10 +11351,8 @@ public final class Messages {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
-      if (getValuesCount() > 0) {
-        hash = (37 * hash) + VALUES_FIELD_NUMBER;
-        hash = (53 * hash) + getValuesList().hashCode();
-      }
+      hash = (37 * hash) + VALUES_FIELD_NUMBER;
+      hash = (53 * hash) + getValues().hashCode();
       hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getTimestamp());
@@ -11506,8 +11488,8 @@ public final class Messages {
       }
       public Builder clear() {
         super.clear();
-        values_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000001);
+        values_ = "";
+
         timestamp_ = 0L;
 
         fresh_ = false;
@@ -11534,16 +11516,9 @@ public final class Messages {
 
       public org.szymie.messages.Messages.CausalReadResponse buildPartial() {
         org.szymie.messages.Messages.CausalReadResponse result = new org.szymie.messages.Messages.CausalReadResponse(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          values_ = values_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000001);
-        }
         result.values_ = values_;
         result.timestamp_ = timestamp_;
         result.fresh_ = fresh_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -11585,14 +11560,8 @@ public final class Messages {
 
       public Builder mergeFrom(org.szymie.messages.Messages.CausalReadResponse other) {
         if (other == org.szymie.messages.Messages.CausalReadResponse.getDefaultInstance()) return this;
-        if (!other.values_.isEmpty()) {
-          if (values_.isEmpty()) {
-            values_ = other.values_;
-            bitField0_ = (bitField0_ & ~0x00000001);
-          } else {
-            ensureValuesIsMutable();
-            values_.addAll(other.values_);
-          }
+        if (!other.getValues().isEmpty()) {
+          values_ = other.values_;
           onChanged();
         }
         if (other.getTimestamp() != 0L) {
@@ -11626,98 +11595,72 @@ public final class Messages {
         }
         return this;
       }
-      private int bitField0_;
 
-      private com.google.protobuf.LazyStringList values_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureValuesIsMutable() {
-        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          values_ = new com.google.protobuf.LazyStringArrayList(values_);
-          bitField0_ |= 0x00000001;
-         }
-      }
+      private java.lang.Object values_ = "";
       /**
-       * <code>repeated string values = 1;</code>
+       * <code>string values = 1;</code>
        */
-      public com.google.protobuf.ProtocolStringList
-          getValuesList() {
-        return values_.getUnmodifiableView();
+      public java.lang.String getValues() {
+        java.lang.Object ref = values_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          values_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>repeated string values = 1;</code>
-       */
-      public int getValuesCount() {
-        return values_.size();
-      }
-      /**
-       * <code>repeated string values = 1;</code>
-       */
-      public java.lang.String getValues(int index) {
-        return values_.get(index);
-      }
-      /**
-       * <code>repeated string values = 1;</code>
+       * <code>string values = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getValuesBytes(int index) {
-        return values_.getByteString(index);
+          getValuesBytes() {
+        java.lang.Object ref = values_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          values_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
       }
       /**
-       * <code>repeated string values = 1;</code>
+       * <code>string values = 1;</code>
        */
       public Builder setValues(
-          int index, java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureValuesIsMutable();
-        values_.set(index, value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string values = 1;</code>
-       */
-      public Builder addValues(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureValuesIsMutable();
-        values_.add(value);
+  
+        values_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string values = 1;</code>
-       */
-      public Builder addAllValues(
-          java.lang.Iterable<java.lang.String> values) {
-        ensureValuesIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, values_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string values = 1;</code>
+       * <code>string values = 1;</code>
        */
       public Builder clearValues() {
-        values_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000001);
+        
+        values_ = getDefaultInstance().getValues();
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string values = 1;</code>
+       * <code>string values = 1;</code>
        */
-      public Builder addValuesBytes(
+      public Builder setValuesBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
-        ensureValuesIsMutable();
-        values_.add(value);
+        
+        values_ = value;
         onChanged();
         return this;
       }
@@ -11984,7 +11927,7 @@ public final class Messages {
       "\000B\020\n\016oneof_messages\"<\n\033TransactionExecut" +
       "ionRequest\022\r\n\005reads\030\001 \003(\t\022\016\n\006writes\030\002 \003(" +
       "\t\"\036\n\034TransactionExecutionResponse\"F\n\022Cau" +
-      "salReadResponse\022\016\n\006values\030\001 \003(\t\022\021\n\ttimes" +
+      "salReadResponse\022\016\n\006values\030\001 \001(\t\022\021\n\ttimes" +
       "tamp\030\002 \001(\003\022\r\n\005fresh\030\003 \001(\010B\037\n\023org.szymie." +
       "messagesB\010Messagesb\006proto3"
     };

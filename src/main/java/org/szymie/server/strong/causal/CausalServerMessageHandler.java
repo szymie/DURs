@@ -134,9 +134,12 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
         Optional<ValuesWithTimestamp<String>> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
 
-        Messages.CausalReadResponse response = valueOptional.map(valueWithTimestamp ->
-                createCausalReadResponse(valueWithTimestamp.values, transactionTimestamp, valueWithTimestamp.fresh))
-                .orElse(createCausalReadResponse(Collections.emptyList(), transactionTimestamp, true));
+
+        Messages.CausalReadResponse response = valueOptional.map(valueWithTimestamp -> {
+            String values = String.join(",", valueWithTimestamp.values);
+            return createCausalReadResponse(values, transactionTimestamp, valueWithTimestamp.fresh);
+        })
+                .orElse(createCausalReadResponse("", transactionTimestamp, true));
 
         Messages.Message message = Messages.Message.newBuilder()
                 .setCausalReadResponse(response)
@@ -145,9 +148,9 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
         context.writeAndFlush(message);
     }
 
-    private Messages.CausalReadResponse createCausalReadResponse(List<String> values, long timestamp, boolean fresh) {
+    private Messages.CausalReadResponse createCausalReadResponse(String values, long timestamp, boolean fresh) {
         return Messages.CausalReadResponse.newBuilder()
-                .addAllValues(values)
+                .setValues(values)
                 .setTimestamp(timestamp)
                 .setFresh(fresh).build();
     }

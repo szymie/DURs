@@ -5,6 +5,8 @@ import org.szymie.client.strong.RemoteGateway;
 import org.szymie.messages.CausalReadResponse;
 import org.szymie.messages.Messages;
 import org.szymie.messages.ReadResponse;
+
+import java.util.Arrays;
 import java.util.Map;
 
 public class NettyCausalValueGateway extends BaseValueGateway {
@@ -55,6 +57,8 @@ public class NettyCausalValueGateway extends BaseValueGateway {
             session.localClock = Math.max(session.localClock, transactionData.timestamp);
         }
 
-        return new CausalReadResponse(causalReadResponse.getValuesList(), causalReadResponse.getTimestamp(), causalReadResponse.getFresh());
+        String[] values = causalReadResponse.getValues().split(",");
+
+        return new CausalReadResponse(Arrays.asList(values), causalReadResponse.getTimestamp(), causalReadResponse.getFresh());
     }
 }
