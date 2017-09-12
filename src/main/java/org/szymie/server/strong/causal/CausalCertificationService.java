@@ -98,7 +98,7 @@ public class CausalCertificationService extends SerializableService {
 
     private void deliver(Request request) {
 
-        System.err.println("delivering " + request.certificationRequest.vectorClock);
+        //System.err.println("delivering " + request.certificationRequest.vectorClock);
 
         long time = applyChanges(request.certificationRequest);
 
@@ -112,8 +112,8 @@ public class CausalCertificationService extends SerializableService {
 
         vectorClock.increment(request.id);
 
-        System.err.println("after delivery " + vectorClock);
-        System.err.println("at id: " + id);
+        //System.err.println("after delivery " + vectorClock);
+        //System.err.println("at id: " + id);
     }
 
     private long applyChanges(CausalCertificationRequest request) {

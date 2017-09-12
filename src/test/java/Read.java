@@ -20,10 +20,9 @@ public class Read {
 
         transaction.begin();
 
-        int[] ints = IntStream.range(0, 300).toArray();
+        int[] ints = IntStream.range(0, 1000).toArray();
 
         int empties = 0;
-
 
         HashMap<String, String> summary = new HashMap<>();
 
@@ -33,11 +32,14 @@ public class Read {
 
             if(!value.isEmpty()) {
                 summary.put("key" + i, value);
+                empties++;
             }
         }
 
         transaction.commit();
 
         summary.forEach((key, value) -> System.err.println(key + ": " + value));
+
+        System.err.println("empties: " + empties);
     }
 }

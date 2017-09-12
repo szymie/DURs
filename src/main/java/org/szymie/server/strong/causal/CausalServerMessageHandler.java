@@ -67,15 +67,15 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
     protected void channelRead0(ChannelHandlerContext ctx, Messages.Message msg) throws Exception {
 
-        System.err.println("causal " + msg);
-        System.err.println("message " + msg);
+        //System.err.println("causal " + msg);
+        //System.err.println("message " + msg);
 
         switch (msg.getOneofMessagesCase()) {
             case INITREQUEST:
                 handleInitRequest(ctx, msg.getInitRequest());
                 break;
             case READREQUEST:
-                System.err.println("Read request from " + msg.getReadRequest().getTimestamp());
+                //System.err.println("Read request from " + msg.getReadRequest().getTimestamp());
                 handleReadRequest(ctx, msg.getReadRequest());
                 break;
             case COMMITREQUEST:
@@ -89,7 +89,7 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
         resourceRepository.clear();
 
         long time = timestamp.incrementAndGet();
-        initRequest.getWritesMap().forEach((key, value) -> resourceRepository.put(key, value, time, time));
+        initRequest.getWritesMap().forEach((key, value) -> resourceRepository.put(key, value, 0, time));
 
         Messages.InitResponse initResponse = Messages.InitResponse.newBuilder()
                 .build();
