@@ -106,7 +106,7 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
         boolean firstRead = request.getTimestamp() == Long.MAX_VALUE;
 
-        if(firstRead) {
+        if(firstRead && false) {
 
             long requiredLocalClock = request.getLocalClock();
 
