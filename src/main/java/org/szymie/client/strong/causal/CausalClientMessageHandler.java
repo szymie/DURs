@@ -20,6 +20,9 @@ class CausalClientMessageHandler extends BaseClientMessageHandler {
             case CAUSALREADRESPONSE:
                 setResponse(new Response<>(msg.getCausalReadResponse()));
                 break;
+            case READRESPONSE:
+                setResponse(new Response<>(msg.getReadResponse()));
+                break;
             case COMMITRESPONSE:
                 setResponse(new Response<>(msg.getCommitResponse()));
                 break;
