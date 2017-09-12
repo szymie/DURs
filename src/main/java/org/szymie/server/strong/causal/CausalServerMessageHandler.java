@@ -37,6 +37,8 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
     private BlockingMap<Long, Long> responses;
 
+    private boolean connected;
+
     public CausalServerMessageHandler(int id, String paxosProcesses, CausalResourceRepository resourceRepository, AtomicLong timestamp, TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock, BlockingMap<Long, Long> responses) {
 
         this.id = id;
@@ -46,6 +48,7 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
         this.liveTransactionsLock = liveTransactionsLock;
         this.vectorClock = vectorClock;
         this.responses = responses;
+        connected = false;
 
         List<PID> processes = createPaxosProcesses(paxosProcesses);
 
@@ -53,9 +56,9 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
             if(processes.isEmpty()) {
                 InputStream paxosProperties = getClass().getClassLoader().getResourceAsStream("paxos.properties");
-                client = new SerializableClient(new lsr.common.Configuration(paxosProperties));
+                client = new SerializableClient(new lsr.common.Configuration(paxosProperties), id);
             } else {
-                client = new SerializableClient(new lsr.common.Configuration(processes));
+                client = new SerializableClient(new lsr.common.Configuration(processes), id);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -158,7 +161,12 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
             long commitTimestamp;
 
             try {
-                client.connect();
+
+                if(!connected) {
+                    client.connect();
+                    connected = true;
+                }
+
                 CausalCertificationResponse response = (CausalCertificationResponse) client.execute(new CausalCertificationRequest(id, new HashMap<>(request.getWritesMap()),
                         request.getTimestamp(), vectorClock.getCopy()));
                 commitTimestamp = responses.get(response.sequentialNumber);
