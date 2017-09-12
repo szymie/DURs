@@ -49,19 +49,17 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
         List<PID> processes = createPaxosProcesses(paxosProcesses);
 
-        /*InputStream paxosProperties = getClass().getClassLoader().getResourceAsStream("paxos.properties");
-
         try {
-
             if(processes.isEmpty()) {
+                InputStream paxosProperties = getClass().getClassLoader().getResourceAsStream("paxos.properties");
                 client = new SerializableClient(new lsr.common.Configuration(paxosProperties));
             } else {
-                client = new SerializableClient(new lsr.common.Configuration(processes, paxosProperties));
+                client = new SerializableClient(new lsr.common.Configuration(processes));
             }
 
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }*/
+        }
     }
 
     @Override
