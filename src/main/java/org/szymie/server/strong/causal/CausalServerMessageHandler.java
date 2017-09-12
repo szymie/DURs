@@ -57,8 +57,6 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
             } else {
                 client = new SerializableClient(new lsr.common.Configuration(processes));
             }
-
-            client.connect();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -160,6 +158,7 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
             long commitTimestamp;
 
             try {
+                client.connect();
                 CausalCertificationResponse response = (CausalCertificationResponse) client.execute(new CausalCertificationRequest(id, new HashMap<>(request.getWritesMap()),
                         request.getTimestamp(), vectorClock.getCopy()));
                 commitTimestamp = responses.get(response.sequentialNumber);
