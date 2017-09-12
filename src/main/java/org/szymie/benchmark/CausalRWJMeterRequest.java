@@ -52,14 +52,14 @@ public class CausalRWJMeterRequest extends BaseRWJMeterRequest {
 
                 List<String> values = transaction.read(key);
 
-                long valuesSize = values.size();
+                //long valuesSize = values.size();
 
                 numberOfReads++;
 
-                if(valuesSize > 1) {
-                    totalMultiValueReadSize += valuesSize;
-                    numberOfMultiValueReads++;
-                }
+                //if(valuesSize > 1) {
+                //    totalMultiValueReadSize += valuesSize;
+                //    numberOfMultiValueReads++;
+                //}
 
                 //System.err.println(key + " " + String.join(", ", values));
             }
