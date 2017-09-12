@@ -49,7 +49,7 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
         List<PID> processes = createPaxosProcesses(paxosProcesses);
 
-        InputStream paxosProperties = getClass().getClassLoader().getResourceAsStream("paxos.properties");
+        /*InputStream paxosProperties = getClass().getClassLoader().getResourceAsStream("paxos.properties");
 
         try {
 
@@ -61,7 +61,7 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 
     @Override
