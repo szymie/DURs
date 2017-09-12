@@ -132,25 +132,24 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
             liveTransactionsLock.unlock();
         }
 
-        Optional<ValuesWithTimestamp<String>> valueOptional = resourceRepository.get(request.getKey(), transactionTimestamp);
+        Optional<ValuesWithTimestamp<String>> valueOptional = Optional.empty(); //resourceRepository.get(request.getKey(), transactionTimestamp);
 
-
-        Messages.CausalReadResponse response = valueOptional.map(valueWithTimestamp -> {
+        Messages.ReadResponse response = valueOptional.map(valueWithTimestamp -> {
             String values = String.join(",", valueWithTimestamp.values);
             return createCausalReadResponse(values, transactionTimestamp, valueWithTimestamp.fresh);
         })
                 .orElse(createCausalReadResponse("", transactionTimestamp, true));
 
         Messages.Message message = Messages.Message.newBuilder()
-                .setCausalReadResponse(response)
+                .setReadResponse(response)
                 .build();
 
         context.writeAndFlush(message);
     }
 
-    private Messages.CausalReadResponse createCausalReadResponse(String values, long timestamp, boolean fresh) {
-        return Messages.CausalReadResponse.newBuilder()
-                .setValues(values)
+    private Messages.ReadResponse createCausalReadResponse(String values, long timestamp, boolean fresh) {
+        return Messages.ReadResponse.newBuilder()
+                .setValue(values)
                 .setTimestamp(timestamp)
                 .setFresh(fresh).build();
     }

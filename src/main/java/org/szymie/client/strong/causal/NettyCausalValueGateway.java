@@ -50,15 +50,15 @@ public class NettyCausalValueGateway extends BaseValueGateway {
                 .setReadRequest(readRequest)
                 .build();
 
-        Messages.CausalReadResponse causalReadResponse = remoteGateway.sendAndReceive(message , Messages.CausalReadResponse.class);
+        Messages.ReadResponse causalReadResponse = remoteGateway.sendAndReceive(message , Messages.ReadResponse.class);
 
         if(transactionData.timestamp == Long.MAX_VALUE) {
             transactionData.timestamp = causalReadResponse.getTimestamp();
             session.localClock = Math.max(session.localClock, transactionData.timestamp);
         }
 
-        String[] values = causalReadResponse.getValues().split(",");
+        String value = causalReadResponse.getValue();
 
-        return new CausalReadResponse(Arrays.asList(values), causalReadResponse.getTimestamp(), causalReadResponse.getFresh());
+        return new CausalReadResponse(Arrays.asList(value), causalReadResponse.getTimestamp(), causalReadResponse.getFresh());
     }
 }
