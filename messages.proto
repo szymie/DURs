@@ -38,6 +38,16 @@ message CommitRequest {
   map<string, string> writes = 2;
 }
 
+message CertificationRequest {
+  int64 timestamp = 1;
+  map<string, string> reads = 2;
+  map<string, string> writes = 3;
+}
+
+message CertificationResponse {
+  bool success = 1;
+}
+
 message CommitResponse {
   int64 timestamp = 1;
 }
@@ -80,6 +90,9 @@ message Message {
     TransactionExecutionResponse TransactionExecutionResponse = 12;
 
     CausalReadResponse causalReadResponse = 13;
+
+    CertificationRequest certificationRequest = 14;
+    CertificationResponse certificationResponse = 15;
   }
 }
 

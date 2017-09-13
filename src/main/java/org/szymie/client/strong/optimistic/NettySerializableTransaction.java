@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class NettySerializableTransaction implements Transaction, PaxosProcessesCreator {
 
@@ -37,7 +39,7 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
         this.valueGateway = new NettyValueGateway(remoteGateway, configuration);
         state = TransactionState.NOT_STARTED;
 
-        String paxosProcesses = configuration.get("paxosProcesses", "");
+        /*String paxosProcesses = configuration.get("paxosProcesses", "");
         List<PID> processes = createPaxosProcesses(paxosProcesses);
         
         try {
@@ -49,7 +51,7 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 
     @Override
@@ -142,14 +144,27 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
 
         if(checkLocalCondition(request)) {
 
-            client.connect();
+            Messages.CertificationRequest.Builder certificationRequestBuilder = Messages.CertificationRequest.newBuilder()
+                    .setTimestamp(request.timestamp)
+                    .putAllReads(request.readValues.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().value)))
+                    .putAllWrites(request.writtenValues.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().value)));
+
+            Messages.Message message = Messages.Message.newBuilder()
+                    .setCertificationRequest(certificationRequestBuilder)
+                    .build();
+
+            Messages.CertificationResponse certificationResponse = remoteGateway.sendAndReceive(message, Messages.CertificationResponse.class);
+
+            return new CertificationResponse(certificationResponse.getSuccess());
+
+            /*client.connect();
 
             try {
                 return (CertificationResponse) client.execute(request);
             } catch (IOException | ClassNotFoundException | ReplicationException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
-            }
+            }*/
         }
 
         return new CertificationResponse(false);

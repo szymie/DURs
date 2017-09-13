@@ -4236,6 +4236,1478 @@ public final class Messages {
 
   }
 
+  public interface CertificationRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:org.szymie.messages.CertificationRequest)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>int64 timestamp = 1;</code>
+     */
+    long getTimestamp();
+
+    /**
+     * <code>map&lt;string, string&gt; reads = 2;</code>
+     */
+    int getReadsCount();
+    /**
+     * <code>map&lt;string, string&gt; reads = 2;</code>
+     */
+    boolean containsReads(
+        java.lang.String key);
+    /**
+     * Use {@link #getReadsMap()} instead.
+     */
+    @java.lang.Deprecated
+    java.util.Map<java.lang.String, java.lang.String>
+    getReads();
+    /**
+     * <code>map&lt;string, string&gt; reads = 2;</code>
+     */
+    java.util.Map<java.lang.String, java.lang.String>
+    getReadsMap();
+    /**
+     * <code>map&lt;string, string&gt; reads = 2;</code>
+     */
+
+    java.lang.String getReadsOrDefault(
+        java.lang.String key,
+        java.lang.String defaultValue);
+    /**
+     * <code>map&lt;string, string&gt; reads = 2;</code>
+     */
+
+    java.lang.String getReadsOrThrow(
+        java.lang.String key);
+
+    /**
+     * <code>map&lt;string, string&gt; writes = 3;</code>
+     */
+    int getWritesCount();
+    /**
+     * <code>map&lt;string, string&gt; writes = 3;</code>
+     */
+    boolean containsWrites(
+        java.lang.String key);
+    /**
+     * Use {@link #getWritesMap()} instead.
+     */
+    @java.lang.Deprecated
+    java.util.Map<java.lang.String, java.lang.String>
+    getWrites();
+    /**
+     * <code>map&lt;string, string&gt; writes = 3;</code>
+     */
+    java.util.Map<java.lang.String, java.lang.String>
+    getWritesMap();
+    /**
+     * <code>map&lt;string, string&gt; writes = 3;</code>
+     */
+
+    java.lang.String getWritesOrDefault(
+        java.lang.String key,
+        java.lang.String defaultValue);
+    /**
+     * <code>map&lt;string, string&gt; writes = 3;</code>
+     */
+
+    java.lang.String getWritesOrThrow(
+        java.lang.String key);
+  }
+  /**
+   * Protobuf type {@code org.szymie.messages.CertificationRequest}
+   */
+  public  static final class CertificationRequest extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:org.szymie.messages.CertificationRequest)
+      CertificationRequestOrBuilder {
+    // Use CertificationRequest.newBuilder() to construct.
+    private CertificationRequest(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private CertificationRequest() {
+      timestamp_ = 0L;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private CertificationRequest(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+
+              timestamp_ = input.readInt64();
+              break;
+            }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                reads_ = com.google.protobuf.MapField.newMapField(
+                    ReadsDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000002;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+              reads__ = input.readMessage(
+                  ReadsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              reads_.getMutableMap().put(
+                  reads__.getKey(), reads__.getValue());
+              break;
+            }
+            case 26: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                writes_ = com.google.protobuf.MapField.newMapField(
+                    WritesDefaultEntryHolder.defaultEntry);
+                mutable_bitField0_ |= 0x00000004;
+              }
+              com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+              writes__ = input.readMessage(
+                  WritesDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
+              writes_.getMutableMap().put(
+                  writes__.getKey(), writes__.getValue());
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationRequest_descriptor;
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    protected com.google.protobuf.MapField internalGetMapField(
+        int number) {
+      switch (number) {
+        case 2:
+          return internalGetReads();
+        case 3:
+          return internalGetWrites();
+        default:
+          throw new RuntimeException(
+              "Invalid map field number: " + number);
+      }
+    }
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.szymie.messages.Messages.CertificationRequest.class, org.szymie.messages.Messages.CertificationRequest.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int TIMESTAMP_FIELD_NUMBER = 1;
+    private long timestamp_;
+    /**
+     * <code>int64 timestamp = 1;</code>
+     */
+    public long getTimestamp() {
+      return timestamp_;
+    }
+
+    public static final int READS_FIELD_NUMBER = 2;
+    private static final class ReadsDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, java.lang.String> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, java.lang.String>newDefaultInstance(
+                  org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationRequest_ReadsEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "");
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.String> reads_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+    internalGetReads() {
+      if (reads_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            ReadsDefaultEntryHolder.defaultEntry);
+      }
+      return reads_;
+    }
+
+    public int getReadsCount() {
+      return internalGetReads().getMap().size();
+    }
+    /**
+     * <code>map&lt;string, string&gt; reads = 2;</code>
+     */
+
+    public boolean containsReads(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      return internalGetReads().getMap().containsKey(key);
+    }
+    /**
+     * Use {@link #getReadsMap()} instead.
+     */
+    @java.lang.Deprecated
+    public java.util.Map<java.lang.String, java.lang.String> getReads() {
+      return getReadsMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; reads = 2;</code>
+     */
+
+    public java.util.Map<java.lang.String, java.lang.String> getReadsMap() {
+      return internalGetReads().getMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; reads = 2;</code>
+     */
+
+    public java.lang.String getReadsOrDefault(
+        java.lang.String key,
+        java.lang.String defaultValue) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetReads().getMap();
+      return map.containsKey(key) ? map.get(key) : defaultValue;
+    }
+    /**
+     * <code>map&lt;string, string&gt; reads = 2;</code>
+     */
+
+    public java.lang.String getReadsOrThrow(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetReads().getMap();
+      if (!map.containsKey(key)) {
+        throw new java.lang.IllegalArgumentException();
+      }
+      return map.get(key);
+    }
+
+    public static final int WRITES_FIELD_NUMBER = 3;
+    private static final class WritesDefaultEntryHolder {
+      static final com.google.protobuf.MapEntry<
+          java.lang.String, java.lang.String> defaultEntry =
+              com.google.protobuf.MapEntry
+              .<java.lang.String, java.lang.String>newDefaultInstance(
+                  org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationRequest_WritesEntry_descriptor, 
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "",
+                  com.google.protobuf.WireFormat.FieldType.STRING,
+                  "");
+    }
+    private com.google.protobuf.MapField<
+        java.lang.String, java.lang.String> writes_;
+    private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+    internalGetWrites() {
+      if (writes_ == null) {
+        return com.google.protobuf.MapField.emptyMapField(
+            WritesDefaultEntryHolder.defaultEntry);
+      }
+      return writes_;
+    }
+
+    public int getWritesCount() {
+      return internalGetWrites().getMap().size();
+    }
+    /**
+     * <code>map&lt;string, string&gt; writes = 3;</code>
+     */
+
+    public boolean containsWrites(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      return internalGetWrites().getMap().containsKey(key);
+    }
+    /**
+     * Use {@link #getWritesMap()} instead.
+     */
+    @java.lang.Deprecated
+    public java.util.Map<java.lang.String, java.lang.String> getWrites() {
+      return getWritesMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; writes = 3;</code>
+     */
+
+    public java.util.Map<java.lang.String, java.lang.String> getWritesMap() {
+      return internalGetWrites().getMap();
+    }
+    /**
+     * <code>map&lt;string, string&gt; writes = 3;</code>
+     */
+
+    public java.lang.String getWritesOrDefault(
+        java.lang.String key,
+        java.lang.String defaultValue) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetWrites().getMap();
+      return map.containsKey(key) ? map.get(key) : defaultValue;
+    }
+    /**
+     * <code>map&lt;string, string&gt; writes = 3;</code>
+     */
+
+    public java.lang.String getWritesOrThrow(
+        java.lang.String key) {
+      if (key == null) { throw new java.lang.NullPointerException(); }
+      java.util.Map<java.lang.String, java.lang.String> map =
+          internalGetWrites().getMap();
+      if (!map.containsKey(key)) {
+        throw new java.lang.IllegalArgumentException();
+      }
+      return map.get(key);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (timestamp_ != 0L) {
+        output.writeInt64(1, timestamp_);
+      }
+      com.google.protobuf.GeneratedMessageV3
+        .serializeStringMapTo(
+          output,
+          internalGetReads(),
+          ReadsDefaultEntryHolder.defaultEntry,
+          2);
+      com.google.protobuf.GeneratedMessageV3
+        .serializeStringMapTo(
+          output,
+          internalGetWrites(),
+          WritesDefaultEntryHolder.defaultEntry,
+          3);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (timestamp_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(1, timestamp_);
+      }
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetReads().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        reads__ = ReadsDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(2, reads__);
+      }
+      for (java.util.Map.Entry<java.lang.String, java.lang.String> entry
+           : internalGetWrites().getMap().entrySet()) {
+        com.google.protobuf.MapEntry<java.lang.String, java.lang.String>
+        writes__ = WritesDefaultEntryHolder.defaultEntry.newBuilderForType()
+            .setKey(entry.getKey())
+            .setValue(entry.getValue())
+            .build();
+        size += com.google.protobuf.CodedOutputStream
+            .computeMessageSize(3, writes__);
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.szymie.messages.Messages.CertificationRequest)) {
+        return super.equals(obj);
+      }
+      org.szymie.messages.Messages.CertificationRequest other = (org.szymie.messages.Messages.CertificationRequest) obj;
+
+      boolean result = true;
+      result = result && (getTimestamp()
+          == other.getTimestamp());
+      result = result && internalGetReads().equals(
+          other.internalGetReads());
+      result = result && internalGetWrites().equals(
+          other.internalGetWrites());
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getTimestamp());
+      if (!internalGetReads().getMap().isEmpty()) {
+        hash = (37 * hash) + READS_FIELD_NUMBER;
+        hash = (53 * hash) + internalGetReads().hashCode();
+      }
+      if (!internalGetWrites().getMap().isEmpty()) {
+        hash = (37 * hash) + WRITES_FIELD_NUMBER;
+        hash = (53 * hash) + internalGetWrites().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.szymie.messages.Messages.CertificationRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.szymie.messages.Messages.CertificationRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.szymie.messages.Messages.CertificationRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code org.szymie.messages.CertificationRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:org.szymie.messages.CertificationRequest)
+        org.szymie.messages.Messages.CertificationRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationRequest_descriptor;
+      }
+
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMapField(
+          int number) {
+        switch (number) {
+          case 2:
+            return internalGetReads();
+          case 3:
+            return internalGetWrites();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      @SuppressWarnings({"rawtypes"})
+      protected com.google.protobuf.MapField internalGetMutableMapField(
+          int number) {
+        switch (number) {
+          case 2:
+            return internalGetMutableReads();
+          case 3:
+            return internalGetMutableWrites();
+          default:
+            throw new RuntimeException(
+                "Invalid map field number: " + number);
+        }
+      }
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.szymie.messages.Messages.CertificationRequest.class, org.szymie.messages.Messages.CertificationRequest.Builder.class);
+      }
+
+      // Construct using org.szymie.messages.Messages.CertificationRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        timestamp_ = 0L;
+
+        internalGetMutableReads().clear();
+        internalGetMutableWrites().clear();
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationRequest_descriptor;
+      }
+
+      public org.szymie.messages.Messages.CertificationRequest getDefaultInstanceForType() {
+        return org.szymie.messages.Messages.CertificationRequest.getDefaultInstance();
+      }
+
+      public org.szymie.messages.Messages.CertificationRequest build() {
+        org.szymie.messages.Messages.CertificationRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.szymie.messages.Messages.CertificationRequest buildPartial() {
+        org.szymie.messages.Messages.CertificationRequest result = new org.szymie.messages.Messages.CertificationRequest(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        result.timestamp_ = timestamp_;
+        result.reads_ = internalGetReads();
+        result.reads_.makeImmutable();
+        result.writes_ = internalGetWrites();
+        result.writes_.makeImmutable();
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.szymie.messages.Messages.CertificationRequest) {
+          return mergeFrom((org.szymie.messages.Messages.CertificationRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.szymie.messages.Messages.CertificationRequest other) {
+        if (other == org.szymie.messages.Messages.CertificationRequest.getDefaultInstance()) return this;
+        if (other.getTimestamp() != 0L) {
+          setTimestamp(other.getTimestamp());
+        }
+        internalGetMutableReads().mergeFrom(
+            other.internalGetReads());
+        internalGetMutableWrites().mergeFrom(
+            other.internalGetWrites());
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.szymie.messages.Messages.CertificationRequest parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.szymie.messages.Messages.CertificationRequest) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private long timestamp_ ;
+      /**
+       * <code>int64 timestamp = 1;</code>
+       */
+      public long getTimestamp() {
+        return timestamp_;
+      }
+      /**
+       * <code>int64 timestamp = 1;</code>
+       */
+      public Builder setTimestamp(long value) {
+        
+        timestamp_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>int64 timestamp = 1;</code>
+       */
+      public Builder clearTimestamp() {
+        
+        timestamp_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.MapField<
+          java.lang.String, java.lang.String> reads_;
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetReads() {
+        if (reads_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              ReadsDefaultEntryHolder.defaultEntry);
+        }
+        return reads_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetMutableReads() {
+        onChanged();;
+        if (reads_ == null) {
+          reads_ = com.google.protobuf.MapField.newMapField(
+              ReadsDefaultEntryHolder.defaultEntry);
+        }
+        if (!reads_.isMutable()) {
+          reads_ = reads_.copy();
+        }
+        return reads_;
+      }
+
+      public int getReadsCount() {
+        return internalGetReads().getMap().size();
+      }
+      /**
+       * <code>map&lt;string, string&gt; reads = 2;</code>
+       */
+
+      public boolean containsReads(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        return internalGetReads().getMap().containsKey(key);
+      }
+      /**
+       * Use {@link #getReadsMap()} instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.String> getReads() {
+        return getReadsMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; reads = 2;</code>
+       */
+
+      public java.util.Map<java.lang.String, java.lang.String> getReadsMap() {
+        return internalGetReads().getMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; reads = 2;</code>
+       */
+
+      public java.lang.String getReadsOrDefault(
+          java.lang.String key,
+          java.lang.String defaultValue) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, java.lang.String> map =
+            internalGetReads().getMap();
+        return map.containsKey(key) ? map.get(key) : defaultValue;
+      }
+      /**
+       * <code>map&lt;string, string&gt; reads = 2;</code>
+       */
+
+      public java.lang.String getReadsOrThrow(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, java.lang.String> map =
+            internalGetReads().getMap();
+        if (!map.containsKey(key)) {
+          throw new java.lang.IllegalArgumentException();
+        }
+        return map.get(key);
+      }
+
+      public Builder clearReads() {
+        internalGetMutableReads().getMutableMap()
+            .clear();
+        return this;
+      }
+      /**
+       * <code>map&lt;string, string&gt; reads = 2;</code>
+       */
+
+      public Builder removeReads(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        internalGetMutableReads().getMutableMap()
+            .remove(key);
+        return this;
+      }
+      /**
+       * Use alternate mutation accessors instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.String>
+      getMutableReads() {
+        return internalGetMutableReads().getMutableMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; reads = 2;</code>
+       */
+      public Builder putReads(
+          java.lang.String key,
+          java.lang.String value) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        if (value == null) { throw new java.lang.NullPointerException(); }
+        internalGetMutableReads().getMutableMap()
+            .put(key, value);
+        return this;
+      }
+      /**
+       * <code>map&lt;string, string&gt; reads = 2;</code>
+       */
+
+      public Builder putAllReads(
+          java.util.Map<java.lang.String, java.lang.String> values) {
+        internalGetMutableReads().getMutableMap()
+            .putAll(values);
+        return this;
+      }
+
+      private com.google.protobuf.MapField<
+          java.lang.String, java.lang.String> writes_;
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetWrites() {
+        if (writes_ == null) {
+          return com.google.protobuf.MapField.emptyMapField(
+              WritesDefaultEntryHolder.defaultEntry);
+        }
+        return writes_;
+      }
+      private com.google.protobuf.MapField<java.lang.String, java.lang.String>
+      internalGetMutableWrites() {
+        onChanged();;
+        if (writes_ == null) {
+          writes_ = com.google.protobuf.MapField.newMapField(
+              WritesDefaultEntryHolder.defaultEntry);
+        }
+        if (!writes_.isMutable()) {
+          writes_ = writes_.copy();
+        }
+        return writes_;
+      }
+
+      public int getWritesCount() {
+        return internalGetWrites().getMap().size();
+      }
+      /**
+       * <code>map&lt;string, string&gt; writes = 3;</code>
+       */
+
+      public boolean containsWrites(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        return internalGetWrites().getMap().containsKey(key);
+      }
+      /**
+       * Use {@link #getWritesMap()} instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.String> getWrites() {
+        return getWritesMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; writes = 3;</code>
+       */
+
+      public java.util.Map<java.lang.String, java.lang.String> getWritesMap() {
+        return internalGetWrites().getMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; writes = 3;</code>
+       */
+
+      public java.lang.String getWritesOrDefault(
+          java.lang.String key,
+          java.lang.String defaultValue) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, java.lang.String> map =
+            internalGetWrites().getMap();
+        return map.containsKey(key) ? map.get(key) : defaultValue;
+      }
+      /**
+       * <code>map&lt;string, string&gt; writes = 3;</code>
+       */
+
+      public java.lang.String getWritesOrThrow(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        java.util.Map<java.lang.String, java.lang.String> map =
+            internalGetWrites().getMap();
+        if (!map.containsKey(key)) {
+          throw new java.lang.IllegalArgumentException();
+        }
+        return map.get(key);
+      }
+
+      public Builder clearWrites() {
+        internalGetMutableWrites().getMutableMap()
+            .clear();
+        return this;
+      }
+      /**
+       * <code>map&lt;string, string&gt; writes = 3;</code>
+       */
+
+      public Builder removeWrites(
+          java.lang.String key) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        internalGetMutableWrites().getMutableMap()
+            .remove(key);
+        return this;
+      }
+      /**
+       * Use alternate mutation accessors instead.
+       */
+      @java.lang.Deprecated
+      public java.util.Map<java.lang.String, java.lang.String>
+      getMutableWrites() {
+        return internalGetMutableWrites().getMutableMap();
+      }
+      /**
+       * <code>map&lt;string, string&gt; writes = 3;</code>
+       */
+      public Builder putWrites(
+          java.lang.String key,
+          java.lang.String value) {
+        if (key == null) { throw new java.lang.NullPointerException(); }
+        if (value == null) { throw new java.lang.NullPointerException(); }
+        internalGetMutableWrites().getMutableMap()
+            .put(key, value);
+        return this;
+      }
+      /**
+       * <code>map&lt;string, string&gt; writes = 3;</code>
+       */
+
+      public Builder putAllWrites(
+          java.util.Map<java.lang.String, java.lang.String> values) {
+        internalGetMutableWrites().getMutableMap()
+            .putAll(values);
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:org.szymie.messages.CertificationRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:org.szymie.messages.CertificationRequest)
+    private static final org.szymie.messages.Messages.CertificationRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.szymie.messages.Messages.CertificationRequest();
+    }
+
+    public static org.szymie.messages.Messages.CertificationRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<CertificationRequest>
+        PARSER = new com.google.protobuf.AbstractParser<CertificationRequest>() {
+      public CertificationRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new CertificationRequest(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<CertificationRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<CertificationRequest> getParserForType() {
+      return PARSER;
+    }
+
+    public org.szymie.messages.Messages.CertificationRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface CertificationResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:org.szymie.messages.CertificationResponse)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>bool success = 1;</code>
+     */
+    boolean getSuccess();
+  }
+  /**
+   * Protobuf type {@code org.szymie.messages.CertificationResponse}
+   */
+  public  static final class CertificationResponse extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:org.szymie.messages.CertificationResponse)
+      CertificationResponseOrBuilder {
+    // Use CertificationResponse.newBuilder() to construct.
+    private CertificationResponse(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private CertificationResponse() {
+      success_ = false;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private CertificationResponse(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+
+              success_ = input.readBool();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationResponse_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationResponse_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.szymie.messages.Messages.CertificationResponse.class, org.szymie.messages.Messages.CertificationResponse.Builder.class);
+    }
+
+    public static final int SUCCESS_FIELD_NUMBER = 1;
+    private boolean success_;
+    /**
+     * <code>bool success = 1;</code>
+     */
+    public boolean getSuccess() {
+      return success_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (success_ != false) {
+        output.writeBool(1, success_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (success_ != false) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(1, success_);
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof org.szymie.messages.Messages.CertificationResponse)) {
+        return super.equals(obj);
+      }
+      org.szymie.messages.Messages.CertificationResponse other = (org.szymie.messages.Messages.CertificationResponse) obj;
+
+      boolean result = true;
+      result = result && (getSuccess()
+          == other.getSuccess());
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + SUCCESS_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+          getSuccess());
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static org.szymie.messages.Messages.CertificationResponse parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static org.szymie.messages.Messages.CertificationResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(org.szymie.messages.Messages.CertificationResponse prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code org.szymie.messages.CertificationResponse}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:org.szymie.messages.CertificationResponse)
+        org.szymie.messages.Messages.CertificationResponseOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationResponse_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationResponse_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.szymie.messages.Messages.CertificationResponse.class, org.szymie.messages.Messages.CertificationResponse.Builder.class);
+      }
+
+      // Construct using org.szymie.messages.Messages.CertificationResponse.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        success_ = false;
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.szymie.messages.Messages.internal_static_org_szymie_messages_CertificationResponse_descriptor;
+      }
+
+      public org.szymie.messages.Messages.CertificationResponse getDefaultInstanceForType() {
+        return org.szymie.messages.Messages.CertificationResponse.getDefaultInstance();
+      }
+
+      public org.szymie.messages.Messages.CertificationResponse build() {
+        org.szymie.messages.Messages.CertificationResponse result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.szymie.messages.Messages.CertificationResponse buildPartial() {
+        org.szymie.messages.Messages.CertificationResponse result = new org.szymie.messages.Messages.CertificationResponse(this);
+        result.success_ = success_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.szymie.messages.Messages.CertificationResponse) {
+          return mergeFrom((org.szymie.messages.Messages.CertificationResponse)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.szymie.messages.Messages.CertificationResponse other) {
+        if (other == org.szymie.messages.Messages.CertificationResponse.getDefaultInstance()) return this;
+        if (other.getSuccess() != false) {
+          setSuccess(other.getSuccess());
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.szymie.messages.Messages.CertificationResponse parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.szymie.messages.Messages.CertificationResponse) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private boolean success_ ;
+      /**
+       * <code>bool success = 1;</code>
+       */
+      public boolean getSuccess() {
+        return success_;
+      }
+      /**
+       * <code>bool success = 1;</code>
+       */
+      public Builder setSuccess(boolean value) {
+        
+        success_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>bool success = 1;</code>
+       */
+      public Builder clearSuccess() {
+        
+        success_ = false;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:org.szymie.messages.CertificationResponse)
+    }
+
+    // @@protoc_insertion_point(class_scope:org.szymie.messages.CertificationResponse)
+    private static final org.szymie.messages.Messages.CertificationResponse DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new org.szymie.messages.Messages.CertificationResponse();
+    }
+
+    public static org.szymie.messages.Messages.CertificationResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<CertificationResponse>
+        PARSER = new com.google.protobuf.AbstractParser<CertificationResponse>() {
+      public CertificationResponse parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new CertificationResponse(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<CertificationResponse> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<CertificationResponse> getParserForType() {
+      return PARSER;
+    }
+
+    public org.szymie.messages.Messages.CertificationResponse getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface CommitResponseOrBuilder extends
       // @@protoc_insertion_point(interface_extends:org.szymie.messages.CommitResponse)
       com.google.protobuf.MessageOrBuilder {
@@ -7051,6 +8523,24 @@ public final class Messages {
      */
     org.szymie.messages.Messages.CausalReadResponseOrBuilder getCausalReadResponseOrBuilder();
 
+    /**
+     * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+     */
+    org.szymie.messages.Messages.CertificationRequest getCertificationRequest();
+    /**
+     * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+     */
+    org.szymie.messages.Messages.CertificationRequestOrBuilder getCertificationRequestOrBuilder();
+
+    /**
+     * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+     */
+    org.szymie.messages.Messages.CertificationResponse getCertificationResponse();
+    /**
+     * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+     */
+    org.szymie.messages.Messages.CertificationResponseOrBuilder getCertificationResponseOrBuilder();
+
     public org.szymie.messages.Messages.Message.OneofMessagesCase getOneofMessagesCase();
   }
   /**
@@ -7274,6 +8764,34 @@ public final class Messages {
               oneofMessagesCase_ = 13;
               break;
             }
+            case 114: {
+              org.szymie.messages.Messages.CertificationRequest.Builder subBuilder = null;
+              if (oneofMessagesCase_ == 14) {
+                subBuilder = ((org.szymie.messages.Messages.CertificationRequest) oneofMessages_).toBuilder();
+              }
+              oneofMessages_ =
+                  input.readMessage(org.szymie.messages.Messages.CertificationRequest.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom((org.szymie.messages.Messages.CertificationRequest) oneofMessages_);
+                oneofMessages_ = subBuilder.buildPartial();
+              }
+              oneofMessagesCase_ = 14;
+              break;
+            }
+            case 122: {
+              org.szymie.messages.Messages.CertificationResponse.Builder subBuilder = null;
+              if (oneofMessagesCase_ == 15) {
+                subBuilder = ((org.szymie.messages.Messages.CertificationResponse) oneofMessages_).toBuilder();
+              }
+              oneofMessages_ =
+                  input.readMessage(org.szymie.messages.Messages.CertificationResponse.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom((org.szymie.messages.Messages.CertificationResponse) oneofMessages_);
+                oneofMessages_ = subBuilder.buildPartial();
+              }
+              oneofMessagesCase_ = 15;
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -7314,6 +8832,8 @@ public final class Messages {
       TRANSACTIONEXECUTIONREQUEST(11),
       TRANSACTIONEXECUTIONRESPONSE(12),
       CAUSALREADRESPONSE(13),
+      CERTIFICATIONREQUEST(14),
+      CERTIFICATIONRESPONSE(15),
       ONEOFMESSAGES_NOT_SET(0);
       private final int value;
       private OneofMessagesCase(int value) {
@@ -7342,6 +8862,8 @@ public final class Messages {
           case 11: return TRANSACTIONEXECUTIONREQUEST;
           case 12: return TRANSACTIONEXECUTIONRESPONSE;
           case 13: return CAUSALREADRESPONSE;
+          case 14: return CERTIFICATIONREQUEST;
+          case 15: return CERTIFICATIONRESPONSE;
           case 0: return ONEOFMESSAGES_NOT_SET;
           default: return null;
         }
@@ -7617,6 +9139,46 @@ public final class Messages {
       return org.szymie.messages.Messages.CausalReadResponse.getDefaultInstance();
     }
 
+    public static final int CERTIFICATIONREQUEST_FIELD_NUMBER = 14;
+    /**
+     * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+     */
+    public org.szymie.messages.Messages.CertificationRequest getCertificationRequest() {
+      if (oneofMessagesCase_ == 14) {
+         return (org.szymie.messages.Messages.CertificationRequest) oneofMessages_;
+      }
+      return org.szymie.messages.Messages.CertificationRequest.getDefaultInstance();
+    }
+    /**
+     * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+     */
+    public org.szymie.messages.Messages.CertificationRequestOrBuilder getCertificationRequestOrBuilder() {
+      if (oneofMessagesCase_ == 14) {
+         return (org.szymie.messages.Messages.CertificationRequest) oneofMessages_;
+      }
+      return org.szymie.messages.Messages.CertificationRequest.getDefaultInstance();
+    }
+
+    public static final int CERTIFICATIONRESPONSE_FIELD_NUMBER = 15;
+    /**
+     * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+     */
+    public org.szymie.messages.Messages.CertificationResponse getCertificationResponse() {
+      if (oneofMessagesCase_ == 15) {
+         return (org.szymie.messages.Messages.CertificationResponse) oneofMessages_;
+      }
+      return org.szymie.messages.Messages.CertificationResponse.getDefaultInstance();
+    }
+    /**
+     * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+     */
+    public org.szymie.messages.Messages.CertificationResponseOrBuilder getCertificationResponseOrBuilder() {
+      if (oneofMessagesCase_ == 15) {
+         return (org.szymie.messages.Messages.CertificationResponse) oneofMessages_;
+      }
+      return org.szymie.messages.Messages.CertificationResponse.getDefaultInstance();
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -7667,6 +9229,12 @@ public final class Messages {
       }
       if (oneofMessagesCase_ == 13) {
         output.writeMessage(13, (org.szymie.messages.Messages.CausalReadResponse) oneofMessages_);
+      }
+      if (oneofMessagesCase_ == 14) {
+        output.writeMessage(14, (org.szymie.messages.Messages.CertificationRequest) oneofMessages_);
+      }
+      if (oneofMessagesCase_ == 15) {
+        output.writeMessage(15, (org.szymie.messages.Messages.CertificationResponse) oneofMessages_);
       }
     }
 
@@ -7726,6 +9294,14 @@ public final class Messages {
       if (oneofMessagesCase_ == 13) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(13, (org.szymie.messages.Messages.CausalReadResponse) oneofMessages_);
+      }
+      if (oneofMessagesCase_ == 14) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(14, (org.szymie.messages.Messages.CertificationRequest) oneofMessages_);
+      }
+      if (oneofMessagesCase_ == 15) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(15, (org.szymie.messages.Messages.CertificationResponse) oneofMessages_);
       }
       memoizedSize = size;
       return size;
@@ -7799,6 +9375,14 @@ public final class Messages {
           result = result && getCausalReadResponse()
               .equals(other.getCausalReadResponse());
           break;
+        case 14:
+          result = result && getCertificationRequest()
+              .equals(other.getCertificationRequest());
+          break;
+        case 15:
+          result = result && getCertificationResponse()
+              .equals(other.getCertificationResponse());
+          break;
         case 0:
         default:
       }
@@ -7864,6 +9448,14 @@ public final class Messages {
         case 13:
           hash = (37 * hash) + CAUSALREADRESPONSE_FIELD_NUMBER;
           hash = (53 * hash) + getCausalReadResponse().hashCode();
+          break;
+        case 14:
+          hash = (37 * hash) + CERTIFICATIONREQUEST_FIELD_NUMBER;
+          hash = (53 * hash) + getCertificationRequest().hashCode();
+          break;
+        case 15:
+          hash = (37 * hash) + CERTIFICATIONRESPONSE_FIELD_NUMBER;
+          hash = (53 * hash) + getCertificationResponse().hashCode();
           break;
         case 0:
         default:
@@ -8112,6 +9704,20 @@ public final class Messages {
             result.oneofMessages_ = causalReadResponseBuilder_.build();
           }
         }
+        if (oneofMessagesCase_ == 14) {
+          if (certificationRequestBuilder_ == null) {
+            result.oneofMessages_ = oneofMessages_;
+          } else {
+            result.oneofMessages_ = certificationRequestBuilder_.build();
+          }
+        }
+        if (oneofMessagesCase_ == 15) {
+          if (certificationResponseBuilder_ == null) {
+            result.oneofMessages_ = oneofMessages_;
+          } else {
+            result.oneofMessages_ = certificationResponseBuilder_.build();
+          }
+        }
         result.oneofMessagesCase_ = oneofMessagesCase_;
         onBuilt();
         return result;
@@ -8205,6 +9811,14 @@ public final class Messages {
           }
           case CAUSALREADRESPONSE: {
             mergeCausalReadResponse(other.getCausalReadResponse());
+            break;
+          }
+          case CERTIFICATIONREQUEST: {
+            mergeCertificationRequest(other.getCertificationRequest());
+            break;
+          }
+          case CERTIFICATIONRESPONSE: {
+            mergeCertificationResponse(other.getCertificationResponse());
             break;
           }
           case ONEOFMESSAGES_NOT_SET: {
@@ -9940,6 +11554,266 @@ public final class Messages {
         oneofMessagesCase_ = 13;
         onChanged();;
         return causalReadResponseBuilder_;
+      }
+
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.szymie.messages.Messages.CertificationRequest, org.szymie.messages.Messages.CertificationRequest.Builder, org.szymie.messages.Messages.CertificationRequestOrBuilder> certificationRequestBuilder_;
+      /**
+       * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+       */
+      public org.szymie.messages.Messages.CertificationRequest getCertificationRequest() {
+        if (certificationRequestBuilder_ == null) {
+          if (oneofMessagesCase_ == 14) {
+            return (org.szymie.messages.Messages.CertificationRequest) oneofMessages_;
+          }
+          return org.szymie.messages.Messages.CertificationRequest.getDefaultInstance();
+        } else {
+          if (oneofMessagesCase_ == 14) {
+            return certificationRequestBuilder_.getMessage();
+          }
+          return org.szymie.messages.Messages.CertificationRequest.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+       */
+      public Builder setCertificationRequest(org.szymie.messages.Messages.CertificationRequest value) {
+        if (certificationRequestBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          oneofMessages_ = value;
+          onChanged();
+        } else {
+          certificationRequestBuilder_.setMessage(value);
+        }
+        oneofMessagesCase_ = 14;
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+       */
+      public Builder setCertificationRequest(
+          org.szymie.messages.Messages.CertificationRequest.Builder builderForValue) {
+        if (certificationRequestBuilder_ == null) {
+          oneofMessages_ = builderForValue.build();
+          onChanged();
+        } else {
+          certificationRequestBuilder_.setMessage(builderForValue.build());
+        }
+        oneofMessagesCase_ = 14;
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+       */
+      public Builder mergeCertificationRequest(org.szymie.messages.Messages.CertificationRequest value) {
+        if (certificationRequestBuilder_ == null) {
+          if (oneofMessagesCase_ == 14 &&
+              oneofMessages_ != org.szymie.messages.Messages.CertificationRequest.getDefaultInstance()) {
+            oneofMessages_ = org.szymie.messages.Messages.CertificationRequest.newBuilder((org.szymie.messages.Messages.CertificationRequest) oneofMessages_)
+                .mergeFrom(value).buildPartial();
+          } else {
+            oneofMessages_ = value;
+          }
+          onChanged();
+        } else {
+          if (oneofMessagesCase_ == 14) {
+            certificationRequestBuilder_.mergeFrom(value);
+          }
+          certificationRequestBuilder_.setMessage(value);
+        }
+        oneofMessagesCase_ = 14;
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+       */
+      public Builder clearCertificationRequest() {
+        if (certificationRequestBuilder_ == null) {
+          if (oneofMessagesCase_ == 14) {
+            oneofMessagesCase_ = 0;
+            oneofMessages_ = null;
+            onChanged();
+          }
+        } else {
+          if (oneofMessagesCase_ == 14) {
+            oneofMessagesCase_ = 0;
+            oneofMessages_ = null;
+          }
+          certificationRequestBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+       */
+      public org.szymie.messages.Messages.CertificationRequest.Builder getCertificationRequestBuilder() {
+        return getCertificationRequestFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+       */
+      public org.szymie.messages.Messages.CertificationRequestOrBuilder getCertificationRequestOrBuilder() {
+        if ((oneofMessagesCase_ == 14) && (certificationRequestBuilder_ != null)) {
+          return certificationRequestBuilder_.getMessageOrBuilder();
+        } else {
+          if (oneofMessagesCase_ == 14) {
+            return (org.szymie.messages.Messages.CertificationRequest) oneofMessages_;
+          }
+          return org.szymie.messages.Messages.CertificationRequest.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationRequest certificationRequest = 14;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.szymie.messages.Messages.CertificationRequest, org.szymie.messages.Messages.CertificationRequest.Builder, org.szymie.messages.Messages.CertificationRequestOrBuilder> 
+          getCertificationRequestFieldBuilder() {
+        if (certificationRequestBuilder_ == null) {
+          if (!(oneofMessagesCase_ == 14)) {
+            oneofMessages_ = org.szymie.messages.Messages.CertificationRequest.getDefaultInstance();
+          }
+          certificationRequestBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              org.szymie.messages.Messages.CertificationRequest, org.szymie.messages.Messages.CertificationRequest.Builder, org.szymie.messages.Messages.CertificationRequestOrBuilder>(
+                  (org.szymie.messages.Messages.CertificationRequest) oneofMessages_,
+                  getParentForChildren(),
+                  isClean());
+          oneofMessages_ = null;
+        }
+        oneofMessagesCase_ = 14;
+        onChanged();;
+        return certificationRequestBuilder_;
+      }
+
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.szymie.messages.Messages.CertificationResponse, org.szymie.messages.Messages.CertificationResponse.Builder, org.szymie.messages.Messages.CertificationResponseOrBuilder> certificationResponseBuilder_;
+      /**
+       * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+       */
+      public org.szymie.messages.Messages.CertificationResponse getCertificationResponse() {
+        if (certificationResponseBuilder_ == null) {
+          if (oneofMessagesCase_ == 15) {
+            return (org.szymie.messages.Messages.CertificationResponse) oneofMessages_;
+          }
+          return org.szymie.messages.Messages.CertificationResponse.getDefaultInstance();
+        } else {
+          if (oneofMessagesCase_ == 15) {
+            return certificationResponseBuilder_.getMessage();
+          }
+          return org.szymie.messages.Messages.CertificationResponse.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+       */
+      public Builder setCertificationResponse(org.szymie.messages.Messages.CertificationResponse value) {
+        if (certificationResponseBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          oneofMessages_ = value;
+          onChanged();
+        } else {
+          certificationResponseBuilder_.setMessage(value);
+        }
+        oneofMessagesCase_ = 15;
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+       */
+      public Builder setCertificationResponse(
+          org.szymie.messages.Messages.CertificationResponse.Builder builderForValue) {
+        if (certificationResponseBuilder_ == null) {
+          oneofMessages_ = builderForValue.build();
+          onChanged();
+        } else {
+          certificationResponseBuilder_.setMessage(builderForValue.build());
+        }
+        oneofMessagesCase_ = 15;
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+       */
+      public Builder mergeCertificationResponse(org.szymie.messages.Messages.CertificationResponse value) {
+        if (certificationResponseBuilder_ == null) {
+          if (oneofMessagesCase_ == 15 &&
+              oneofMessages_ != org.szymie.messages.Messages.CertificationResponse.getDefaultInstance()) {
+            oneofMessages_ = org.szymie.messages.Messages.CertificationResponse.newBuilder((org.szymie.messages.Messages.CertificationResponse) oneofMessages_)
+                .mergeFrom(value).buildPartial();
+          } else {
+            oneofMessages_ = value;
+          }
+          onChanged();
+        } else {
+          if (oneofMessagesCase_ == 15) {
+            certificationResponseBuilder_.mergeFrom(value);
+          }
+          certificationResponseBuilder_.setMessage(value);
+        }
+        oneofMessagesCase_ = 15;
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+       */
+      public Builder clearCertificationResponse() {
+        if (certificationResponseBuilder_ == null) {
+          if (oneofMessagesCase_ == 15) {
+            oneofMessagesCase_ = 0;
+            oneofMessages_ = null;
+            onChanged();
+          }
+        } else {
+          if (oneofMessagesCase_ == 15) {
+            oneofMessagesCase_ = 0;
+            oneofMessages_ = null;
+          }
+          certificationResponseBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+       */
+      public org.szymie.messages.Messages.CertificationResponse.Builder getCertificationResponseBuilder() {
+        return getCertificationResponseFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+       */
+      public org.szymie.messages.Messages.CertificationResponseOrBuilder getCertificationResponseOrBuilder() {
+        if ((oneofMessagesCase_ == 15) && (certificationResponseBuilder_ != null)) {
+          return certificationResponseBuilder_.getMessageOrBuilder();
+        } else {
+          if (oneofMessagesCase_ == 15) {
+            return (org.szymie.messages.Messages.CertificationResponse) oneofMessages_;
+          }
+          return org.szymie.messages.Messages.CertificationResponse.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.org.szymie.messages.CertificationResponse certificationResponse = 15;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          org.szymie.messages.Messages.CertificationResponse, org.szymie.messages.Messages.CertificationResponse.Builder, org.szymie.messages.Messages.CertificationResponseOrBuilder> 
+          getCertificationResponseFieldBuilder() {
+        if (certificationResponseBuilder_ == null) {
+          if (!(oneofMessagesCase_ == 15)) {
+            oneofMessages_ = org.szymie.messages.Messages.CertificationResponse.getDefaultInstance();
+          }
+          certificationResponseBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              org.szymie.messages.Messages.CertificationResponse, org.szymie.messages.Messages.CertificationResponse.Builder, org.szymie.messages.Messages.CertificationResponseOrBuilder>(
+                  (org.szymie.messages.Messages.CertificationResponse) oneofMessages_,
+                  getParentForChildren(),
+                  isClean());
+          oneofMessages_ = null;
+        }
+        oneofMessagesCase_ = 15;
+        onChanged();;
+        return certificationResponseBuilder_;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -11868,6 +13742,26 @@ public final class Messages {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_szymie_messages_CommitRequest_WritesEntry_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_org_szymie_messages_CertificationRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_org_szymie_messages_CertificationRequest_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_org_szymie_messages_CertificationRequest_ReadsEntry_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_org_szymie_messages_CertificationRequest_ReadsEntry_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_org_szymie_messages_CertificationRequest_WritesEntry_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_org_szymie_messages_CertificationRequest_WritesEntry_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_org_szymie_messages_CertificationResponse_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_org_szymie_messages_CertificationResponse_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_szymie_messages_CommitResponse_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -11948,45 +13842,57 @@ public final class Messages {
       "(\010\"\221\001\n\rCommitRequest\022\021\n\ttimestamp\030\001 \001(\003\022" +
       ">\n\006writes\030\002 \003(\0132..org.szymie.messages.Co" +
       "mmitRequest.WritesEntry\032-\n\013WritesEntry\022\013" +
-      "\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"#\n\016Commit" +
-      "Response\022\021\n\ttimestamp\030\001 \001(\003\"\257\001\n\022StateUpd" +
-      "ateRequest\022\021\n\ttimestamp\030\001 \001(\003\022\022\n\napplyAf",
-      "ter\030\002 \001(\003\022C\n\006writes\030\003 \003(\01323.org.szymie.m" +
-      "essages.StateUpdateRequest.WritesEntry\032-" +
-      "\n\013WritesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(" +
-      "\t:\0028\001\"\025\n\023StateUpdateResponse\"z\n\013InitRequ" +
-      "est\022<\n\006writes\030\001 \003(\0132,.org.szymie.message" +
-      "s.InitRequest.WritesEntry\032-\n\013WritesEntry" +
-      "\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\016\n\014Init" +
-      "Response\"\240\007\n\007Message\0227\n\013readRequest\030\001 \001(" +
-      "\0132 .org.szymie.messages.ReadRequestH\000\0229\n" +
-      "\014readResponse\030\002 \001(\0132!.org.szymie.message",
-      "s.ReadResponseH\000\0229\n\014writeRequest\030\003 \001(\0132!" +
-      ".org.szymie.messages.WriteRequestH\000\022O\n\027b" +
-      "eginTransactionRequest\030\004 \001(\0132,.org.szymi" +
-      "e.messages.BeginTransactionRequestH\000\022Q\n\030" +
-      "beginTransactionResponse\030\005 \001(\0132-.org.szy" +
-      "mie.messages.BeginTransactionResponseH\000\022" +
-      ";\n\rcommitRequest\030\006 \001(\0132\".org.szymie.mess" +
-      "ages.CommitRequestH\000\022=\n\016commitResponse\030\007" +
-      " \001(\0132#.org.szymie.messages.CommitRespons" +
-      "eH\000\022E\n\022stateUpdateRequest\030\010 \001(\0132\'.org.sz",
-      "ymie.messages.StateUpdateRequestH\000\0227\n\013in" +
-      "itRequest\030\t \001(\0132 .org.szymie.messages.In" +
-      "itRequestH\000\0229\n\014initResponse\030\n \001(\0132!.org." +
-      "szymie.messages.InitResponseH\000\022W\n\033transa" +
-      "ctionExecutionRequest\030\013 \001(\01320.org.szymie" +
-      ".messages.TransactionExecutionRequestH\000\022" +
-      "Y\n\034TransactionExecutionResponse\030\014 \001(\01321." +
-      "org.szymie.messages.TransactionExecution" +
-      "ResponseH\000\022E\n\022causalReadResponse\030\r \001(\0132\'" +
-      ".org.szymie.messages.CausalReadResponseH",
-      "\000B\020\n\016oneof_messages\"<\n\033TransactionExecut" +
-      "ionRequest\022\r\n\005reads\030\001 \003(\t\022\016\n\006writes\030\002 \003(" +
-      "\t\"\036\n\034TransactionExecutionResponse\"F\n\022Cau" +
-      "salReadResponse\022\016\n\006values\030\001 \003(\t\022\021\n\ttimes" +
-      "tamp\030\002 \001(\003\022\r\n\005fresh\030\003 \001(\010B\037\n\023org.szymie." +
-      "messagesB\010Messagesb\006proto3"
+      "\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\222\002\n\024Certi" +
+      "ficationRequest\022\021\n\ttimestamp\030\001 \001(\003\022C\n\005re" +
+      "ads\030\002 \003(\01324.org.szymie.messages.Certific",
+      "ationRequest.ReadsEntry\022E\n\006writes\030\003 \003(\0132" +
+      "5.org.szymie.messages.CertificationReque" +
+      "st.WritesEntry\032,\n\nReadsEntry\022\013\n\003key\030\001 \001(" +
+      "\t\022\r\n\005value\030\002 \001(\t:\0028\001\032-\n\013WritesEntry\022\013\n\003k" +
+      "ey\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"(\n\025Certifica" +
+      "tionResponse\022\017\n\007success\030\001 \001(\010\"#\n\016CommitR" +
+      "esponse\022\021\n\ttimestamp\030\001 \001(\003\"\257\001\n\022StateUpda" +
+      "teRequest\022\021\n\ttimestamp\030\001 \001(\003\022\022\n\napplyAft" +
+      "er\030\002 \001(\003\022C\n\006writes\030\003 \003(\01323.org.szymie.me" +
+      "ssages.StateUpdateRequest.WritesEntry\032-\n",
+      "\013WritesEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t" +
+      ":\0028\001\"\025\n\023StateUpdateResponse\"z\n\013InitReque" +
+      "st\022<\n\006writes\030\001 \003(\0132,.org.szymie.messages" +
+      ".InitRequest.WritesEntry\032-\n\013WritesEntry\022" +
+      "\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\016\n\014InitR" +
+      "esponse\"\270\010\n\007Message\0227\n\013readRequest\030\001 \001(\013" +
+      "2 .org.szymie.messages.ReadRequestH\000\0229\n\014" +
+      "readResponse\030\002 \001(\0132!.org.szymie.messages" +
+      ".ReadResponseH\000\0229\n\014writeRequest\030\003 \001(\0132!." +
+      "org.szymie.messages.WriteRequestH\000\022O\n\027be",
+      "ginTransactionRequest\030\004 \001(\0132,.org.szymie" +
+      ".messages.BeginTransactionRequestH\000\022Q\n\030b" +
+      "eginTransactionResponse\030\005 \001(\0132-.org.szym" +
+      "ie.messages.BeginTransactionResponseH\000\022;" +
+      "\n\rcommitRequest\030\006 \001(\0132\".org.szymie.messa" +
+      "ges.CommitRequestH\000\022=\n\016commitResponse\030\007 " +
+      "\001(\0132#.org.szymie.messages.CommitResponse" +
+      "H\000\022E\n\022stateUpdateRequest\030\010 \001(\0132\'.org.szy" +
+      "mie.messages.StateUpdateRequestH\000\0227\n\013ini" +
+      "tRequest\030\t \001(\0132 .org.szymie.messages.Ini",
+      "tRequestH\000\0229\n\014initResponse\030\n \001(\0132!.org.s" +
+      "zymie.messages.InitResponseH\000\022W\n\033transac" +
+      "tionExecutionRequest\030\013 \001(\01320.org.szymie." +
+      "messages.TransactionExecutionRequestH\000\022Y" +
+      "\n\034TransactionExecutionResponse\030\014 \001(\01321.o" +
+      "rg.szymie.messages.TransactionExecutionR" +
+      "esponseH\000\022E\n\022causalReadResponse\030\r \001(\0132\'." +
+      "org.szymie.messages.CausalReadResponseH\000" +
+      "\022I\n\024certificationRequest\030\016 \001(\0132).org.szy" +
+      "mie.messages.CertificationRequestH\000\022K\n\025c",
+      "ertificationResponse\030\017 \001(\0132*.org.szymie." +
+      "messages.CertificationResponseH\000B\020\n\016oneo" +
+      "f_messages\"<\n\033TransactionExecutionReques" +
+      "t\022\r\n\005reads\030\001 \003(\t\022\016\n\006writes\030\002 \003(\t\"\036\n\034Tran" +
+      "sactionExecutionResponse\"F\n\022CausalReadRe" +
+      "sponse\022\016\n\006values\030\001 \003(\t\022\021\n\ttimestamp\030\002 \001(" +
+      "\003\022\r\n\005fresh\030\003 \001(\010B\037\n\023org.szymie.messagesB" +
+      "\010Messagesb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -12054,14 +13960,38 @@ public final class Messages {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_CommitRequest_WritesEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_org_szymie_messages_CommitResponse_descriptor =
+    internal_static_org_szymie_messages_CertificationRequest_descriptor =
       getDescriptor().getMessageTypes().get(6);
+    internal_static_org_szymie_messages_CertificationRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_org_szymie_messages_CertificationRequest_descriptor,
+        new java.lang.String[] { "Timestamp", "Reads", "Writes", });
+    internal_static_org_szymie_messages_CertificationRequest_ReadsEntry_descriptor =
+      internal_static_org_szymie_messages_CertificationRequest_descriptor.getNestedTypes().get(0);
+    internal_static_org_szymie_messages_CertificationRequest_ReadsEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_org_szymie_messages_CertificationRequest_ReadsEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
+    internal_static_org_szymie_messages_CertificationRequest_WritesEntry_descriptor =
+      internal_static_org_szymie_messages_CertificationRequest_descriptor.getNestedTypes().get(1);
+    internal_static_org_szymie_messages_CertificationRequest_WritesEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_org_szymie_messages_CertificationRequest_WritesEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
+    internal_static_org_szymie_messages_CertificationResponse_descriptor =
+      getDescriptor().getMessageTypes().get(7);
+    internal_static_org_szymie_messages_CertificationResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_org_szymie_messages_CertificationResponse_descriptor,
+        new java.lang.String[] { "Success", });
+    internal_static_org_szymie_messages_CommitResponse_descriptor =
+      getDescriptor().getMessageTypes().get(8);
     internal_static_org_szymie_messages_CommitResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_CommitResponse_descriptor,
         new java.lang.String[] { "Timestamp", });
     internal_static_org_szymie_messages_StateUpdateRequest_descriptor =
-      getDescriptor().getMessageTypes().get(7);
+      getDescriptor().getMessageTypes().get(9);
     internal_static_org_szymie_messages_StateUpdateRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_StateUpdateRequest_descriptor,
@@ -12073,13 +14003,13 @@ public final class Messages {
         internal_static_org_szymie_messages_StateUpdateRequest_WritesEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_org_szymie_messages_StateUpdateResponse_descriptor =
-      getDescriptor().getMessageTypes().get(8);
+      getDescriptor().getMessageTypes().get(10);
     internal_static_org_szymie_messages_StateUpdateResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_StateUpdateResponse_descriptor,
         new java.lang.String[] { });
     internal_static_org_szymie_messages_InitRequest_descriptor =
-      getDescriptor().getMessageTypes().get(9);
+      getDescriptor().getMessageTypes().get(11);
     internal_static_org_szymie_messages_InitRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_InitRequest_descriptor,
@@ -12091,31 +14021,31 @@ public final class Messages {
         internal_static_org_szymie_messages_InitRequest_WritesEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
     internal_static_org_szymie_messages_InitResponse_descriptor =
-      getDescriptor().getMessageTypes().get(10);
+      getDescriptor().getMessageTypes().get(12);
     internal_static_org_szymie_messages_InitResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_InitResponse_descriptor,
         new java.lang.String[] { });
     internal_static_org_szymie_messages_Message_descriptor =
-      getDescriptor().getMessageTypes().get(11);
+      getDescriptor().getMessageTypes().get(13);
     internal_static_org_szymie_messages_Message_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_Message_descriptor,
-        new java.lang.String[] { "ReadRequest", "ReadResponse", "WriteRequest", "BeginTransactionRequest", "BeginTransactionResponse", "CommitRequest", "CommitResponse", "StateUpdateRequest", "InitRequest", "InitResponse", "TransactionExecutionRequest", "TransactionExecutionResponse", "CausalReadResponse", "OneofMessages", });
+        new java.lang.String[] { "ReadRequest", "ReadResponse", "WriteRequest", "BeginTransactionRequest", "BeginTransactionResponse", "CommitRequest", "CommitResponse", "StateUpdateRequest", "InitRequest", "InitResponse", "TransactionExecutionRequest", "TransactionExecutionResponse", "CausalReadResponse", "CertificationRequest", "CertificationResponse", "OneofMessages", });
     internal_static_org_szymie_messages_TransactionExecutionRequest_descriptor =
-      getDescriptor().getMessageTypes().get(12);
+      getDescriptor().getMessageTypes().get(14);
     internal_static_org_szymie_messages_TransactionExecutionRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_TransactionExecutionRequest_descriptor,
         new java.lang.String[] { "Reads", "Writes", });
     internal_static_org_szymie_messages_TransactionExecutionResponse_descriptor =
-      getDescriptor().getMessageTypes().get(13);
+      getDescriptor().getMessageTypes().get(15);
     internal_static_org_szymie_messages_TransactionExecutionResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_TransactionExecutionResponse_descriptor,
         new java.lang.String[] { });
     internal_static_org_szymie_messages_CausalReadResponse_descriptor =
-      getDescriptor().getMessageTypes().get(14);
+      getDescriptor().getMessageTypes().get(16);
     internal_static_org_szymie_messages_CausalReadResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_szymie_messages_CausalReadResponse_descriptor,

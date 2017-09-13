@@ -183,6 +183,9 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         @Value("${port}")
         protected int port;
 
+        @Value("${paxosProcesses}")
+        protected String paxosProcesses;
+
         @Bean
         public TreeMultiset<Long> liveTransactions() {
             return TreeMultiset.create();
@@ -196,7 +199,7 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         @Bean
         public OptimisticServerChannelInboundHandlerFactory optimisticChannelHandlerFactory(ResourceRepository resourceRepository,  @Qualifier("timestamp") AtomicLong timestamp,
                                                                                             TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
-            return new OptimisticServerChannelInboundHandlerFactory(resourceRepository, timestamp, liveTransactions, liveTransactionsLock);
+            return new OptimisticServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, liveTransactions, liveTransactionsLock);
         }
 
         @Bean

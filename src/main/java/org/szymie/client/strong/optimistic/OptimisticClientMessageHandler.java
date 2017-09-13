@@ -25,6 +25,9 @@ class OptimisticClientMessageHandler extends BaseClientMessageHandler {
             case INITRESPONSE:
                 setResponse(new Response<>(msg.getInitResponse()));
                 break;
+            case CERTIFICATIONRESPONSE:
+                setResponse(new Response<>(msg.getCertificationResponse()));
+                break;
         }
     }
 }

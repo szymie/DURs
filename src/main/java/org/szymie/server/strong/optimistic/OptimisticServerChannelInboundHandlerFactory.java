@@ -10,13 +10,17 @@ import java.util.concurrent.locks.Lock;
 
 public class OptimisticServerChannelInboundHandlerFactory implements ChannelInboundHandlerFactory {
 
+    private int id;
+    private String paxosProcesses;
     private ResourceRepository resourceRepository;
     private AtomicLong timestamp;
     private TreeMultiset<Long> liveTransactions;
     private Lock liveTransactionsLock;
 
-    public OptimisticServerChannelInboundHandlerFactory(ResourceRepository resourceRepository, AtomicLong timestamp,
+    public OptimisticServerChannelInboundHandlerFactory(int id, String paxosProcesses, ResourceRepository resourceRepository, AtomicLong timestamp,
                                                         TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+        this.id = id;
+        this.paxosProcesses = paxosProcesses;
         this.resourceRepository = resourceRepository;
         this.timestamp = timestamp;
         this.liveTransactions = liveTransactions;
@@ -25,6 +29,6 @@ public class OptimisticServerChannelInboundHandlerFactory implements ChannelInbo
 
     @Override
     public ChannelInboundHandler create() {
-        return new OptimisticServerMessageHandler(resourceRepository, timestamp, liveTransactions, liveTransactionsLock);
+        return new OptimisticServerMessageHandler(id, paxosProcesses, resourceRepository, timestamp, liveTransactions, liveTransactionsLock);
     }
 }
