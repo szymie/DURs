@@ -107,6 +107,7 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         addToOptions(options, null, "replicas", true);
         addToOptions(options, null, "bossThreads", true);
         addToOptions(options, null, "workerThreads", true);
+        addToOptions(options, null, "clientPoolSize", true);
         addToOptions(options, null, "numberOfKeys", true);
         addToOptions(options, null, "initNumberOfValues", true);
 
