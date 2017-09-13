@@ -51,7 +51,7 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
         this.responses = responses;
         connected = false;
 
-        client = JPaxosClientPool.get(id, paxosProcesses);
+        client = JPaxosClientPool.get(id, paxosProcesses, 32);
 
         /*List<PID> processes = createPaxosProcesses(paxosProcesses);
 
