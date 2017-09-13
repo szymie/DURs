@@ -73,7 +73,7 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
             System.exit(0);
         } else {
 
-            String[] arguments = Stream.of("id", "port", "address", "paxosProcesses", "bossThreads", "workerThreads")
+            String[] arguments = Stream.of("id", "port", "address", "paxosProcesses", "bossThreads", "workerThreads", "clientPoolSize")
                     .map(argument -> String.format("--%s=%s", argument, commandLine.getOptionValue(argument)))
                     .toArray(String[]::new);
 
@@ -344,6 +344,9 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         @Value("${paxosProcesses}")
         protected String paxosProcesses;
 
+        @Value("${clientPoolSize}")
+        protected int clientPoolSize;
+
         @Bean
         public TreeMultiset<Long> liveTransactions() {
             return TreeMultiset.create();
@@ -358,7 +361,7 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
         public CausalServerChannelInboundHandlerFactory causalServerChannelInboundHandlerFactory(CausalResourceRepository resourceRepository, @Qualifier("timestamp") AtomicLong timestamp,
                                                                                                  TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock,
                                                                                                  BlockingMap<Long, Long> responses) {
-            return new CausalServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock, responses);
+            return new CausalServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock, responses, clientPoolSize);
         }
 
         @Bean

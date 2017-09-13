@@ -18,10 +18,11 @@ public class CausalServerChannelInboundHandlerFactory implements ChannelInboundH
     private Lock liveTransactionsLock;
     private VectorClock vectorClock;
     private BlockingMap<Long, Long> responses;
+    private int clientPoolSize;
 
     public CausalServerChannelInboundHandlerFactory(int id, String paxosProcesses, CausalResourceRepository resourceRepository, AtomicLong timestamp,
                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock,
-                                                    BlockingMap<Long, Long> responses) {
+                                                    BlockingMap<Long, Long> responses, int clientPoolSize) {
         this.id = id;
         this.paxosProcesses = paxosProcesses;
         this.resourceRepository = resourceRepository;
@@ -30,10 +31,11 @@ public class CausalServerChannelInboundHandlerFactory implements ChannelInboundH
         this.liveTransactionsLock = liveTransactionsLock;
         this.vectorClock = vectorClock;
         this.responses = responses;
+        this.clientPoolSize = clientPoolSize;
     }
 
     @Override
     public ChannelInboundHandler create() {
-        return new CausalServerMessageHandler(id, paxosProcesses, resourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock, responses);
+        return new CausalServerMessageHandler(id, paxosProcesses, resourceRepository, timestamp, liveTransactions, liveTransactionsLock, vectorClock, responses, clientPoolSize);
     }
 }

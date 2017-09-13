@@ -40,7 +40,8 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
     private boolean connected;
 
-    public CausalServerMessageHandler(int id, String paxosProcesses, CausalResourceRepository resourceRepository, AtomicLong timestamp, TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock, BlockingMap<Long, Long> responses) {
+
+    public CausalServerMessageHandler(int id, String paxosProcesses, CausalResourceRepository resourceRepository, AtomicLong timestamp, TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock, BlockingMap<Long, Long> responses, int clientPoolSize) {
 
         this.id = id;
         this.resourceRepository = resourceRepository;
@@ -51,7 +52,7 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
         this.responses = responses;
         connected = false;
 
-        client = JPaxosClientPool.get(id, paxosProcesses, 32);
+        client = JPaxosClientPool.get(id, paxosProcesses, clientPoolSize);
 
         /*List<PID> processes = createPaxosProcesses(paxosProcesses);
 
