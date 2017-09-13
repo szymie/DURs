@@ -21,7 +21,7 @@ public class CausalCertificationService extends SerializableService {
     private int id;
 
     private CausalResourceRepository resourceRepository;
-    private AtomicLong timestamp;
+    private final AtomicLong timestamp;
 
     private TreeMultiset<Long> liveTransactions;
     private Lock liveTransactionsLock;
@@ -98,8 +98,6 @@ public class CausalCertificationService extends SerializableService {
 
     private void deliver(Request request) {
 
-        //System.err.println("delivering " + request.certificationRequest.vectorClock);
-
         long time = applyChanges(request.certificationRequest);
 
         synchronized(timestamp) {
@@ -111,9 +109,6 @@ public class CausalCertificationService extends SerializableService {
         }
 
         vectorClock.increment(request.id);
-
-        //System.err.println("after delivery " + vectorClock);
-        //System.err.println("at id: " + id);
     }
 
     private long applyChanges(CausalCertificationRequest request) {

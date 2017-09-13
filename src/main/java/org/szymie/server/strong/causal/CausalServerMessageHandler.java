@@ -11,6 +11,7 @@ import org.szymie.PaxosProcessesCreator;
 import org.szymie.messages.CausalCertificationRequest;
 import org.szymie.messages.CausalCertificationResponse;
 import org.szymie.messages.Messages;
+import org.szymie.server.strong.JPaxosClientPool;
 import org.szymie.server.strong.optimistic.ResourceRepository;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
@@ -50,7 +51,9 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
         this.responses = responses;
         connected = false;
 
-        List<PID> processes = createPaxosProcesses(paxosProcesses);
+        client = JPaxosClientPool.get(id, paxosProcesses);
+
+        /*List<PID> processes = createPaxosProcesses(paxosProcesses);
 
         try {
 
@@ -62,20 +65,16 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 
     protected void channelRead0(ChannelHandlerContext ctx, Messages.Message msg) throws Exception {
-
-        //System.err.println("causal " + msg);
-        //System.err.println("message " + msg);
 
         switch (msg.getOneofMessagesCase()) {
             case INITREQUEST:
                 handleInitRequest(ctx, msg.getInitRequest());
                 break;
             case READREQUEST:
-                //System.err.println("Read request from " + msg.getReadRequest().getTimestamp());
                 handleReadRequest(ctx, msg.getReadRequest());
                 break;
             case COMMITREQUEST:
@@ -161,12 +160,6 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
             long commitTimestamp;
 
             try {
-
-                if(!connected) {
-                    client.connect();
-                    connected = true;
-                }
-
                 CausalCertificationResponse response = (CausalCertificationResponse) client.execute(new CausalCertificationRequest(id, new HashMap<>(request.getWritesMap()),
                         request.getTimestamp(), vectorClock.getCopy()));
                 commitTimestamp = responses.get(response.sequentialNumber);

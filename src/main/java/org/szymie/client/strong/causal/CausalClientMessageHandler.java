@@ -14,8 +14,6 @@ class CausalClientMessageHandler extends BaseClientMessageHandler {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, Messages.Message msg) throws Exception {
 
-        System.err.println("msg " + msg);
-
         switch(msg.getOneofMessagesCase()) {
             case CAUSALREADRESPONSE:
                 setResponse(new Response<>(msg.getCausalReadResponse()));

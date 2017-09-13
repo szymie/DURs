@@ -22,14 +22,13 @@ public class NettyCausalTransaction implements PaxosProcessesCreator {
     private NettyRemoteGateway remoteGateway;
     private NettyCausalValueGateway valueGateway;
     private TransactionState state;
-    private SerializableClient client;
 
     public NettyCausalTransaction(Session session) {
         this(session, new Configuration());
     }
 
     public NettyCausalTransaction(Session session, Configuration configuration) {
-        this(session,0, configuration);
+        this(session, 0, configuration);
     }
 
     public NettyCausalTransaction(Session session, int numberOfClientThreads, Configuration configuration) {
@@ -104,7 +103,6 @@ public class NettyCausalTransaction implements PaxosProcessesCreator {
 
         session.localClock = Math.max(session.localClock, commitResponse.getTimestamp());
     }
-
 
     public TransactionState getState() {
         return state;

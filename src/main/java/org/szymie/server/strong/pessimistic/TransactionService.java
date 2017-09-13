@@ -58,10 +58,10 @@ public class TransactionService extends SerializableService {
 
         TransactionMetadata newTransaction = new TransactionMetadata(id, newTransactionTimestamp, beginTransactionRequest.getReadsMap().keySet(), beginTransactionRequest.getWritesMap().keySet());
 
-        System.err.println("activeTransactions: " + activeTransactions.size());
+        //System.err.println("activeTransactions: " + activeTransactions.size());
 
         if(id == beginTransactionRequest.getId()) {
-            System.err.println("set context for at: " + id + " where timestamp: " + newTransactionTimestamp);
+            //System.err.println("set context for at: " + id + " where timestamp: " + newTransactionTimestamp);
             contexts.put(newTransactionTimestamp, new ArrayBlockingQueue<>(1));
         }
 
@@ -88,8 +88,8 @@ public class TransactionService extends SerializableService {
         activeTransactions.put(newTransactionTimestamp, newTransaction);
         activeTransactionFlags.put(newTransactionTimestamp, startPossible);
 
-        System.err.println(newTransactionTimestamp + " can start " + startPossible);
-        newTransaction.getAwaitingToStart().forEach(transactionId -> System.err.println(newTransactionTimestamp + " is waiting for " + transactionId));
+        //System.err.println(newTransactionTimestamp + " can start " + startPossible);
+        //newTransaction.getAwaitingToStart().forEach(transactionId -> System.err.println(newTransactionTimestamp + " is waiting for " + transactionId));
 
         return Messages.BeginTransactionResponse.newBuilder()
                 .setStartPossible(startPossible)

@@ -29,8 +29,6 @@ public abstract class BaseServerMessageHandler extends SimpleChannelInboundHandl
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Messages.Message msg) throws Exception {
 
-        System.err.println("message " + msg);
-
         switch (msg.getOneofMessagesCase()) {
             case INITREQUEST:
                 handleInitRequest(ctx, msg.getInitRequest());
