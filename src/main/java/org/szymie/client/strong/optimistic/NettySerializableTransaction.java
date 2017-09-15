@@ -8,6 +8,8 @@ import org.szymie.PaxosProcessesCreator;
 import org.szymie.messages.CertificationRequest;
 import org.szymie.messages.CertificationResponse;
 import org.szymie.messages.Messages;
+import org.szymie.server.strong.JPaxosClientPool;
+import org.szymie.server.strong.JPaxosLocalClientPool;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,23 +24,27 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
     private TransactionState state;
     private SerializableClient client;
 
-    public NettySerializableTransaction() {
-        this(new Configuration());
+    private String paxosProcesses;
+    private int clientPoolSize;
+
+    public NettySerializableTransaction(int clientPoolSize) {
+        this(new Configuration(), clientPoolSize);
     }
 
-    public NettySerializableTransaction(Configuration configuration) {
-        this(0, configuration);
+    public NettySerializableTransaction(Configuration configuration, int clientPoolSize) {
+        this(0, configuration, clientPoolSize);
     }
 
-    public NettySerializableTransaction(int numberOfClientThreads, Configuration configuration) {
+    public NettySerializableTransaction(int numberOfClientThreads, Configuration configuration, int clientPoolSize) {
 
         remoteGateway = new NettyRemoteGateway(numberOfClientThreads, new ClientChannelInitializer(new OptimisticClientMessageHandlerFactory()));
 
         this.valueGateway = new NettyValueGateway(remoteGateway, configuration);
         state = TransactionState.NOT_STARTED;
 
-        String paxosProcesses = configuration.get("paxosProcesses", "");
-        List<PID> processes = createPaxosProcesses(paxosProcesses);
+        this.clientPoolSize = clientPoolSize;
+        paxosProcesses = configuration.get("paxosProcesses", "");
+        /*List<PID> processes = createPaxosProcesses(paxosProcesses);
         
         try {
             if(processes.isEmpty()) {
@@ -49,7 +55,7 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 
     @Override
@@ -142,7 +148,9 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
 
         if(checkLocalCondition(request)) {
 
-            client.connect();
+            client = JPaxosLocalClientPool.get(paxosProcesses, clientPoolSize);
+
+            //client.connect();
 
             try {
                 return (CertificationResponse) client.execute(request);

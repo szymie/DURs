@@ -18,7 +18,7 @@ public class OptimisticROJMeterRequest extends BaseROJMeterRequest {
 
         result.sampleStart();
 
-        NettySerializableTransaction transaction = new NettySerializableTransaction(numberOfClientThreads, configuration);
+        NettySerializableTransaction transaction = new NettySerializableTransaction(numberOfClientThreads, configuration, clientPoolSize);
 
         boolean commit;
 

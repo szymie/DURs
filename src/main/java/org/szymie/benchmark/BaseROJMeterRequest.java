@@ -28,6 +28,7 @@ public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient impl
     boolean aborted;
     long attempts;
     long totalMultiValueReadSize;
+    int clientPoolSize;
 
     void resetStatisticsValues() {
         numberOfMultiValueReads = 0;
@@ -51,6 +52,8 @@ public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient impl
         params.addArgument("numberOfKeys", "${numberOfKeys}");
         params.addArgument("numberOfClientThreads", "${numberOfClientThreads}");
 
+        params.addArgument("clientPoolSize", "${clientPoolSize}");
+
         return params;
     }
 
@@ -64,6 +67,7 @@ public abstract class BaseROJMeterRequest extends AbstractJavaSamplerClient impl
         randomDelayInMillis = context.getIntParameter("randomDelayInMillis", 0);
         numberOfKeys = context.getIntParameter("numberOfKeys");
         numberOfClientThreads = context.getIntParameter("numberOfClientThreads", 0);
+        clientPoolSize = context.getIntParameter("clientPoolSize", 0);
 
         String replicas = context.getParameter("replicas");
         String paxosProcesses = context.getParameter("paxosProcesses");

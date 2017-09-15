@@ -30,6 +30,7 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
     boolean aborted;
     long attempts;
     long totalMultiValueReadSize;
+    int clientPoolSize;
 
     void resetStatisticsValues() {
         numberOfMultiValueReads = 0;
@@ -54,6 +55,8 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
         params.addArgument("numberOfKeys", "${numberOfKeys}");
         params.addArgument("numberOfClientThreads", "${numberOfClientThreads}");
 
+        params.addArgument("clientPoolSize", "${clientPoolSize}");
+
         return params;
     }
 
@@ -68,6 +71,7 @@ public abstract class BaseRWJMeterRequest extends AbstractJavaSamplerClient impl
         randomDelayInMillis = context.getIntParameter("randomDelayInMillis", 0);
         numberOfKeys = context.getIntParameter("numberOfKeys");
         numberOfClientThreads = context.getIntParameter("numberOfClientThreads",0);
+        clientPoolSize = context.getIntParameter("clientPoolSize", 0);
 
         System.err.println("numberOfClientThreads: " + numberOfClientThreads);
 
