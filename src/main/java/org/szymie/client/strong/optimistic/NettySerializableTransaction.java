@@ -27,6 +27,10 @@ public class NettySerializableTransaction implements Transaction, PaxosProcesses
     private String paxosProcesses;
     private int clientPoolSize;
 
+    public NettySerializableTransaction() {
+        this(32);
+    }
+
     public NettySerializableTransaction(int clientPoolSize) {
         this(new Configuration(), clientPoolSize);
     }
