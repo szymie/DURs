@@ -57,22 +57,22 @@ public class StateUpdateReceiver extends ReceiverAdapter {
         StateUpdate stateUpdate = message.getObject();
         //delivered.add(stateUpdate.getTimestamp());
 
-        //System.err.println("message:" + message.getObject() + " timestamp: " + stateUpdate.getTimestamp());
+        ////System.err.println("message:" + message.getObject() + " timestamp: " + stateUpdate.getTimestamp());
 
         tryToDeliver(message.getObject());
 
-        /*System.err.println(delivered.stream().sorted()
+        /*//System.err.println(delivered.stream().sorted()
                 .map(String::valueOf)
                 .collect(Collectors.joining(", ")));*/
     }
 
     private void tryToDeliver(StateUpdate stateUpdate) {
 
-        System.err.println("Check [" + stateUpdate.getTimestamp() + "] lastApplied(" + lastApplied + ") and applyAfter(" + stateUpdate.getApplyAfter() + ")");
+        //System.err.println("Check [" + stateUpdate.getTimestamp() + "] lastApplied(" + lastApplied + ") and applyAfter(" + stateUpdate.getApplyAfter() + ")");
 
         if(lastApplied + 1 == stateUpdate.getTimestamp()) {
 
-            System.err.println("delivery");
+            //System.err.println("delivery");
             deliver(stateUpdate);
             lastApplied = Math.max(lastApplied, stateUpdate.getTimestamp());
 
@@ -91,12 +91,12 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
             waitingUpdates.removeAll(waitingUpdatesToRemove);
         } else {
-            System.err.println("waitingUpdate: " + stateUpdate.getTimestamp());
+            //System.err.println("waitingUpdate: " + stateUpdate.getTimestamp());
             waitingUpdates.add(stateUpdate);
-            waitingUpdates.forEach(su -> System.err.println("waitingUpdate tm: " + su.getTimestamp()));
+            //waitingUpdates.forEach(su -> System.err.println("waitingUpdate tm: " + su.getTimestamp()));
         }
 
-        System.err.println("tryToDeliver");
+        //System.err.println("tryToDeliver");
     }
 
     private void deliver(StateUpdate stateUpdate) {
@@ -106,16 +106,16 @@ public class StateUpdateReceiver extends ReceiverAdapter {
         activeTransactionFlags.get(transactionTimestamp);
         TransactionMetadata transaction = activeTransactions.get(transactionTimestamp);
 
-        System.err.println("1");
+        //System.err.println("1");
 
         transaction.acquireForWrite();
 
-        System.err.println("1.1");
+        //System.err.println("1.1");
 
         commitTransaction(stateUpdate);
         notifyAboutTransactionCommit(transactionTimestamp);
 
-        System.err.println("1.2");
+        //System.err.println("1.2");
 
         Set<TransactionMetadata> awaitingForMe = transaction.getAwaitingForMe();
 
@@ -149,30 +149,30 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
                         context.writeAndFlush(message);
 
-                        System.err.println(transactionTimestamp + " answered that " + waitingTransaction.getTimestamp() + " can start");
+                        //System.err.println(transactionTimestamp + " answered that " + waitingTransaction.getTimestamp() + " can start");
                     }
                 }
 
             }
 
-            System.err.println(transactionTimestamp + ": " + waitingTransaction.getTimestamp() + " is waiting for me");
+            //System.err.println(transactionTimestamp + ": " + waitingTransaction.getTimestamp() + " is waiting for me");
         }
 
-        System.err.println("2");
+        //System.err.println("2");
 
         transaction.finish();
         transaction.releaseWriteLock();
 
-        System.err.println("3");
+        //System.err.println("3");
 
         activeTransactionFlags.remove(transactionTimestamp);
         activeTransactions.remove(transactionTimestamp);
 
-        System.err.println("4");
+        //System.err.println("4");
 
-        System.err.println("activeTransactions in update: " + activeTransactions.size());
+        //System.err.println("activeTransactions in update: " + activeTransactions.size());
         activeTransactions.forEach((aLong, transactionMetadata) -> {
-            System.err.println("activeTransactions in update: " + aLong + " can start " + transactionMetadata.getAwaitingToStart().isEmpty());
+            //System.err.println("activeTransactions in update: " + aLong + " can start " + transactionMetadata.getAwaitingToStart().isEmpty());
         });
     }
 
@@ -215,7 +215,7 @@ public class StateUpdateReceiver extends ReceiverAdapter {
             context.writeAndFlush(message);
             contexts.remove(transactionTimestamp);
 
-            System.err.println("Notified about commit of " + transactionTimestamp);
+            //System.err.println("Notified about commit of " + transactionTimestamp);
         }
     }
 
