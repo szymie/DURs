@@ -76,6 +76,9 @@ public class StateUpdateReceiver extends ReceiverAdapter {
             deliver(stateUpdate);
             lastApplied = Math.max(lastApplied, stateUpdate.getTimestamp());
 
+            System.err.println("lastApplied: " + lastApplied);
+            System.err.println("activeTransactions: " + activeTransactions.size());
+
             Set<StateUpdate> waitingUpdatesToRemove = new HashSet<>();
 
             for(StateUpdate waitingUpdate : waitingUpdates) {
