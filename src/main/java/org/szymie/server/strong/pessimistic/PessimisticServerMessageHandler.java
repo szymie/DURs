@@ -12,6 +12,7 @@ import org.szymie.messages.BeginTransactionResponse;
 import org.szymie.messages.Messages;
 import org.szymie.messages.StateUpdate;
 import org.szymie.server.strong.BaseServerMessageHandler;
+import org.szymie.server.strong.JPaxosClientPool;
 import org.szymie.server.strong.optimistic.ResourceRepository;
 import org.szymie.server.strong.optimistic.ValueWithTimestamp;
 
@@ -42,7 +43,7 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
                                            BlockingMap<Long, Boolean> activeTransactionFlags,
                                            TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
                                            GroupMessenger groupMessenger,
-                                           AtomicLong lastCommitted) {
+                                           AtomicLong lastCommitted, int clientPoolSize) {
 
         super(resourceRepository, lastCommitted, liveTransactions, liveTransactionsLock);
 
@@ -53,7 +54,9 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
         this.liveTransactions = liveTransactions;
         this.liveTransactionsLock = liveTransactionsLock;
 
-        List<PID> processes = createPaxosProcesses(paxosProcesses);
+        client = JPaxosClientPool.get(id, paxosProcesses, clientPoolSize);
+
+        /*List<PID> processes = createPaxosProcesses(paxosProcesses);
 
         try {
 
@@ -67,7 +70,7 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
             client.connect();
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }*/
 
         this.activeTransactionFlags = activeTransactionFlags;
 

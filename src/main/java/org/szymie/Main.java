@@ -283,6 +283,9 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
             return new AtomicLong(0);
         }
 
+        @Value("${clientPoolSize}")
+        protected int clientPoolSize;
+
         @Bean
         public GroupMessenger groupMessenger(String groupName, StateUpdateReceiver receiver) {
             return new GroupMessenger(groupName, receiver);
@@ -301,7 +304,7 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
                 TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
                 GroupMessenger groupMessenger,
                 @Qualifier("lastCommitted") AtomicLong lastCommitted) {
-            return new PessimisticServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock, groupMessenger, lastCommitted);
+            return new PessimisticServerChannelInboundHandlerFactory(id, paxosProcesses, resourceRepository, timestamp, contexts, activeTransactions, activeTransactionFlags, liveTransactions, liveTransactionsLock, groupMessenger, lastCommitted, clientPoolSize);
         }
 
         @Bean

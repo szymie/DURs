@@ -40,7 +40,6 @@ public class CausalServerMessageHandler extends SimpleChannelInboundHandler<Mess
 
     private boolean connected;
 
-
     public CausalServerMessageHandler(int id, String paxosProcesses, CausalResourceRepository resourceRepository, AtomicLong timestamp, TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock, VectorClock vectorClock, BlockingMap<Long, Long> responses, int clientPoolSize) {
 
         this.id = id;
