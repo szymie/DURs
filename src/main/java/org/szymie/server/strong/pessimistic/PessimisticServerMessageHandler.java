@@ -113,11 +113,11 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
 
             boolean startPossible = activeTransactionFlags.get(response.getTimestamp());
 
-            //System.err.println("for " + response.getTimestamp() + " context should have been set at " + id);
+            System.err.println("for " + response.getTimestamp() + " context should have been set at " + id);
 
             BlockingQueue<ChannelHandlerContext> contextHolder = contexts.get(response.getTimestamp());
 
-            //System.err.println("for " + response.getTimestamp() + " context holder get at " + id);
+            System.err.println("for " + response.getTimestamp() + " context holder get at " + id);
 
             try {
                 contextHolder.put(context);
@@ -125,9 +125,9 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
                 throw new RuntimeException(e);
             }
 
-            //System.err.println("for " + response.getTimestamp() + " context holder filled at " + id);
+            System.err.println("for " + response.getTimestamp() + " context holder filled at " + id);
 
-            //System.err.println("for " + response.getTimestamp() + " start possible " + startPossible);
+            System.err.println("for " + response.getTimestamp() + " start possible " + startPossible);
 
             if(startPossible) {
 
@@ -140,11 +140,11 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
                         .setBeginTransactionResponse(beginTransactionResponse)
                         .build();
 
-                //System.err.println("want to tell that " + response.getTimestamp() + " can start");
+                System.err.println("want to tell that " + response.getTimestamp() + " can start");
                 context.writeAndFlush(message);
-                //System.err.println("told that " + response.getTimestamp() + " can start");
+                System.err.println("told that " + response.getTimestamp() + " can start");
             } else {
-                //System.err.println("for " + response.getTimestamp() + " didn't start");
+                System.err.println("for " + response.getTimestamp() + " didn't start");
             }
         } catch (IOException | ClassNotFoundException | ReplicationException e) {
             e.printStackTrace();
@@ -157,12 +157,12 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
         if(request.getWritesMap().isEmpty()) {
             commitReadOnlyTransaction(context, request);
         } else {
-            //activeTransactionFlags.get(request.getTimestamp());
-            //System.err.println("getting transaction from active " + request.getTimestamp());
+            activeTransactionFlags.get(request.getTimestamp());
+            System.err.println("getting transaction from active " + request.getTimestamp());
             TransactionMetadata transaction = activeTransactions.get(request.getTimestamp());
-            //System.err.println("got transaction from active " + request.getTimestamp());
+            System.err.println("got transaction from active " + request.getTimestamp());
             groupMessenger.send(new StateUpdate(request.getTimestamp(), transaction.getApplyAfter(), new HashMap<>(request.getWritesMap())));
-            //System.err.println("Sent state update for " + request.getTimestamp());
+            System.err.println("Sent state update for " + request.getTimestamp());
         }
     }
 
