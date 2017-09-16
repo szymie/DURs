@@ -25,14 +25,32 @@ public class TransactionService extends SerializableService {
     private BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts;
     private BlockingMap<Long, Boolean> activeTransactionFlags;
 
+    private long lastApplied;
+    private Set<StateUpdate> waitingUpdates;
+
+    private ResourceRepository resourceRepository;
+    private AtomicLong lastCommitted;
+
+    private TreeMultiset<Long> liveTransactions;
+    private Lock liveTransactionsLock;
+
     public TransactionService(int id, AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions,
                               BlockingMap<Long, Boolean> activeTransactionFlags,
-                              BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts) {
+                              BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts, ResourceRepository resourceRepository, AtomicLong lastCommitted,
+                              TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
         this.id = id;
         this.timestamp = timestamp;
         this.activeTransactions = activeTransactions;
         this.activeTransactionFlags = activeTransactionFlags;
         this.contexts = contexts;
+
+        this.resourceRepository = resourceRepository;
+        this.lastCommitted = lastCommitted;
+        this.liveTransactions = liveTransactions;
+        this.liveTransactionsLock = liveTransactionsLock;
+
+        lastApplied = 0;
+        waitingUpdates = new TreeSet<>();
     }
 
     @Override
@@ -45,10 +63,13 @@ public class TransactionService extends SerializableService {
         switch (message.getOneofMessagesCase()) {
             case BEGINTRANSACTIONREQUEST:
                  return handleBeginTransaction(message.getBeginTransactionRequest());
+            case STATEUPDATEREQUEST:
+                return handleStateUpdateRequest(message.getStateUpdateRequest());
             default:
                 return new Object();
         }
     }
+
 
     private Messages.BeginTransactionResponse handleBeginTransaction(Messages.BeginTransactionRequest beginTransactionRequest) {
 
@@ -70,19 +91,12 @@ public class TransactionService extends SerializableService {
         for(Map.Entry<Long, TransactionMetadata> entry : activeTransactions.entrySet()) {
 
             TransactionMetadata transaction = entry.getValue();
-            transaction.acquireReadLock();
 
             if(isAwaitingToStartNeeded(transaction)) {
                 newTransaction.getAwaitingToStart().add(entry.getKey());
                 transaction.getAwaitingForMe().add(newTransaction);
                 startPossible = false;
             }
-
-            if(isApplyingAfterNeeded(transaction)) {
-                newTransaction.setApplyAfter(entry.getKey());
-            }
-
-            transaction.releaseReadLock();
         }
 
         activeTransactions.put(newTransactionTimestamp, newTransaction);
@@ -98,15 +112,130 @@ public class TransactionService extends SerializableService {
     }
 
     private boolean isAwaitingToStartNeeded(TransactionMetadata transaction) {
-        return !transaction.isFinished() && !Collections.disjoint(request.getReadsMap().keySet(), transaction.getWrites());
+        return !Collections.disjoint(request.getReadsMap().keySet(), transaction.getWrites());
     }
 
-    private boolean isApplyingAfterNeeded(TransactionMetadata transaction) {
+    private Messages.StateUpdateResponse handleStateUpdateRequest(Messages.StateUpdateRequest stateUpdateRequest) {
+        tryToDeliver(stateUpdateRequest);
+        return Messages.StateUpdateResponse.newBuilder().build();
+    }
 
-        Set<String> readsAndWrites = new HashSet<>(transaction.getReads());
-        readsAndWrites.addAll(transaction.getWrites());
+    private void tryToDeliver(Messages.StateUpdateRequest stateUpdateRequest) {
 
-        return !transaction.isFinished() && !Collections.disjoint(request.getWritesMap().keySet(), readsAndWrites);
+        if(lastApplied + 1 == stateUpdateRequest.getTimestamp()) {
+
+            deliver(createStateUpdateFromRequest(stateUpdateRequest));
+            lastApplied = Math.max(lastApplied, stateUpdateRequest.getTimestamp());
+
+            Set<StateUpdate> waitingUpdatesToRemove = new HashSet<>();
+
+            for(StateUpdate waitingUpdate : waitingUpdates) {
+
+                if(lastApplied + 1 == waitingUpdate.getTimestamp()) {
+                    deliver(waitingUpdate);
+                    lastApplied = Math.max(lastApplied, waitingUpdate.getTimestamp());
+                    waitingUpdatesToRemove.add(waitingUpdate);
+                } else {
+                    break;
+                }
+            }
+
+            waitingUpdates.removeAll(waitingUpdatesToRemove);
+        } else {
+            waitingUpdates.add(createStateUpdateFromRequest(stateUpdateRequest));
+        }
+    }
+
+    private StateUpdate createStateUpdateFromRequest(Messages.StateUpdateRequest request) {
+        return new StateUpdate(request.getTimestamp(),
+                request.getApplyAfter(), new HashMap<>(request.getWritesMap()));
+    }
+
+    private void deliver(StateUpdate stateUpdate) {
+
+        long transactionTimestamp = stateUpdate.getTimestamp();
+
+        TransactionMetadata transaction = activeTransactions.get(transactionTimestamp);
+
+        commitTransaction(stateUpdate);
+        notifyAboutTransactionCommit(transactionTimestamp);
+
+        Set<TransactionMetadata> awaitingForMe = transaction.getAwaitingForMe();
+
+        for(TransactionMetadata waitingTransaction : awaitingForMe) {
+
+            waitingTransaction.getAwaitingToStart().remove(transactionTimestamp);
+
+            if(waitingTransaction.getAwaitingToStart().isEmpty()) {
+
+                BlockingQueue<ChannelHandlerContext> contextHolder = contexts.getOrNull(waitingTransaction.getTimestamp());
+
+                if(contextHolder != null) {
+
+                    ChannelHandlerContext context;
+
+                    try {
+                        context = contextHolder.take();
+                        contextHolder.put(context);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    Messages.BeginTransactionResponse response = Messages.BeginTransactionResponse.newBuilder()
+                            .setTimestamp(waitingTransaction.getTimestamp())
+                            .setStartPossible(true)
+                            .build();
+
+                    Messages.Message message = Messages.Message.newBuilder().setBeginTransactionResponse(response).build();
+
+                    context.writeAndFlush(message);
+                }
+            }
+        }
+
+        activeTransactionFlags.remove(transactionTimestamp);
+        activeTransactions.remove(transactionTimestamp);
+    }
+
+    private void commitTransaction(StateUpdate stateUpdate) {
+
+        long time = stateUpdate.getTimestamp();
+
+        stateUpdate.getWrites().forEach((key, value) -> {
+
+            if(value.isEmpty()) {
+                resourceRepository.remove(key, time);
+            } else {
+                resourceRepository.put(key, value, time);
+            }
+        });
+
+        lastCommitted.getAndAccumulate(time, Math::max);
+
+        liveTransactionsLock.lock();
+
+        Multiset.Entry<Long> oldestTransaction = liveTransactions.firstEntry();
+
+        if(oldestTransaction != null) {
+            Long oldestTransactionTimestamp = oldestTransaction.getElement();
+            resourceRepository.removeOutdatedVersions(oldestTransactionTimestamp);
+        }
+
+        liveTransactions.remove(stateUpdate.getTimestamp());
+        liveTransactionsLock.unlock();
+    }
+
+    private void notifyAboutTransactionCommit(long transactionTimestamp) {
+
+        BlockingQueue<ChannelHandlerContext> contextHolder = contexts.getOrNull(transactionTimestamp);
+
+        if(contextHolder != null) {
+            ChannelHandlerContext context = contextHolder.peek();
+            Messages.CommitResponse response = Messages.CommitResponse.newBuilder().build();
+            Messages.Message message = Messages.Message.newBuilder().setCommitResponse(response).build();
+            context.writeAndFlush(message);
+            contexts.remove(transactionTimestamp);
+        }
     }
 
     @Override

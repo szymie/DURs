@@ -159,9 +159,27 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
         } else {
             activeTransactionFlags.get(request.getTimestamp());
             //System.err.println("getting transaction from active " + request.getTimestamp());
-            TransactionMetadata transaction = activeTransactions.get(request.getTimestamp());
+            //TransactionMetadata transaction = activeTransactions.get(request.getTimestamp());
             //System.err.println("got transaction from active " + request.getTimestamp());
-            groupMessenger.send(new StateUpdate(request.getTimestamp(), transaction.getApplyAfter(), new HashMap<>(request.getWritesMap())));
+
+            Messages.StateUpdateRequest stateUpdateRequest = Messages.StateUpdateRequest.newBuilder()
+                    .setTimestamp(request.getTimestamp())
+                    .putAllWrites(request.getWritesMap())
+                    .build();
+
+            Messages.Message message = Messages.Message
+                    .newBuilder()
+                    .setStateUpdateRequest(stateUpdateRequest)
+                    .build();
+
+            try {
+                client.execute(message);
+            } catch (IOException | ClassNotFoundException | ReplicationException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+
+            //groupMessenger.send(new StateUpdate(request.getTimestamp(), transaction.getApplyAfter(), new HashMap<>(request.getWritesMap())));
             //System.err.println("Sent state update for " + request.getTimestamp());
         }
     }

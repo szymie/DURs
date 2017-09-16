@@ -309,8 +309,9 @@ public class Main implements CommandLineRunner, PaxosProcessesCreator {
 
         @Bean
         public TransactionService transactionService(@Qualifier("timestamp") AtomicLong timestamp, Map<Long, TransactionMetadata> activeTransactions, BlockingMap<Long,
-                BlockingQueue<ChannelHandlerContext>> contexts, BlockingMap<Long, Boolean> activeTransactionFlags) {
-            return new TransactionService(id, timestamp, activeTransactions, activeTransactionFlags, contexts);
+                BlockingQueue<ChannelHandlerContext>> contexts, BlockingMap<Long, Boolean> activeTransactionFlags, ResourceRepository resourceRepository, @Qualifier("lastCommitted") AtomicLong lastCommitted,
+                                                     TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock) {
+            return new TransactionService(id, timestamp, activeTransactions, activeTransactionFlags, contexts, resourceRepository, lastCommitted, liveTransactions, liveTransactionsLock);
         }
     }
 
