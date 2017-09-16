@@ -70,7 +70,7 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
         System.err.println("Check [" + stateUpdate.getTimestamp() + "] lastApplied(" + lastApplied + ") and applyAfter(" + stateUpdate.getApplyAfter() + ")");
 
-        if(lastApplied >= stateUpdate.getApplyAfter()) {
+        if(lastApplied + 1 == stateUpdate.getTimestamp()) {
 
             System.err.println("delivery");
             deliver(stateUpdate);
@@ -80,7 +80,7 @@ public class StateUpdateReceiver extends ReceiverAdapter {
 
             for(StateUpdate waitingUpdate : waitingUpdates) {
 
-                if(lastApplied >= waitingUpdate.getApplyAfter()) {
+                if(lastApplied + 1 == waitingUpdate.getTimestamp()) {
                     deliver(waitingUpdate);
                     lastApplied = Math.max(lastApplied, waitingUpdate.getTimestamp());
                     waitingUpdatesToRemove.add(waitingUpdate);
