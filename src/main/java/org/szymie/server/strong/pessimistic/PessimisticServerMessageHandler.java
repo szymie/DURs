@@ -35,14 +35,14 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
     private Map<Long, TransactionMetadata> activeTransactions;
     private BlockingMap<Long, Boolean> activeTransactionFlags;
 
-    private GroupMessenger groupMessenger;
+    //private GroupMessenger groupMessenger;
 
     public PessimisticServerMessageHandler(int id, String paxosProcesses, ResourceRepository resourceRepository,
                                            BlockingMap<Long, BlockingQueue<ChannelHandlerContext>> contexts,
                                            Map<Long, TransactionMetadata> activeTransactions,
                                            BlockingMap<Long, Boolean> activeTransactionFlags,
                                            TreeMultiset<Long> liveTransactions, Lock liveTransactionsLock,
-                                           GroupMessenger groupMessenger,
+                                           /*GroupMessenger groupMessenger,*/
                                            AtomicLong lastCommitted, int clientPoolSize) {
 
         super(resourceRepository, lastCommitted, liveTransactions, liveTransactionsLock);
@@ -74,7 +74,7 @@ public class PessimisticServerMessageHandler extends BaseServerMessageHandler im
 
         this.activeTransactionFlags = activeTransactionFlags;
 
-        this.groupMessenger = groupMessenger;
+        //this.groupMessenger = groupMessenger;
     }
 
     @Override
